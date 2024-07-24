@@ -1,0 +1,100 @@
+type: google.api.Service
+config_version: 3
+
+http:
+  rules:
+    - selector: erc20.ERC20.Deploy
+      post: /api/erc20/deploy
+      body: "*"
+    - selector: erc20.ERC20.TotalSupply
+      get: /api/erc20/totalSupply
+      param: "contract"
+    - selector: erc20.ERC20.BalanceOf
+      get: /api/erc20/balanceOf
+      param: "contract&account"
+    - selector: erc20.ERC20.Allowance
+      get: /api/erc20/allowance
+      param: "contract&owner&spender"
+    - selector: erc20.ERC20.Approve
+      post: /api/erc20/approve
+      body: "*"
+    - selector: erc20.ERC20.Transfer
+      post: /api/erc20/transfer
+      body: "*"
+    - selector: erc20.ERC20.TransferFrom
+      post: /api/erc20/transferFrom
+      body: "*"
+
+    - selector: erc721.ERC721.Deploy
+      post: /api/erc721/deploy
+      body: "*"
+    - selector: erc721.ERC721.BalanceOf
+      get: /api/erc721/balanceOf
+      param: "contract&owner"
+    - selector: erc721.ERC721.OwnerOf
+      get: /api/erc721/ownerOf
+      param: "contract&tokenId"
+    - selector: erc721.ERC721.SafeTransferFrom
+      post: /api/erc721/safeTransferFrom
+      body: "*"
+    - selector: erc721.ERC721.TransferFrom
+      post: /api/erc721/transferFrom
+      body: "*"
+    - selector: erc721.ERC721.Approve
+      post: /api/erc721/approve
+      body: "*"
+    - selector: erc721.ERC721.GetApproved
+      get: /api/erc721/getApproved
+      param: "contract&tokenId"
+    - selector: erc721.ERC721.SetApprovalForAll
+      post: /api/erc721/setApprovalForAll
+      body: "*"
+    - selector: erc721.ERC721.IsApprovedForAll
+      get: /api/erc721/isApprovedForAll
+      param: "contract&owner&operator"
+
+    - selector: erc404.ERC404.Deploy
+      post: /api/erc404/deploy
+      body: "*"
+    - selector: erc404.ERC404.TotalSupply
+      get: /api/erc404/totalSupply
+      param: "contract"
+    - selector: erc404.ERC404.BalanceOf
+      get: /api/erc404/balanceOf
+      param: "contract&account"
+    - selector: erc404.ERC404.Allowance
+      get: /api/erc404/allowance
+      param: "contract&owner&spender"
+    - selector: erc404.ERC404.Approve
+      post: /api/erc404/approve
+      body: "*"
+    - selector: erc404.ERC404.Transfer
+      post: /api/erc404/transfer
+      body: "*"
+    - selector: erc404.ERC404.TransferFrom
+      post: /api/erc404/transferFrom
+      body: "*"
+    - selector: erc404.ERC404.BalanceOfBatch
+      get: /api/erc404/balanceOfBatch
+      param: "contract&owner&tokenIds[]"
+    - selector: erc404.ERC404.SetApprovalForAll
+      post: /api/erc404/setApprovalForAll
+      body: "*"
+    - selector: erc404.ERC404.IsApprovedForAll
+      get: /api/erc404/isApprovedForAll
+      param: "contract&owner&operator"
+    - selector: erc404.ERC404.SafeTransferFrom
+      post: /api/erc404/safeTransferFrom
+      body: "*"
+    - selector: erc404.ERC404.SafeBatchTransferFrom
+      post: /api/erc404/safeBatchTransferFrom
+      body: "*"
+    - selector: erc404.ERC404.ERC1155BalanceOf
+      get: /api/erc404/erc1155BalanceOf
+      param: "contract&account&tokenId"
+    - selector: erc404.ERC404.ERC20BalanceOf
+      get: /api/erc404/erc20BalanceOf
+      param: "contract&account"
+    - selector: erc404.ERC404.ERC1155TransferExempt
+      get: /api/erc404/erc1155TransferExempt
+      param: "target"

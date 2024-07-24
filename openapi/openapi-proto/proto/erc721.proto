@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package erc721;
+
+option go_package = "example.com/project/protos/fizz";
+
+// Define messages for the requests and responses for ERC721
+message DeployRequest {
+  string name = 1;
+  string symbol = 2;
+  string owner = 3;
+}
+
+message DeployResponse {
+  string contract = 1;
+}
+
+message BalanceOfRequest {
+  string contract = 1;
+  string owner = 2;
+}
+
+message BalanceOfResponse {
+  string amount = 1;
+}
+
+message OwnerOfRequest {
+  string contract = 1;
+  int32 tokenId = 2;
+}
+
+message OwnerOfResponse {
+  string owner = 1;
+}
+
+message SafeTransferFromRequest {
+  string contract = 1;
+  string from = 2;
+  string to = 3;
+  string tokenId = 4;
+}
+
+message SafeTransferFromResponse {
+  string txhash = 1;
+}
+
+message TransferFromRequest {
+  string contract = 1;
+  string from = 2;
+  string to = 3;
+  string tokenId = 4;
+}
+
+message TransferFromResponse {
+  string txhash = 1;
+}
+
+message ApproveRequest {
+  string contract = 1;
+  string to = 2;
+  string tokenId = 3;
+}
+
+message ApproveResponse {
+  string txhash = 1;
+}
+
+message GetApprovedRequest {
+  string contract = 1;
+  int32 tokenId = 2;
+}
+
+message GetApprovedResponse {
+  string operator = 1;
+}
+
+message SetApprovalForAllRequest {
+  string contract = 1;
+  string operator = 2;
+  bool approved = 3;
+}
+
+message SetApprovalForAllResponse {
+  string txhash = 1;
+}
+
+message IsApprovedForAllRequest {
+  string contract = 1;
+  string owner = 2;
+  string operator = 3;
+}
+
+message IsApprovedForAllResponse {
+  bool result = 1;
+}
+
+// Define the service for 
+service ERC721 {
+  rpc Deploy (DeployRequest) returns (DeployResponse);
+  rpc BalanceOf (BalanceOfRequest) returns (BalanceOfResponse);
+  rpc OwnerOf (OwnerOfRequest) returns (OwnerOfResponse);
+  rpc SafeTransferFrom (SafeTransferFromRequest) returns (SafeTransferFromResponse);
+  rpc TransferFrom (TransferFromRequest) returns (TransferFromResponse);
+  rpc Approve (ApproveRequest) returns (ApproveResponse);
+  rpc GetApproved (GetApprovedRequest) returns (GetApprovedResponse);
+  rpc SetApprovalForAll (SetApprovalForAllRequest) returns (SetApprovalForAllResponse);
+  rpc IsApprovedForAll (IsApprovedForAllRequest) returns (IsApprovedForAllResponse);
+}
