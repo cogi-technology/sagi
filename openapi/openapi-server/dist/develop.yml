@@ -1,0 +1,11 @@
+grpc-listen: 0.0.0.0:50051        
+openapi-listen: 0.0.0.0:50052        
+rpc-client:
+  ethereum-rpc: https://devnet-rpc.zionx.network
+  chain-id: 176923
+  deployer-keystore: openapi-server/dist/deployer-develop.keystore
+tls:
+  cert: openapi-server/dist/tls/server.pem
+  key: openapi-server/dist/tls/server.key
+auth-secret: my-secret
+doc-path: docs/openapi

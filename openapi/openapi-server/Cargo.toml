@@ -5,3 +5,27 @@ edition = "2021"
 
 [dependencies]
 openapi-proto.workspace = true
+openapi-ethers.workspace = true
+openapi-logger.workspace = true
+
+tonic.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_yaml.workspace = true
+ethers.workspace = true
+ethers-contract.workspace = true
+ethers-providers.workspace = true
+ethers-core.workspace = true
+anyhow.workspace = true
+serde_json.workspace = true
+once_cell.workspace = true
+futures.workspace = true
+chrono.workspace = true
+parking_lot.workspace = true
+actix-cors.workspace = true
+actix-web.workspace = true
+actix-web-httpauth.workspace = true
+actix-files.workspace = true
+blockscout-service-launcher.workspace = true
+clap.workspace = true
+dotenv.workspace = true
