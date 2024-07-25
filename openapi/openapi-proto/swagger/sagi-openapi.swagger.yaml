@@ -19,7 +19,7 @@ paths:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/authtelegramGetDataRequestForZIONResponse'
+            $ref: '#/definitions/authtelegramGetDataRequestForZionResponse'
         default:
           description: An unexpected error response.
           schema:
@@ -769,7 +769,7 @@ paths:
       tags:
         - ERC721
 definitions:
-  authtelegramGetDataRequestForZIONResponse:
+  authtelegramGetDataRequestForZionResponse:
     type: object
     properties:
       salt:

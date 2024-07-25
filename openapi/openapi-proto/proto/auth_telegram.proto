@@ -34,11 +34,11 @@ message LogOutTelegramResponse {
   string phoneHash = 2;
 }
 
-message GetDataRequestForZIONRequest {
+message GetDataRequestForZionRequest {
 }
 
 
-message GetDataRequestForZIONResponse {
+message GetDataRequestForZionResponse {
   string salt = 1;
   ProofPoints proof = 2;
   string ephemeralKeyPair = 3;
@@ -62,5 +62,5 @@ service AuthTelegram {
   rpc SendCodeTelegram (SendCodeTelegramRequest) returns (SendCodeTelegramResponse);
   rpc SignInTelegram (SignInTelegramRequest) returns (SignInTelegramResponse);
   rpc LogOutTelegram (LogOutTelegramRequest) returns (LogOutTelegramResponse);
-  rpc GetDataRequestForZION (GetDataRequestForZIONRequest) returns (GetDataRequestForZIONResponse);
+  rpc GetDataRequestForZION (GetDataRequestForZionRequest) returns (GetDataRequestForZionResponse);
 }

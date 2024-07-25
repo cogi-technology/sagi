@@ -1,11 +1,20 @@
 pub mod erc20_service {
-    tonic::include_proto!("erc20");
+    include!("./generated/erc20.rs");
+    // tonic::include_proto!("erc20");
 }
 
 pub mod erc721_service {
-    tonic::include_proto!("erc721");
+    include!("./generated/erc721.rs");
+    // tonic::include_proto!("erc721");
 }
 
 pub mod erc404_service {
-    tonic::include_proto!("erc404");
+    include!("./generated/erc404.rs");
+    // tonic::include_proto!("erc404");
 }
+
+pub mod authtelegram_service {
+    include!("./generated/authtelegram.rs");
+    // tonic::include_proto!("authtelegram");
+}
+
