@@ -29,3 +29,4 @@ actix-files.workspace = true
 blockscout-service-launcher.workspace = true
 clap.workspace = true
 dotenv.workspace = true
+hex.workspace = true

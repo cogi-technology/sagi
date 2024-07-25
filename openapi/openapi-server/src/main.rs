@@ -1,6 +1,7 @@
 mod config;
 mod server;
 mod services;
+mod helpers;
 
 use {
     anyhow::{anyhow, Result},
@@ -25,11 +26,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .map_err(|x| anyhow!("Failed {} {}", args.cfg, x.to_string()))
         .unwrap();
 
-    // let a = dotenv::from_filename(".env").ok();
-    // println!("{:?}", a);
-    // let key_password = env::var("KEY_PASSWORD")?;
+    dotenv::dotenv().ok();
+    let key_password = env::var("KEY_PASSWORD")?;
 
-    let rpc_client = client::init_client(c.rpc_client, "test".into()).await?;
+    let rpc_client = client::init_client(c.rpc_client, key_password).await?;
     // let identity = c.tls.get_tls_identity();
 
     let server_config = ServerConfig {

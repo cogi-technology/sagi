@@ -9,7 +9,7 @@ message DeployRequest {
   string owner = 1;
   string name = 2;
   string symbol = 3;
-  string initialSupply = 4;
+  string initial_supply = 4;
 }
 
 message DeployResponse {

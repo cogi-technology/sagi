@@ -19,7 +19,8 @@ fn compile(
         .protoc_arg("--openapiv2_opt")
         .protoc_arg("grpc_api_configuration=proto/api_config_http.yaml,output_format=yaml,allow_merge=true,merge_file_name=sagi-openapi,json_names_for_fields=false")
         .bytes(["."])
-        .type_attribute(".", "#[actix_prost_macros::serde(rename_all=\"snake_case\")]");
+        .type_attribute(".", "#[actix_prost_macros::serde(rename_all=\"snake_case\")]")
+        .field_attribute(".erc20.DeployRequest.initial_supply", "#[serde(rename=\"initial_supply\")]");
 
     config.compile_protos(protos, includes)?;
     Ok(())

@@ -9,7 +9,7 @@ message DeployRequest {
   string owner = 1;
   string name = 2;
   string symbol = 3;
-  string initialSupply = 4;
+  string initial_supply = 4;
   string units = 5;
   repeated string ids = 6;
   string uri = 7;
@@ -80,7 +80,7 @@ message TransferFromResponse {
 message BalanceOfBatchRequest {
   string contract = 1;
   string owner = 2;
-  repeated string tokenIds = 3;
+  repeated string token_ids = 3;
 }
 
 message BalanceOfBatchResponse {
@@ -110,7 +110,7 @@ message IsApprovedForAllResponse {
 message SafeTransferFromRequest {
   string from = 1;
   string to = 2;
-  string tokenId = 3;
+  string token_id = 3;
   string value = 4;
   string data = 5;
 }
@@ -122,7 +122,7 @@ message SafeTransferFromResponse {
 message SafeBatchTransferFromRequest {
   string from = 1;
   string to = 2;
-  repeated string tokenIds = 3;
+  repeated string token_ids = 3;
   repeated string values = 4;
   string data = 5;
 }
@@ -134,7 +134,7 @@ message SafeBatchTransferFromResponse {
 message ERC1155BalanceOfRequest {
   string contract = 1;
   string account = 2;
-  string tokenId = 3;
+  string token_id = 3;
 }
 
 message ERC1155BalanceOfResponse {

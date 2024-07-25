@@ -26,7 +26,7 @@ message BalanceOfResponse {
 
 message OwnerOfRequest {
   string contract = 1;
-  int32 tokenId = 2;
+  int32 token_id = 2;
 }
 
 message OwnerOfResponse {
@@ -37,7 +37,7 @@ message SafeTransferFromRequest {
   string contract = 1;
   string from = 2;
   string to = 3;
-  string tokenId = 4;
+  string token_id = 4;
 }
 
 message SafeTransferFromResponse {
@@ -48,7 +48,7 @@ message TransferFromRequest {
   string contract = 1;
   string from = 2;
   string to = 3;
-  string tokenId = 4;
+  string token_id = 4;
 }
 
 message TransferFromResponse {
@@ -58,7 +58,7 @@ message TransferFromResponse {
 message ApproveRequest {
   string contract = 1;
   string to = 2;
-  string tokenId = 3;
+  string token_id = 3;
 }
 
 message ApproveResponse {
@@ -67,7 +67,7 @@ message ApproveResponse {
 
 message GetApprovedRequest {
   string contract = 1;
-  int32 tokenId = 2;
+  int32 token_id = 2;
 }
 
 message GetApprovedResponse {
