@@ -251,7 +251,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: tokenIds
+        - name: token_ids
           in: query
           required: false
           type: array
@@ -301,7 +301,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: tokenId
+        - name: token_id
           in: query
           required: false
           type: string
@@ -575,7 +575,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: tokenId
+        - name: token_id
           in: query
           required: false
           type: integer
@@ -626,7 +626,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: tokenId
+        - name: token_id
           in: query
           required: false
           type: integer
@@ -727,7 +727,7 @@ definitions:
         type: string
       symbol:
         type: string
-      initialSupply:
+      initial_supply:
         type: string
     title: Define messages for the requests and responses for ERC20
   erc20DeployResponse:
@@ -810,7 +810,7 @@ definitions:
         type: string
       symbol:
         type: string
-      initialSupply:
+      initial_supply:
         type: string
       units:
         type: string
@@ -853,7 +853,7 @@ definitions:
         type: string
       to:
         type: string
-      tokenIds:
+      token_ids:
         type: array
         items:
           type: string
@@ -875,7 +875,7 @@ definitions:
         type: string
       to:
         type: string
-      tokenId:
+      token_id:
         type: string
       value:
         type: string
@@ -942,7 +942,7 @@ definitions:
         type: string
       to:
         type: string
-      tokenId:
+      token_id:
         type: string
   erc721ApproveResponse:
     type: object
@@ -993,7 +993,7 @@ definitions:
         type: string
       to:
         type: string
-      tokenId:
+      token_id:
         type: string
   erc721SafeTransferFromResponse:
     type: object
@@ -1023,7 +1023,7 @@ definitions:
         type: string
       to:
         type: string
-      tokenId:
+      token_id:
         type: string
   erc721TransferFromResponse:
     type: object

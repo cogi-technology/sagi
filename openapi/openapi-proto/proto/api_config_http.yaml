@@ -33,7 +33,7 @@ http:
       param: "contract&owner"
     - selector: erc721.ERC721.OwnerOf
       get: /api/erc721/ownerOf
-      param: "contract&tokenId"
+      param: "contract&token_id"
     - selector: erc721.ERC721.SafeTransferFrom
       post: /api/erc721/safeTransferFrom
       body: "*"
@@ -45,7 +45,7 @@ http:
       body: "*"
     - selector: erc721.ERC721.GetApproved
       get: /api/erc721/getApproved
-      param: "contract&tokenId"
+      param: "contract&token_id"
     - selector: erc721.ERC721.SetApprovalForAll
       post: /api/erc721/setApprovalForAll
       body: "*"
@@ -76,7 +76,7 @@ http:
       body: "*"
     - selector: erc404.ERC404.BalanceOfBatch
       get: /api/erc404/balanceOfBatch
-      param: "contract&owner&tokenIds[]"
+      param: "contract&owner&token_ids[]"
     - selector: erc404.ERC404.SetApprovalForAll
       post: /api/erc404/setApprovalForAll
       body: "*"
@@ -91,7 +91,7 @@ http:
       body: "*"
     - selector: erc404.ERC404.ERC1155BalanceOf
       get: /api/erc404/erc1155BalanceOf
-      param: "contract&account&tokenId"
+      param: "contract&account&token_id"
     - selector: erc404.ERC404.ERC20BalanceOf
       get: /api/erc404/erc20BalanceOf
       param: "contract&account"

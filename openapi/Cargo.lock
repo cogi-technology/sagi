@@ -2823,6 +2823,7 @@ dependencies = [
  "ethers-core",
  "ethers-providers",
  "futures",
+ "hex",
  "once_cell",
  "openapi-ethers",
  "openapi-logger",

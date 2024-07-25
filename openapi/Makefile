@@ -25,7 +25,7 @@ build-openapi-image:
 	docker build . -t ghcr.io/cogi-technology/sagi-openapi:v0.1.0 -f ./ops/docker/openapi.Dockerfile
 
 run-openapi-dev:
-	RUST_BACKTRACE=full RUST_LOG=info,hyper=info,sagi=trace${RUST_LOG} ${CARGO} run --bin openapi-server
+	RUST_BACKTRACE=full RUST_LOG=info,hyper=info,openapi=trace${RUST_LOG} ${CARGO} run --bin openapi-server
 
 
 check-fmt:

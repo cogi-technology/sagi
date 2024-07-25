@@ -1,11 +1,16 @@
 use {
-    super::utils::{into_anyhow, Result},
-    ethers::{types::Address, utils::parse_ether},
-    ethers_contract::ContractFactory,
-    openapi_ethers::{
-        erc20::{self as erc20_etherman, ERC20 as ERC20Contract, ERC20_ABI},
-        client::Client as EthereumClient,
+    super::{
+        reverted_error::*,
+        utils::{into_anyhow, Result},
     },
+    anyhow::anyhow,
+    ethers::{types::Address, utils::parse_ether},
+    ethers_contract::{ContractError, ContractFactory},
+    openapi_ethers::{
+        client::Client as EthereumClient,
+        erc20::{self as erc20_etherman, ERC20 as ERC20Contract, ERC20_ABI},
+    },
+    openapi_logger::debug,
     openapi_proto::erc20_service::{erc20_server::Erc20, *},
     std::sync::Arc,
     tonic::{Request, Response},
@@ -25,6 +30,7 @@ impl Erc20Service {
 #[tonic::async_trait]
 impl Erc20 for Erc20Service {
     async fn deploy(&self, req: Request<DeployRequest>) -> Result<Response<DeployResponse>> {
+        debug!("{req:?}");
         let DeployRequest {
             owner,
             name,
@@ -36,6 +42,8 @@ impl Erc20 for Erc20Service {
             .map_err(|e| into_anyhow(e.into()))?;
         let initial_supply = parse_ether(initial_supply).map_err(|e| into_anyhow(e.into()))?;
 
+        debug!("owner: {owner:?}, initial_supply: {initial_supply:?}");
+
         let factory = ContractFactory::new(
             ERC20_ABI.clone(),
             erc20_etherman::erc20_bytecode().into(),
@@ -43,11 +51,14 @@ impl Erc20 for Erc20Service {
         );
 
         let contract = factory
-            .deploy((owner, name, symbol, initial_supply))
+            .deploy((name, symbol, initial_supply))
             .map_err(|e| into_anyhow(e.into()))?
+            .legacy()
             .send()
             .await
             .map_err(|e| into_anyhow(e.into()))?;
+
+        debug!("contract address: {}", contract.address().to_string());
 
         Ok(Response::new(DeployResponse {
             contract: contract.address().to_string(),
