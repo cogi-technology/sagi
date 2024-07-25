@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package authtelegram;
+
+option go_package = "example.com/project/protos/fizz";
+
+// Define messages for the requests and responses for AuthTelegram
+message SendCodeTelegramRequest {
+  string phoneNumber = 1;
+}
+
+message SendCodeTelegramResponse {
+  string phoneNumber = 1;
+  string phoneHash = 2;
+}
+
+message SignInTelegramRequest {
+  string phoneNumber = 1;
+  string phoneHash = 2;
+  string code = 3;
+}
+
+message SignInTelegramResponse {
+  string jwt = 1;
+}
+
+message LogOutTelegramRequest {
+  string phoneNumber = 1;
+  string phoneHash = 2;
+}
+
+message LogOutTelegramResponse {
+  string phoneNumber = 1;
+  string phoneHash = 2;
+}
+
+message GetDataRequestForZIONRequest {
+}
+
+
+message GetDataRequestForZIONResponse {
+  string salt = 1;
+  ProofPoints proof = 2;
+  string ephemeralKeyPair = 3;
+  repeated string beneficiaries = 4;
+}
+
+message ProofPoints {
+  string protocol = 1;
+  repeated string pi_a = 2;
+  repeated StringArray pi_b = 3;
+  repeated string pi_c = 4;
+}
+
+// Mảng một chiều của chuỗi
+message StringArray {
+  repeated string values = 1; 
+}
+
+// Define the service for 
+service AuthTelegram {
+  rpc SendCodeTelegram (SendCodeTelegramRequest) returns (SendCodeTelegramResponse);
+  rpc SignInTelegram (SignInTelegramRequest) returns (SignInTelegramResponse);
+  rpc LogOutTelegram (LogOutTelegramRequest) returns (LogOutTelegramResponse);
+  rpc GetDataRequestForZION (GetDataRequestForZIONRequest) returns (GetDataRequestForZIONResponse);
+}

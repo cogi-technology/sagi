@@ -14,7 +14,7 @@ fn compile(
     config
         .service_generator(generator)
         .compile_well_known_types()
-        .protoc_arg("--experimental_allow_proto3_optional")
+        // .protoc_arg("--experimental_allow_proto3_optional")
         .protoc_arg("--openapiv2_out=swagger")
         .protoc_arg("--openapiv2_opt")
         .protoc_arg("grpc_api_configuration=proto/api_config_http.yaml,output_format=yaml,allow_merge=true,merge_file_name=sagi-openapi,json_names_for_fields=false")
@@ -37,9 +37,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     ]));
     compile(
         &[
+            "proto/auth_telegram.proto",
             "proto/erc20.proto",
             "proto/erc404.proto",
-            "proto/erc721.proto",
+            "proto/erc721.proto"
+
         ],
         &["."],
         gens,

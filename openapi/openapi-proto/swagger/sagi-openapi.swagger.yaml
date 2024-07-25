@@ -1,8 +1,9 @@
 swagger: "2.0"
 info:
-  title: proto/erc20.proto
+  title: proto/auth_telegram.proto
   version: version not set
 tags:
+  - name: AuthTelegram
   - name: ERC20
   - name: ERC404
   - name: ERC721
@@ -11,6 +12,80 @@ consumes:
 produces:
   - application/json
 paths:
+  /api/authtelegram/getDataRequestForZION:
+    get:
+      operationId: AuthTelegram_GetDataRequestForZION
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/authtelegramGetDataRequestForZIONResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      tags:
+        - AuthTelegram
+  /api/authtelegram/logOutTelegram:
+    post:
+      operationId: AuthTelegram_LogOutTelegram
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/authtelegramLogOutTelegramResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/authtelegramLogOutTelegramRequest'
+      tags:
+        - AuthTelegram
+  /api/authtelegram/sendCodeTelegram:
+    post:
+      operationId: AuthTelegram_SendCodeTelegram
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/authtelegramSendCodeTelegramResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/authtelegramSendCodeTelegramRequest'
+      tags:
+        - AuthTelegram
+  /api/authtelegram/signInTelegram:
+    post:
+      operationId: AuthTelegram_SignInTelegram
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/authtelegramSignInTelegramResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/authtelegramSignInTelegramRequest'
+      tags:
+        - AuthTelegram
   /api/erc20/allowance:
     get:
       operationId: ERC20_Allowance
@@ -694,6 +769,86 @@ paths:
       tags:
         - ERC721
 definitions:
+  authtelegramGetDataRequestForZIONResponse:
+    type: object
+    properties:
+      salt:
+        type: string
+      proof:
+        $ref: '#/definitions/authtelegramProofPoints'
+      ephemeralKeyPair:
+        type: string
+      beneficiaries:
+        type: array
+        items:
+          type: string
+  authtelegramLogOutTelegramRequest:
+    type: object
+    properties:
+      phoneNumber:
+        type: string
+      phoneHash:
+        type: string
+  authtelegramLogOutTelegramResponse:
+    type: object
+    properties:
+      phoneNumber:
+        type: string
+      phoneHash:
+        type: string
+  authtelegramProofPoints:
+    type: object
+    properties:
+      protocol:
+        type: string
+      pi_a:
+        type: array
+        items:
+          type: string
+      pi_b:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/authtelegramStringArray'
+      pi_c:
+        type: array
+        items:
+          type: string
+  authtelegramSendCodeTelegramRequest:
+    type: object
+    properties:
+      phoneNumber:
+        type: string
+    title: Define messages for the requests and responses for AuthTelegram
+  authtelegramSendCodeTelegramResponse:
+    type: object
+    properties:
+      phoneNumber:
+        type: string
+      phoneHash:
+        type: string
+  authtelegramSignInTelegramRequest:
+    type: object
+    properties:
+      phoneNumber:
+        type: string
+      phoneHash:
+        type: string
+      code:
+        type: string
+  authtelegramSignInTelegramResponse:
+    type: object
+    properties:
+      jwt:
+        type: string
+  authtelegramStringArray:
+    type: object
+    properties:
+      values:
+        type: array
+        items:
+          type: string
+    title: Mảng một chiều của chuỗi
   erc20AllowanceResponse:
     type: object
     properties:

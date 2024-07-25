@@ -3,6 +3,18 @@ config_version: 3
 
 http:
   rules:
+    - selector: authtelegram.AuthTelegram.SendCodeTelegram
+      post: /api/authtelegram/sendCodeTelegram
+      body: "*"
+    - selector: authtelegram.AuthTelegram.SignInTelegram
+      post: /api/authtelegram/signInTelegram
+      body: "*"
+    - selector: authtelegram.AuthTelegram.LogOutTelegram
+      post: /api/authtelegram/logOutTelegram
+      body: "*"
+    - selector: authtelegram.AuthTelegram.GetDataRequestForZION
+      get: /api/authtelegram/getDataRequestForZION    
+
     - selector: erc20.ERC20.Deploy
       post: /api/erc20/deploy
       body: "*"
