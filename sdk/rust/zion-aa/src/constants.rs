@@ -1,5 +1,5 @@
 use crate::types::{
-    contract_wallet::ContractWalletOperator, key::RoleWeight, user_operation::UserOperation,
+    contract_wallet::ContractWalletOperator, key::RoleWeight, user_operation::UserOperationSigned,
 };
 use ethers::{
     abi::Address,
@@ -19,7 +19,7 @@ pub const GUARDIAN_ROLE_WEIGHT: RoleWeight = RoleWeight {
     guardian_weight: 100,
 };
 
-pub static DEFAULTS_FOR_USER_OP: Lazy<UserOperation> = Lazy::new(|| UserOperation {
+pub static DEFAULTS_FOR_USER_OP: Lazy<UserOperationSigned> = Lazy::new(|| UserOperationSigned {
     sender: Address::zero(),
     nonce: U256::zero(),
     init_code: Bytes::new(),

@@ -2,6 +2,8 @@ pub mod types;
 pub mod signer;
 pub mod constants;
 pub mod utils;
+pub mod contract_wallet;
+pub mod contracts;
 
 pub fn add(left: usize, right: usize) -> usize {
     left + right
