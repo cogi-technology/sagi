@@ -7,7 +7,7 @@ use anyhow::Result;
 use ethers::{
     abi::AbiEncode,
     signers::{LocalWallet, Signer},
-    types::Bytes,
+    types::{Bytes, H256},
 };
 use ethers_core::abi::Token;
 use std::sync::Arc;
@@ -31,8 +31,8 @@ impl PINCode {
 
 #[async_trait::async_trait]
 impl KeyBase for PINCode {
-    async fn generate_signature(&self, digest_hash: String) -> Result<Bytes> {
-        let signature = self.inner.sign_message(digest_hash.into_bytes()).await?;
+    async fn generate_signature(&self, digest_hash: H256) -> Result<Bytes> {
+        let signature = self.inner.sign_message(digest_hash).await?;
 
         Ok(ethers::abi::encode(&[
             Token::Uint((KeyType::PINCode as u8).into()),

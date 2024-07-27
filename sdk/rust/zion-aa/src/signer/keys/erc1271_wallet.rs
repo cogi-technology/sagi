@@ -1,13 +1,12 @@
 use crate::{
-    constants::OWNER_ROLE_WEIGHT,
     types::key::{KeyType, RoleWeight},
     utils::serialize_role_weight,
 };
 use anyhow::Result;
 use ethers::{
     abi::AbiEncode,
-    signers::{LocalWallet, Signer},
-    types::{Address, Bytes},
+    signers::LocalWallet,
+    types::{Address, Bytes, H256},
 };
 use ethers_core::abi::Token;
 use std::sync::Arc;
@@ -33,12 +32,15 @@ impl KeyERC1271Wallet {
 
 #[async_trait::async_trait]
 impl KeyBase for KeyERC1271Wallet {
-    async fn generate_signature(&self, digest_hash: String) -> Result<Bytes> {
-        let signature = self.inner.sign_message(digest_hash.into_bytes()).await?;
+    async fn generate_signature(&self, digest_hash: H256) -> Result<Bytes> {
+        let (signature, r) = self.inner.signer().sign_digest_recoverable(digest_hash)?;
+
+        let mut _signature = signature.to_vec();
+        _signature.push(r.to_byte());
 
         Ok(ethers::abi::encode(&[
             Token::Uint((KeyType::ERC1271Wallet as u8).into()),
-            Token::Bytes(signature.into()),
+            Token::Bytes(_signature),
         ])
         .into())
     }
