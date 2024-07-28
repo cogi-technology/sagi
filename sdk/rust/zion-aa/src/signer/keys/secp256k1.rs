@@ -1,7 +1,6 @@
 use crate::{
     constants::OWNER_ROLE_WEIGHT,
     types::key::{KeyType, RoleWeight},
-    utils::serialize_role_weight,
 };
 use anyhow::Result;
 use ethers::{
@@ -58,16 +57,7 @@ impl KeyBase for KeySecp256k1 {
         .into()
     }
 
-    fn serialize_role_weight(&self) -> Bytes {
-        ethers::abi::encode(&[
-            Token::Uint(self.role_weight.owner_weight.into()),
-            Token::Uint(self.role_weight.assets_op_weight.into()),
-            Token::Uint(self.role_weight.guardian_weight.into()),
-        ])
-        .into()
-    }
-
-    fn weights(&self) -> usize {
-        serialize_role_weight(&self.role_weight)
+    fn role_weight(&self) -> RoleWeight {
+        self.role_weight.clone()
     }
 }
