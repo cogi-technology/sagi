@@ -9,11 +9,12 @@ use crate::{
 };
 use anyhow::{anyhow, Result};
 use ethers::{
+    abi::{encode, Token},
     types::{
         transaction::eip2718::TypedTransaction, Address, BlockNumber, Bytes,
         Eip1559TransactionRequest, Eip2930TransactionRequest, TransactionRequest, U256,
     },
-    utils::rlp,
+    utils::{keccak256, rlp},
 };
 use ethers_providers::Middleware;
 
@@ -136,4 +137,11 @@ pub async fn fill_user_op<M: Middleware + 'static>(
     }
 
     Ok(ret)
+}
+
+pub fn get_provider_hashed(iss: String, aud: String) -> [u8; 32] {
+    keccak256(encode(&[
+        Token::Bytes(iss.into_bytes()),
+        Token::Bytes(aud.into_bytes()),
+    ]))
 }

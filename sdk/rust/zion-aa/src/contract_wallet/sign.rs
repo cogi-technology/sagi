@@ -1,4 +1,4 @@
-use super::Client;
+use super::client::Client;
 use crate::{
     contracts::EntryPoint,
     signer::keys::KeyBase,

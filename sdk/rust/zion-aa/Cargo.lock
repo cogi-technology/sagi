@@ -3828,6 +3828,7 @@ dependencies = [
  "ethers-providers",
  "hex",
  "once_cell",
+ "rand",
  "rustc-hex",
  "serde",
  "serde_json",
