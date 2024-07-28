@@ -31,3 +31,4 @@ actix-web-httpauth.workspace = true
 actix-prost-build = { git = "https://github.com/blockscout/actix-prost" }
 tonic-build = "0.8"
 prost-build = "0.11"
+prost-types = "0.11"

@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  title: SAGI-OPENAPI
+  title: proto/auth_telegram.proto
   version: version not set
 tags:
   - name: AuthTelegram
@@ -19,7 +19,7 @@ paths:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/authtelegramGetDataRequestForZIONResponse'
+            $ref: '#/definitions/authtelegramGetDataRequestForZionResponse'
         default:
           description: An unexpected error response.
           schema:
@@ -769,7 +769,7 @@ paths:
       tags:
         - ERC721
 definitions:
-  authtelegramGetDataRequestForZIONResponse:
+  authtelegramGetDataRequestForZionResponse:
     type: object
     properties:
       salt:

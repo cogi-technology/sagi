@@ -1,5 +1,6 @@
 use {
     crate::{
+        services::authtelegram::AuthTelegramService,
         // interceptor::AuthInterceptor,
         services::erc20::Erc20Service,
     },
@@ -10,6 +11,9 @@ use {
         self, LaunchSettings, MetricsSettings, ServerSettings,
     },
     openapi_ethers::client::Client as EthereumClient,
+    openapi_proto::authtelegram_service::{
+        auth_telegram_actix::route_auth_telegram, auth_telegram_server::AuthTelegramServer,
+    },
     openapi_proto::erc20_service::{erc20_actix::route_erc20, erc20_server::Erc20Server},
     std::{net::SocketAddr, sync::Arc},
     tonic::transport::{Identity, ServerTlsConfig},
@@ -28,6 +32,7 @@ pub struct ServerConfig {
 
 #[derive(Clone)]
 struct Router {
+    authtelegram: AuthTelegramService,
     erc20: Erc20Service,
     config: ServerConfig,
 }
@@ -40,6 +45,9 @@ impl Router {
         tonic::transport::Server::builder()
             // .tls_config(ServerTlsConfig::new().identity(tls_identity))
             .add_service(Erc20Server::from_arc(Arc::new(self.erc20.clone())))
+            .add_service(AuthTelegramServer::from_arc(Arc::new(
+                self.authtelegram.clone(),
+            )))
         // .map_err(|e| anyhow!("Failed {}", e.to_string()))
         // .unwrap()
         // .add_service(service)
@@ -71,7 +79,8 @@ impl launcher::HttpRouter for Router {
                     //         }
                     //     },
                     // ))
-                    .configure(|config| route_erc20(config, Arc::new(self.erc20.clone()))),
+                    .configure(|config| route_erc20(config, Arc::new(self.erc20.clone())))
+                    .configure(|config| route_auth_telegram(config, Arc::new(self.authtelegram.clone())))
             );
     }
 }
@@ -81,8 +90,10 @@ pub async fn run(
     server_config: ServerConfig,
 ) -> Result<(), anyhow::Error> {
     let erc20 = Erc20Service::new(Arc::clone(&rpc_client));
+    let authtelegram = AuthTelegramService::new(Arc::clone(&rpc_client));
 
     let router = Router {
+        authtelegram,
         erc20,
         config: server_config.clone(),
     };

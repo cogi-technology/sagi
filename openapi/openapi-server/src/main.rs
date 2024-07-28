@@ -13,6 +13,8 @@ use {
     std::{env, fs},
 };
 
+pub mod entity;
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     //logger

@@ -30,3 +30,6 @@ blockscout-service-launcher.workspace = true
 clap.workspace = true
 dotenv.workspace = true
 hex.workspace = true
+grammers-client.workspace = true
+grammers-session.workspace = true
+uuid.workspace = true

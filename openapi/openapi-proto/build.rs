@@ -22,6 +22,7 @@ fn compile(
         .type_attribute(".", "#[actix_prost_macros::serde(rename_all=\"snake_case\")]")
         .field_attribute(".erc20.DeployRequest.initial_supply", "#[serde(rename=\"initial_supply\")]");
 
+    config.out_dir("./src/generated/");
     config.compile_protos(protos, includes)?;
     Ok(())
 }

@@ -13,7 +13,7 @@ pub struct SendCodeTelegramResponse {
     #[prost(string, tag = "1")]
     pub phone_number: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]
-    pub phone_hash: ::prost::alloc::string::String,
+    pub session_uuid: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -22,9 +22,11 @@ pub struct SignInTelegramRequest {
     #[prost(string, tag = "1")]
     pub phone_number: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]
-    pub phone_hash: ::prost::alloc::string::String,
+    pub session_uuid: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
     pub code: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
+    pub code2_fa: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -40,7 +42,7 @@ pub struct LogOutTelegramRequest {
     #[prost(string, tag = "1")]
     pub phone_number: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]
-    pub phone_hash: ::prost::alloc::string::String,
+    pub session_uuid: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -49,7 +51,9 @@ pub struct LogOutTelegramResponse {
     #[prost(string, tag = "1")]
     pub phone_number: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]
-    pub phone_hash: ::prost::alloc::string::String,
+    pub session_uuid: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
+    pub message: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -109,9 +113,11 @@ pub mod auth_telegram_actix {
         #[prost(string, tag = "1")]
         pub phone_number: ::prost::alloc::string::String,
         #[prost(string, tag = "2")]
-        pub phone_hash: ::prost::alloc::string::String,
+        pub session_uuid: ::prost::alloc::string::String,
         #[prost(string, tag = "3")]
         pub code: ::prost::alloc::string::String,
+        #[prost(string, tag = "4")]
+        pub code2_fa: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -120,7 +126,7 @@ pub mod auth_telegram_actix {
         #[prost(string, tag = "1")]
         pub phone_number: ::prost::alloc::string::String,
         #[prost(string, tag = "2")]
-        pub phone_hash: ::prost::alloc::string::String,
+        pub session_uuid: ::prost::alloc::string::String,
     }
     async fn call_send_code_telegram(
         service: ::actix_web::web::Data<dyn AuthTelegram + Sync + Send + 'static>,
@@ -162,8 +168,9 @@ pub mod auth_telegram_actix {
             .into_inner();
         let request = SignInTelegramRequest {
             phone_number: json.phone_number,
-            phone_hash: json.phone_hash,
+            session_uuid: json.session_uuid,
             code: json.code,
+            code2_fa: json.code2_fa,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.sign_in_telegram(request).await?;
@@ -187,7 +194,7 @@ pub mod auth_telegram_actix {
             .into_inner();
         let request = LogOutTelegramRequest {
             phone_number: json.phone_number,
-            phone_hash: json.phone_hash,
+            session_uuid: json.session_uuid,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.log_out_telegram(request).await?;

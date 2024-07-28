@@ -1,3 +1,5 @@
 target
 .env
-**/node_modules/**
+**/session*
+openapi-proto/src/lib_bk.rs
+openapi-proto/src/generated/**
