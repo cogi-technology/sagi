@@ -1,6 +1,6 @@
-use ethers::signers::Signer;
+use ethers::types::U256;
 use serde::{Deserialize, Serialize};
-use std::vec::Vec;
+use std::{sync::Arc, vec::Vec};
 
 // Structs corresponding to TypeScript interfaces
 
@@ -29,12 +29,12 @@ pub struct JWTPayload {
     pub at_hash: Option<String>,
 }
 
-#[derive(Clone, Deserialize, Serialize)]
-pub struct JWTOptions<S: Signer + 'static> {
+#[derive(Clone)]
+pub struct JWTOptions<S> {
     pub header: JWTHeader,
     pub payload: JWTPayload,
     pub proof: ProofPoints,
-    pub ephemeral_key_pair: S, // This will need to be handled appropriately in Rust
-    pub deadline: u64,
-    pub salt: String,
+    pub ephemeral_key_pair: Arc<S>,
+    pub deadline: U256,
+    pub salt: [u8; 32],
 }

@@ -3,6 +3,8 @@
 use ethers::types::{Address, Bytes, U256};
 use serde::{Deserialize, Serialize};
 
+use crate::contracts::entry_point::UserOperation;
+
 use super::UserOperationSigned;
 
 #[derive(Clone, Debug, Ord, PartialOrd, PartialEq, Eq, Serialize, Deserialize)]
@@ -22,73 +24,73 @@ pub struct UserOperationRequest {
 }
 
 impl From<UserOperationRequest> for UserOperationSigned {
-    fn from(user_operation: UserOperationRequest) -> Self {
-        Self {
-            sender: user_operation.sender,
-            nonce: user_operation.nonce,
-            init_code: user_operation.init_code,
-            call_data: user_operation.call_data,
+    fn from(uo_request: UserOperationRequest) -> Self {
+        UserOperationSigned(UserOperation {
+            sender: uo_request.sender,
+            nonce: uo_request.nonce,
+            init_code: uo_request.init_code,
+            call_data: uo_request.call_data,
             call_gas_limit: {
-                if let Some(call_gas_limit) = user_operation.call_gas_limit {
+                if let Some(call_gas_limit) = uo_request.call_gas_limit {
                     call_gas_limit
                 } else {
                     U256::zero()
                 }
             },
             verification_gas_limit: {
-                if let Some(verification_gas_limit) = user_operation.verification_gas_limit {
+                if let Some(verification_gas_limit) = uo_request.verification_gas_limit {
                     verification_gas_limit
                 } else {
                     U256::zero()
                 }
             },
             pre_verification_gas: {
-                if let Some(pre_verification_gas) = user_operation.pre_verification_gas {
+                if let Some(pre_verification_gas) = uo_request.pre_verification_gas {
                     pre_verification_gas
                 } else {
                     U256::zero()
                 }
             },
             max_fee_per_gas: {
-                if let Some(max_fee_per_gas) = user_operation.max_fee_per_gas {
+                if let Some(max_fee_per_gas) = uo_request.max_fee_per_gas {
                     max_fee_per_gas
                 } else {
                     U256::zero()
                 }
             },
             max_priority_fee_per_gas: {
-                if let Some(max_priority_fee_per_gas) = user_operation.max_priority_fee_per_gas {
+                if let Some(max_priority_fee_per_gas) = uo_request.max_priority_fee_per_gas {
                     max_priority_fee_per_gas
                 } else {
                     U256::zero()
                 }
             },
-            paymaster_and_data: user_operation.paymaster_and_data,
+            paymaster_and_data: uo_request.paymaster_and_data,
             signature: {
-                if let Some(signature) = user_operation.signature {
+                if let Some(signature) = uo_request.signature {
                     signature
                 } else {
                     Bytes::default()
                 }
             },
-        }
+        })
     }
 }
 
 impl From<UserOperationSigned> for UserOperationRequest {
-    fn from(user_operation: UserOperationSigned) -> Self {
+    fn from(uo_signed: UserOperationSigned) -> Self {
         Self {
-            sender: user_operation.sender,
-            nonce: user_operation.nonce,
-            init_code: user_operation.init_code,
-            call_data: user_operation.call_data,
-            call_gas_limit: Some(user_operation.call_gas_limit),
-            verification_gas_limit: Some(user_operation.verification_gas_limit),
-            pre_verification_gas: Some(user_operation.pre_verification_gas),
-            max_fee_per_gas: Some(user_operation.max_fee_per_gas),
-            max_priority_fee_per_gas: Some(user_operation.max_priority_fee_per_gas),
-            paymaster_and_data: user_operation.paymaster_and_data,
-            signature: Some(user_operation.signature),
+            sender: uo_signed.0.sender,
+            nonce: uo_signed.0.nonce,
+            init_code: uo_signed.0.init_code,
+            call_data: uo_signed.0.call_data,
+            call_gas_limit: Some(uo_signed.0.call_gas_limit),
+            verification_gas_limit: Some(uo_signed.0.verification_gas_limit),
+            pre_verification_gas: Some(uo_signed.0.pre_verification_gas),
+            max_fee_per_gas: Some(uo_signed.0.max_fee_per_gas),
+            max_priority_fee_per_gas: Some(uo_signed.0.max_priority_fee_per_gas),
+            paymaster_and_data: uo_signed.0.paymaster_and_data,
+            signature: Some(uo_signed.0.signature),
         }
     }
 }
