@@ -1,3 +1,4 @@
+use crate::contracts::entry_point::UserOperation;
 use crate::types::{
     contract_wallet::ContractWalletOperator, key::RoleWeight, user_operation::UserOperationSigned,
 };
@@ -19,18 +20,20 @@ pub const GUARDIAN_ROLE_WEIGHT: RoleWeight = RoleWeight {
     guardian_weight: 100,
 };
 
-pub static DEFAULTS_FOR_USER_OP: Lazy<UserOperationSigned> = Lazy::new(|| UserOperationSigned {
-    sender: Address::zero(),
-    nonce: U256::zero(),
-    init_code: Bytes::new(),
-    call_data: Bytes::new(),
-    call_gas_limit: U256::zero(),
-    verification_gas_limit: U256([700_000, 0, 0, 0]),
-    pre_verification_gas: U256([21_000, 0, 0, 0]),
-    max_fee_per_gas: U256([2_000_000, 0, 0, 0]),
-    max_priority_fee_per_gas: U256([2_000_000, 0, 0, 0]),
-    paymaster_and_data: Bytes::new(),
-    signature: Bytes::new(),
+pub static DEFAULTS_FOR_USER_OP: Lazy<UserOperationSigned> = Lazy::new(|| {
+    UserOperationSigned(UserOperation {
+        sender: Address::zero(),
+        nonce: U256::zero(),
+        init_code: Bytes::new(),
+        call_data: Bytes::new(),
+        call_gas_limit: U256::zero(),
+        verification_gas_limit: U256([700_000, 0, 0, 0]),
+        pre_verification_gas: U256([21_000, 0, 0, 0]),
+        max_fee_per_gas: U256([2_000_000, 0, 0, 0]),
+        max_priority_fee_per_gas: U256([2_000_000, 0, 0, 0]),
+        paymaster_and_data: Bytes::new(),
+        signature: Bytes::new(),
+    })
 });
 
 pub static NEMOTESTNET: Lazy<ContractWalletOperator> = Lazy::new(|| ContractWalletOperator {

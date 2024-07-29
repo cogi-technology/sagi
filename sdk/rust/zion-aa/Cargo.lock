@@ -3829,6 +3829,7 @@ dependencies = [
  "hex",
  "once_cell",
  "rand",
+ "regex",
  "rustc-hex",
  "serde",
  "serde_json",

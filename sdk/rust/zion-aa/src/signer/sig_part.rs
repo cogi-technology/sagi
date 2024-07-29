@@ -11,7 +11,8 @@ where
     S::Error: 'static,
 {
     // Sign the message (in ethers-rs, the equivalent of `signMessage` is `sign_hash`)
-    let signature = signer.sign_message(hash.into_bytes()).await?;
+    let hash_in_hex = hex::decode(hash)?;
+    let signature = signer.sign_message(hash_in_hex).await?;
 
     Ok(signature)
 }

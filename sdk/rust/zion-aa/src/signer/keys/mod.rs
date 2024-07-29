@@ -1,6 +1,6 @@
+pub mod key_jwt;
 pub mod pincode;
 pub mod secp256k1;
-pub mod key_jwt;
 // pub mod erc1271_wallet;
 
 use anyhow::Result;
@@ -18,11 +18,12 @@ pub trait KeyBase {
     fn get_hash(&self) -> Bytes;
     fn role_weight(&self) -> RoleWeight;
     fn serialize_role_weight(&self) -> Bytes {
-        ethers::abi::encode(&[
+        ethers::abi::encode_packed(&[
             Token::Uint(<Self>::role_weight(&self).owner_weight.into()),
             Token::Uint(<Self>::role_weight(&self).assets_op_weight.into()),
             Token::Uint(<Self>::role_weight(&self).guardian_weight.into()),
         ])
+        .unwrap()
         .into()
     }
     fn weights(&self) -> usize {

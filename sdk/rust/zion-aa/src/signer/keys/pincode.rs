@@ -33,27 +33,30 @@ impl KeyBase for PINCode {
     async fn generate_signature(&self, digest_hash: H256) -> Result<Bytes> {
         let signature = self.inner.sign_message(digest_hash).await?;
 
-        Ok(ethers::abi::encode(&[
+        ethers::abi::encode_packed(&[
             Token::Uint((KeyType::PINCode as u8).into()),
             Token::Bytes(signature.into()),
         ])
-        .into())
+        .map(|ok| ok.into())
+        .map_err(|e| e.into())
     }
 
     fn serialize(&self) -> Bytes {
-        ethers::abi::encode(&[
+        ethers::abi::encode_packed(&[
             Token::Uint((KeyType::PINCode as u8).into()),
             Token::Uint(self.weights().into()),
             Token::FixedBytes(self.inner.address().encode()),
         ])
+        .unwrap()
         .into()
     }
 
     fn get_hash(&self) -> Bytes {
-        ethers::abi::encode(&[
+        ethers::abi::encode_packed(&[
             Token::Uint((KeyType::PINCode as u8).into()),
             Token::FixedBytes(self.inner.address().encode()),
         ])
+        .unwrap()
         .into()
     }
 

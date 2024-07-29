@@ -38,7 +38,7 @@ impl KeyBase for KeyERC1271Wallet {
         let mut _signature = signature.to_vec();
         _signature.push(r.to_byte());
 
-        Ok(ethers::abi::encode(&[
+        Ok(ethers::abi::encode_packed(&[
             Token::Uint((KeyType::ERC1271Wallet as u8).into()),
             Token::Bytes(_signature),
         ])
@@ -46,7 +46,7 @@ impl KeyBase for KeyERC1271Wallet {
     }
 
     fn serialize(&self) -> Bytes {
-        ethers::abi::encode(&[
+        ethers::abi::encode_packed(&[
             Token::Uint((KeyType::ERC1271Wallet as u8).into()),
             Token::Address(self.wallet_address),
             Token::Bytes(self.serialize_role_weight().to_vec()),
@@ -55,7 +55,7 @@ impl KeyBase for KeyERC1271Wallet {
     }
 
     fn get_hash(&self) -> Bytes {
-        ethers::abi::encode(&[
+        ethers::abi::encode_packed(&[
             Token::Uint((KeyType::ERC1271Wallet as u8).into()),
             Token::FixedBytes(self.wallet_address.encode()),
         ])
@@ -63,7 +63,7 @@ impl KeyBase for KeyERC1271Wallet {
     }
 
     fn serialize_role_weight(&self) -> Bytes {
-        ethers::abi::encode(&[
+        ethers::abi::encode_packed(&[
             Token::Uint(self.role_weight.owner_weight.into()),
             Token::Uint(self.role_weight.assets_op_weight.into()),
             Token::Uint(self.role_weight.guardian_weight.into()),
