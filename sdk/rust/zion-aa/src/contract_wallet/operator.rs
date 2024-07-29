@@ -57,17 +57,18 @@ impl<M: Middleware + 'static> Operator<M> {
     pub fn get_init_code(
         &self,
         sub: String,
-        salt: String,
+        salt: [u8; 32],
         iss: String,
         aud: String,
     ) -> Result<Bytes> {
         let provider = get_provider_hashed(iss, aud);
-        let sub = sub.into_bytes();
-        let salt: [u8; 32] = salt.as_bytes().try_into()?;
+        let sub_in_hex = hex::decode(sub)?;
+        // let mut salt_in_hex = [0u8; 32];
+        // hex::decode_to_slice(salt, &mut salt_in_hex)?;
 
         let call_data = self
             .factory
-            .create_account(sub.into(), salt, provider)
+            .create_account(sub_in_hex.into(), salt, provider)
             .calldata()
             .ok_or(anyhow!("Convert call data to bytes failed!"))?;
 
@@ -87,13 +88,14 @@ impl<M: Middleware + 'static> Operator<M> {
         iss: String,
         aud: String,
     ) -> Result<Address> {
-        let sub = sub.into_bytes();
-        let salt: [u8; 32] = salt.as_bytes().try_into()?;
         let provider = get_provider_hashed(iss, aud);
+        let sub_in_hex = hex::decode(sub)?;
+        let mut salt_in_hex = [0u8; 32];
+        hex::decode_to_slice(salt, &mut salt_in_hex)?;
 
         let address = self
             .factory
-            .get_address(sub.into(), salt, provider)
+            .get_address(sub_in_hex.into(), salt_in_hex, provider)
             .call()
             .await?;
         Ok(address)
@@ -106,13 +108,14 @@ impl<M: Middleware + 'static> Operator<M> {
         iss: String,
         aud: String,
     ) -> Result<Address> {
-        let sub = sub.into_bytes();
-        let salt: [u8; 32] = salt.as_bytes().try_into()?;
         let provider = get_provider_hashed(iss, aud);
+        let sub_in_hex = hex::decode(sub)?;
+        let mut salt_in_hex = [0u8; 32];
+        hex::decode_to_slice(salt, &mut salt_in_hex)?;
 
         let receipt = self
             .factory
-            .create_account(sub.into(), salt, provider)
+            .create_account(sub_in_hex.into(), salt_in_hex, provider)
             .send()
             .await?
             .await?
