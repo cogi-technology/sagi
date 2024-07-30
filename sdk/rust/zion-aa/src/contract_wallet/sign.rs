@@ -7,7 +7,10 @@ use crate::{
     utils::fill_user_op,
 };
 use anyhow::Result;
-use ethers::{abi::Token, types::{Bytes, U256}};
+use ethers::{
+    abi::Token,
+    types::{Bytes, U256},
+};
 use ethers_providers::Middleware;
 
 pub async fn fill_and_sign<M: Middleware + 'static>(
