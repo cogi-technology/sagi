@@ -26,7 +26,11 @@ pub struct ContractWallet<M, S> {
     operator: Arc<Operator<M>>,
 }
 
-impl<M: Middleware + 'static, S: Signer + 'static> ContractWallet<M, S> {
+impl<M, S> ContractWallet<M, S>
+where
+    M: Middleware + 'static,
+    S: Signer + 'static,
+{
     pub fn new(contract_wallet_address: Address, operator: Arc<Operator<M>>) -> Self {
         let contract_wallet = Arc::new(Account::new(contract_wallet_address, operator.signer()));
         Self {
