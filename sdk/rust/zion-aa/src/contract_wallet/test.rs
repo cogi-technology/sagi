@@ -5,7 +5,6 @@ use crate::{
     contract_wallet::{
         client::{Client, ClientMethods},
         operator::Operator,
-        wallet::ContractWallet,
     },
 };
 use std::sync::Arc;

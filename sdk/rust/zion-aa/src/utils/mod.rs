@@ -1,4 +1,5 @@
 // mod zero_knowledge;
+mod jwt;
 
 use std::fmt::Write;
 use std::sync::Arc;
