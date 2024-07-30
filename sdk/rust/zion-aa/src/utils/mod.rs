@@ -1,6 +1,7 @@
+// mod zero_knowledge;
+
 use std::fmt::Write;
 use std::sync::Arc;
-
 use crate::{
     contracts::{Account, EntryPoint},
     types::{
@@ -20,8 +21,6 @@ use ethers::{
     utils::{keccak256, rlp},
 };
 use ethers_providers::Middleware;
-
-mod zero_knowledge;
 
 #[macro_export]
 macro_rules! tokio_sleep_ms {
@@ -205,7 +204,7 @@ pub async fn groth16_export_solidity_call_data(
     s
 }
 
-pub fn make_pin_code_holder(code: &Bytes, salt: &[u8; 32]) -> Result<LocalWallet> {
+pub fn make_pin_code_holder(code: &Bytes, salt: &Bytes) -> Result<LocalWallet> {
     let prv = hex::encode(keccak256(ethers::abi::encode(&[
         Token::Bytes(code.to_vec()),
         Token::FixedBytes(salt.to_vec()),

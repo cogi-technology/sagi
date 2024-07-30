@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::{
     contracts::{Account, EntryPoint, Factory},
@@ -9,20 +9,24 @@ use crate::{
 use anyhow::{anyhow, Result};
 use ethers::{
     signers::Signer,
-    types::{Address, Bytes, Eip1559TransactionRequest, TransactionReceipt, H160, U256},
+    types::{
+        transaction::eip2718::TypedTransaction, Address, BlockNumber, Bytes,
+        Eip1559TransactionRequest, TransactionReceipt, H160, U256,
+    },
 };
 use ethers_providers::Middleware;
+use serde::{Deserialize, Serialize};
 
 use super::{operator::Operator, sign::fill_and_sign};
 
-pub struct ContractWallet<M> {
+pub struct ContractWallet<M, S> {
     contract: Arc<Account<M>>,
     pin_code: Option<Arc<PINCode>>,
-    jwt_proof: Option<Arc<KeyJWT<M>>>,
+    jwt_proof: Option<Arc<KeyJWT<S>>>,
     operator: Arc<Operator<M>>,
 }
 
-impl<M: Middleware + Signer + 'static> ContractWallet<M> {
+impl<M: Middleware + 'static, S: Signer + 'static> ContractWallet<M, S> {
     pub fn new(contract_wallet_address: Address, operator: Arc<Operator<M>>) -> Self {
         let contract_wallet = Arc::new(Account::new(contract_wallet_address, operator.signer()));
         Self {
@@ -59,7 +63,7 @@ impl<M: Middleware + Signer + 'static> ContractWallet<M> {
             .map(|jwt| jwt.inner.payload.sub.clone())
     }
 
-    pub fn salt(&self) -> Option<[u8; 32]> {
+    pub fn salt(&self) -> Option<String> {
         self.jwt_proof.as_ref().map(|jwt| jwt.inner.salt.clone())
     }
 
@@ -108,7 +112,7 @@ impl<M: Middleware + Signer + 'static> ContractWallet<M> {
         &mut self,
         code: Bytes,
         set_onchain: bool,
-        // options: Option<ethers::>,
+        options: Option<Overrides>,
     ) -> Result<()> {
         if self.jwt_proof.is_none() {
             return Err(anyhow!("Uninitialized JWT"));
@@ -116,12 +120,13 @@ impl<M: Middleware + Signer + 'static> ContractWallet<M> {
         if !self.operator.is_created(self.address()).await {
             return Err(anyhow!("Wallet not created"));
         }
+        let salt = hex::decode(self.salt().unwrap())?;
 
-        let pin_code_holder = make_pin_code_holder(&code, &self.salt().unwrap())?;
+        let pin_code_holder = make_pin_code_holder(&code, &salt.into())?;
         let mut pin_code_onchain = self.get_pin_code_holder().await?;
 
         if set_onchain && pin_code_holder.address() != pin_code_onchain {
-            let _ = self.onchain_update_pin_code(code).await?;
+            let _ = self.onchain_update_pin_code(code, options).await?;
             pin_code_onchain = self.get_pin_code_holder().await?;
         }
 
@@ -134,18 +139,18 @@ impl<M: Middleware + Signer + 'static> ContractWallet<M> {
         Ok(())
     }
 
-    pub fn set_jwt(&mut self, options: JWTOptions<M>) -> &mut Self {
+    pub fn set_jwt(&mut self, options: JWTOptions<S>) -> &mut Self {
         self.jwt_proof = Some(Arc::new(KeyJWT::new(options)));
         self
     }
 
     pub async fn create(
         &self,
-        // options: Option<CallOptions>,
         chain_id: Option<U256>,
+        options: Option<Overrides>,
     ) -> Result<TransactionReceipt> {
         let default_chain_id = self.entry_point().client().get_chainid().await?;
-        let chain_id = chain_id.unwrap_or(default_chain_id);
+        let _chain_id = chain_id.unwrap_or(default_chain_id);
 
         if self.jwt_proof.is_none() {
             return Err(anyhow!("Uninitialized JWT"));
@@ -166,49 +171,45 @@ impl<M: Middleware + Signer + 'static> ContractWallet<M> {
         )?;
         mut_op1.signature = vec![0u8; 1].into();
 
-        // if let Some(options) = options {
-        //     if let Some(max_fee_per_gas) = options.max_fee_per_gas {
-        //         op1.max_fee_per_gas = max_fee_per_gas;
-        //     }
-        //     if let Some(max_priority_fee_per_gas) = options.max_priority_fee_per_gas {
-        //         op1.max_priority_fee_per_gas = max_priority_fee_per_gas;
-        //     }
-        // }
+        if let Some(options) = options.clone() {
+            if let Some(max_fee_per_gas) = options.max_fee_per_gas {
+                mut_op1.max_fee_per_gas = max_fee_per_gas;
+            }
+            if let Some(max_priority_fee_per_gas) = options.max_priority_fee_per_gas {
+                mut_op1.max_priority_fee_per_gas = max_priority_fee_per_gas;
+            }
+        }
 
         let op = fill_user_op(op1.into(), Arc::clone(&self.entry_point()))
             .await?
             .into_inner();
 
-        let signed_tx = self
+        let mut handle_ops_transaction = self
             .entry_point()
-            .handle_ops(vec![op], self.operator.pick_up_beneficiary())
+            .handle_ops(vec![op], self.operator.pick_up_beneficiary());
+
+        if let Some(options) = options {
+            if let Some(gas_limit) = options.gas_limit {
+                handle_ops_transaction.tx.set_gas(gas_limit);
+            }
+            if let Some(gas_price) = options.gas_price {
+                handle_ops_transaction.tx.set_gas_price(gas_price);
+            }
+        }
+
+        let receipt = handle_ops_transaction
             .send()
             .await?
             .await?
-            .ok_or_else(|| anyhow!("Tx Receipt is None"))?;
+            .unwrap_or_default();
 
-        // if let Some(options) = options {
-        //     if let Some(gas_limit) = options.gas_limit {
-        //         handle_ops_transaction.gas = Some(gas_limit);
-        //     }
-        //     if let Some(gas_price) = options.gas_price {
-        //         handle_ops_transaction.gas_price = Some(gas_price);
-        //     }
-        // }
-
-        // let signed_tx = self
-        //     .signer()
-        //     .send_transaction(handle_ops_transaction)
-        //     .await?;
-        // signed_tx.await?;
-
-        Ok(signed_tx)
+        Ok(receipt)
     }
 
     pub async fn onchain_update_pin_code(
         &self,
         code: Bytes,
-        // options: Option<CallOptions>,
+        options: Option<Overrides>,
     ) -> Result<TransactionReceipt> {
         let chain_id = self.entry_point().client().get_chainid().await.unwrap();
 
@@ -221,9 +222,9 @@ impl<M: Middleware + Signer + 'static> ContractWallet<M> {
         if self.has_pin_code().await? && self.pin_code.is_none() {
             return Err(anyhow!("Old PIN Code not setup"));
         }
+        let salt = hex::decode(&self.jwt_proof.as_ref().unwrap().inner.salt)?;
 
-        let pin_code_holder =
-            make_pin_code_holder(&code, &self.jwt_proof.as_ref().unwrap().inner.salt)?;
+        let pin_code_holder = make_pin_code_holder(&code, &salt.into())?;
 
         let tx_exec_data = self
             .contract
@@ -237,14 +238,14 @@ impl<M: Middleware + Signer + 'static> ContractWallet<M> {
         mut_op1.nonce = self.nonce().await?;
         mut_op1.call_data = tx_exec_data;
 
-        // if let Some(options) = options {
-        //     if let Some(max_fee_per_gas) = options.max_fee_per_gas {
-        //         op1.max_fee_per_gas = max_fee_per_gas;
-        //     }
-        //     if let Some(max_priority_fee_per_gas) = options.max_priority_fee_per_gas {
-        //         op1.max_priority_fee_per_gas = max_priority_fee_per_gas;
-        //     }
-        // }
+        if let Some(options) = options.clone() {
+            if let Some(max_fee_per_gas) = options.max_fee_per_gas {
+                mut_op1.max_fee_per_gas = max_fee_per_gas;
+            }
+            if let Some(max_priority_fee_per_gas) = options.max_priority_fee_per_gas {
+                mut_op1.max_priority_fee_per_gas = max_priority_fee_per_gas;
+            }
+        }
 
         let mut signers: Vec<Arc<dyn KeyBase>> = Vec::new();
         if let Some(pin_code) = &self.pin_code {
@@ -261,28 +262,24 @@ impl<M: Middleware + Signer + 'static> ContractWallet<M> {
             .await?
             .into_inner();
 
-        let signed_tx = self
+        let mut handle_ops_transaction = self
             .entry_point()
-            .handle_ops(vec![op], self.operator.pick_up_beneficiary())
+            .handle_ops(vec![op], self.operator.pick_up_beneficiary());
+
+        if let Some(options) = options {
+            if let Some(gas_limit) = options.gas_limit {
+                handle_ops_transaction.tx.set_gas(gas_limit);
+            }
+            if let Some(gas_price) = options.gas_price {
+                handle_ops_transaction.tx.set_gas_price(gas_price);
+            }
+        }
+
+        let signed_tx = handle_ops_transaction
             .send()
             .await?
             .await?
             .ok_or_else(|| anyhow!("Tx Receipt is None"))?;
-
-        // if let Some(options) = options {
-        //     if let Some(gas_limit) = options.gas_limit {
-        //         handle_ops_transaction.gas = Some(gas_limit);
-        //     }
-        //     if let Some(gas_price) = options.gas_price {
-        //         handle_ops_transaction.gas_price = Some(gas_price);
-        //     }
-        // }
-
-        // let signed_tx = self
-        //     .signer()
-        //     .send_transaction(handle_ops_transaction)
-        //     .await?;
-        // signed_tx.await?;
 
         Ok(signed_tx)
     }
@@ -291,7 +288,7 @@ impl<M: Middleware + Signer + 'static> ContractWallet<M> {
         &self,
         transaction: Eip1559TransactionRequest,
         chain_id: Option<U256>,
-    ) -> Result<Eip1559TransactionRequest> {
+    ) -> Result<TypedTransaction> {
         if transaction.to.is_none() {
             return Err(anyhow!("Transaction to is undefined"));
         }
@@ -343,33 +340,50 @@ impl<M: Middleware + Signer + 'static> ContractWallet<M> {
             .await?
             .into_inner();
 
-        let ret = self
-            .entry_point()
-            .handle_ops([op].into(), self.operator.pick_up_beneficiary());
-
-        if let Some(gas_limit) = transaction.gas {
-            ret.gas(gas_limit);
-        }
-        if let Ok(gas_price) = transaction.get_gas_price().await {
-            ret.gas_price(gas_price);
-        }
+        let ret = if let Some(gas_limit) = transaction.gas {
+            self.entry_point()
+                .handle_ops([op].into(), self.operator.pick_up_beneficiary())
+                .gas(gas_limit)
+                .tx
+        } else {
+            self.entry_point()
+                .handle_ops([op].into(), self.operator.pick_up_beneficiary())
+                .tx
+        };
 
         Ok(ret)
     }
 
-    // pub async fn send_transaction(
-    //     &self,
-    //     transaction: TransactionRequest,
-    //     chain_id: Option<u64>,
-    // ) -> Result<TransactionReceipt, Box<dyn std::error::Error>> {
-    //     let handle_ops_transaction = self.populate_transaction(transaction, chain_id).await?;
+    pub async fn send_transaction(
+        &self,
+        transaction: Eip1559TransactionRequest,
+        chain_id: Option<U256>,
+    ) -> Result<TransactionReceipt> {
+        let handle_ops_transaction = self.populate_transaction(transaction, chain_id).await?;
 
-    //     let signed_tx = self
-    //         .signer()
-    //         .send_transaction(handle_ops_transaction)
-    //         .await?;
-    //     signed_tx.await?;
+        self.signer()
+            .send_transaction(handle_ops_transaction, Some(BlockNumber::Latest.into()))
+            .await?
+            .await?
+            .ok_or(anyhow!("Tx Receipt is None!"))
+    }
+}
 
-    //     Ok(signed_tx)
-    // }
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct Overrides {
+    pub gas_limit: Option<U256>,
+    pub gas_price: Option<U256>,
+    pub max_fee_per_gas: Option<U256>,
+    pub max_priority_fee_per_gas: Option<U256>,
+    pub nonce: Option<U256>,
+    pub type_: Option<u64>, // `type` is a reserved keyword in Rust
+    pub access_list: Option<Vec<AccessListItem>>, // Assuming AccessListish is a Vec of AccessListItem
+    pub custom_data: Option<HashMap<String, serde_json::Value>>,
+    pub ccip_read_enabled: Option<bool>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct AccessListItem {
+    pub address: String,
+    pub storage_keys: Vec<U256>,
 }

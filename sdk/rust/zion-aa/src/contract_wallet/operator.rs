@@ -57,18 +57,18 @@ impl<M: Middleware + 'static> Operator<M> {
     pub fn get_init_code(
         &self,
         sub: String,
-        salt: [u8; 32],
+        salt: String,
         iss: String,
         aud: String,
     ) -> Result<Bytes> {
         let provider = get_provider_hashed(iss, aud);
         let sub_in_hex = hex::decode(sub)?;
-        // let mut salt_in_hex = [0u8; 32];
-        // hex::decode_to_slice(salt, &mut salt_in_hex)?;
+        let mut salt_in_hex = [0u8; 32];
+        hex::decode_to_slice(salt, &mut salt_in_hex)?;
 
         let call_data = self
             .factory
-            .create_account(sub_in_hex.into(), salt, provider)
+            .create_account(sub_in_hex.into(), salt_in_hex, provider)
             .calldata()
             .ok_or(anyhow!("Convert call data to bytes failed!"))?;
 

@@ -36,5 +36,5 @@ pub struct JWTOptions<S> {
     pub proof: ProofPoints,
     pub ephemeral_key_pair: Arc<S>,
     pub deadline: U256,
-    pub salt: [u8; 32],
+    pub salt: String,
 }
