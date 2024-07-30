@@ -77,6 +77,12 @@ impl launcher::HttpRouter for Router {
                 ),
             )
             .service(
+                web::scope("/tele")
+                .configure(|config| {
+                    route_auth_telegram(config, Arc::new(self.authtelegram.clone()))
+                })
+            )
+            .service(
                 web::scope("")
                     .wrap(HttpAuthentication::bearer(
                         move |req: ServiceRequest, credentials: BearerAuth| {
@@ -89,14 +95,7 @@ impl launcher::HttpRouter for Router {
                     ))
                     .configure(|config| route_erc20(config, Arc::new(self.erc20.clone())))
                     .configure(|config| route_zion_authorization(config, Arc::new(self.zionauthorization.clone()))),
-            )
-            .service(
-                web::scope("/tele")
-                .configure(|config| {
-                    route_auth_telegram(config, Arc::new(self.authtelegram.clone()))
-                })
             );
-
     }
 }
 

@@ -4,19 +4,19 @@ config_version: 3
 http:
   rules:
     - selector: authtelegram.AuthTelegram.SendCodeTelegram
-      post: /tele/api/authtelegram/sendCodeTelegram
+      post: /api/authtelegram/sendCodeTelegram
       body: "*"
     - selector: authtelegram.AuthTelegram.SignInTelegram
-      post: /tele/api/authtelegram/signInTelegram
+      post: /api/authtelegram/signInTelegram
       body: "*"
     - selector: authtelegram.AuthTelegram.LogOutTelegram
-      post: /tele/api/authtelegram/logOutTelegram
+      post: /api/authtelegram/logOutTelegram
       body: "*"
     - selector: authtelegram.AuthTelegram.SignInTelegramAsBot
-      post: /tele/api/authtelegram/signInTelegramAsBot
+      post: /api/authtelegram/signInTelegramAsBot
       body: "*"
     - selector: authtelegram.AuthTelegram.LogOutTelegramAsBot
-      post: /tele/api/authtelegram/logOutTelegramAsBot
+      post: /api/authtelegram/logOutTelegramAsBot
       body: "*"
 
     - selector: zionauthorization.ZionAuthorization.GetDataRequestForZION

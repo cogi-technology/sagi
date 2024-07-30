@@ -13,6 +13,106 @@ consumes:
 produces:
   - application/json
 paths:
+  /api/authtelegram/logOutTelegram:
+    post:
+      operationId: AuthTelegram_LogOutTelegram
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/authtelegramLogOutTelegramResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/authtelegramLogOutTelegramRequest'
+      tags:
+        - AuthTelegram
+  /api/authtelegram/logOutTelegramAsBot:
+    post:
+      operationId: AuthTelegram_LogOutTelegramAsBot
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/authtelegramLogOutTelegramAsBotResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/authtelegramLogOutTelegramAsbotRequest'
+      tags:
+        - AuthTelegram
+  /api/authtelegram/sendCodeTelegram:
+    post:
+      operationId: AuthTelegram_SendCodeTelegram
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/authtelegramSendCodeTelegramResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/authtelegramSendCodeTelegramRequest'
+      tags:
+        - AuthTelegram
+  /api/authtelegram/signInTelegram:
+    post:
+      operationId: AuthTelegram_SignInTelegram
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/authtelegramSignInTelegramResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/authtelegramSignInTelegramRequest'
+      tags:
+        - AuthTelegram
+  /api/authtelegram/signInTelegramAsBot:
+    post:
+      operationId: AuthTelegram_SignInTelegramAsBot
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/authtelegramSignInTelegramAsBotResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/authtelegramSignInTelegramAsBotRequest'
+      tags:
+        - AuthTelegram
   /api/erc20/allowance:
     get:
       operationId: ERC20_Allowance
@@ -709,106 +809,6 @@ paths:
             $ref: '#/definitions/rpcStatus'
       tags:
         - ZionAuthorization
-  /tele/api/authtelegram/logOutTelegram:
-    post:
-      operationId: AuthTelegram_LogOutTelegram
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/authtelegramLogOutTelegramResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/authtelegramLogOutTelegramRequest'
-      tags:
-        - AuthTelegram
-  /tele/api/authtelegram/logOutTelegramAsBot:
-    post:
-      operationId: AuthTelegram_LogOutTelegramAsBot
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/authtelegramLogOutTelegramAsBotResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/authtelegramLogOutTelegramAsbotRequest'
-      tags:
-        - AuthTelegram
-  /tele/api/authtelegram/sendCodeTelegram:
-    post:
-      operationId: AuthTelegram_SendCodeTelegram
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/authtelegramSendCodeTelegramResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/authtelegramSendCodeTelegramRequest'
-      tags:
-        - AuthTelegram
-  /tele/api/authtelegram/signInTelegram:
-    post:
-      operationId: AuthTelegram_SignInTelegram
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/authtelegramSignInTelegramResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/authtelegramSignInTelegramRequest'
-      tags:
-        - AuthTelegram
-  /tele/api/authtelegram/signInTelegramAsBot:
-    post:
-      operationId: AuthTelegram_SignInTelegramAsBot
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/authtelegramSignInTelegramAsBotResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/authtelegramSignInTelegramAsBotRequest'
-      tags:
-        - AuthTelegram
 definitions:
   authtelegramLogOutTelegramAsBotResponse:
     type: object

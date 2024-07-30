@@ -263,27 +263,27 @@ pub mod auth_telegram_actix {
         config.app_data(::actix_web::web::Data::from(service));
         config
             .route(
-                "/tele/api/authtelegram/sendCodeTelegram",
+                "/api/authtelegram/sendCodeTelegram",
                 ::actix_web::web::post().to(call_send_code_telegram),
             );
         config
             .route(
-                "/tele/api/authtelegram/signInTelegram",
+                "/api/authtelegram/signInTelegram",
                 ::actix_web::web::post().to(call_sign_in_telegram),
             );
         config
             .route(
-                "/tele/api/authtelegram/logOutTelegram",
+                "/api/authtelegram/logOutTelegram",
                 ::actix_web::web::post().to(call_log_out_telegram),
             );
         config
             .route(
-                "/tele/api/authtelegram/signInTelegramAsBot",
+                "/api/authtelegram/signInTelegramAsBot",
                 ::actix_web::web::post().to(call_sign_in_telegram_as_bot),
             );
         config
             .route(
-                "/tele/api/authtelegram/logOutTelegramAsBot",
+                "/api/authtelegram/logOutTelegramAsBot",
                 ::actix_web::web::post().to(call_log_out_telegram_as_bot),
             );
     }
