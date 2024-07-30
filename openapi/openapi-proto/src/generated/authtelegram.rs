@@ -34,14 +34,14 @@ pub struct SignInTelegramRequest {
 pub struct SignInTelegramResponse {
     #[prost(string, tag = "1")]
     pub jwt: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
+    pub session_uuid: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct LogOutTelegramRequest {
     #[prost(string, tag = "1")]
-    pub phone_number: ::prost::alloc::string::String,
-    #[prost(string, tag = "2")]
     pub session_uuid: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -49,49 +49,41 @@ pub struct LogOutTelegramRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct LogOutTelegramResponse {
     #[prost(string, tag = "1")]
-    pub phone_number: ::prost::alloc::string::String,
-    #[prost(string, tag = "2")]
     pub session_uuid: ::prost::alloc::string::String,
-    #[prost(string, tag = "4")]
+    #[prost(string, tag = "2")]
     pub message: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct GetDataRequestForZionRequest {}
-#[actix_prost_macros::serde(rename_all = "snake_case")]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct GetDataRequestForZionResponse {
+pub struct SignInTelegramAsBotRequest {
     #[prost(string, tag = "1")]
-    pub salt: ::prost::alloc::string::String,
-    #[prost(message, optional, tag = "2")]
-    pub proof: ::core::option::Option<ProofPoints>,
-    #[prost(string, tag = "3")]
-    pub ephemeral_key_pair: ::prost::alloc::string::String,
-    #[prost(string, repeated, tag = "4")]
-    pub beneficiaries: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    pub token_auth: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ProofPoints {
+pub struct SignInTelegramAsBotResponse {
     #[prost(string, tag = "1")]
-    pub protocol: ::prost::alloc::string::String,
-    #[prost(string, repeated, tag = "2")]
-    pub pi_a: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-    #[prost(message, repeated, tag = "3")]
-    pub pi_b: ::prost::alloc::vec::Vec<StringArray>,
-    #[prost(string, repeated, tag = "4")]
-    pub pi_c: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    pub jwt: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
+    pub session_uuid: ::prost::alloc::string::String,
 }
-/// Mảng một chiều của chuỗi
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct StringArray {
-    #[prost(string, repeated, tag = "1")]
-    pub values: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+pub struct LogOutTelegramAsbotRequest {
+    #[prost(string, tag = "2")]
+    pub session_uuid: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct LogOutTelegramAsBotResponse {
+    #[prost(string, tag = "2")]
+    pub session_uuid: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
+    pub message: ::prost::alloc::string::String,
 }
 pub mod auth_telegram_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
@@ -124,7 +116,19 @@ pub mod auth_telegram_actix {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct LogOutTelegramJson {
         #[prost(string, tag = "1")]
-        pub phone_number: ::prost::alloc::string::String,
+        pub session_uuid: ::prost::alloc::string::String,
+    }
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct SignInTelegramAsBotJson {
+        #[prost(string, tag = "1")]
+        pub token_auth: ::prost::alloc::string::String,
+    }
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct LogOutTelegramAsBotJson {
         #[prost(string, tag = "2")]
         pub session_uuid: ::prost::alloc::string::String,
     }
@@ -193,7 +197,6 @@ pub mod auth_telegram_actix {
             ))?
             .into_inner();
         let request = LogOutTelegramRequest {
-            phone_number: json.phone_number,
             session_uuid: json.session_uuid,
         };
         let request = ::actix_prost::new_request(request, &http_request);
@@ -201,16 +204,55 @@ pub mod auth_telegram_actix {
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
-    async fn call_get_data_request_for_zion(
+    async fn call_sign_in_telegram_as_bot(
         service: ::actix_web::web::Data<dyn AuthTelegram + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
     ) -> Result<
-        ::actix_web::web::Json<GetDataRequestForZionResponse>,
+        ::actix_web::web::Json<SignInTelegramAsBotResponse>,
         ::actix_prost::Error,
     > {
-        let request = GetDataRequestForZionRequest {};
+        let mut payload = payload.into_inner();
+        let json = <::actix_web::web::Json<
+            SignInTelegramAsBotJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
+            .into_inner();
+        let request = SignInTelegramAsBotRequest {
+            token_auth: json.token_auth,
+        };
         let request = ::actix_prost::new_request(request, &http_request);
-        let response = service.get_data_request_for_zion(request).await?;
+        let response = service.sign_in_telegram_as_bot(request).await?;
+        let response = response.into_inner();
+        Ok(::actix_web::web::Json(response))
+    }
+    async fn call_log_out_telegram_as_bot(
+        service: ::actix_web::web::Data<dyn AuthTelegram + Sync + Send + 'static>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
+    ) -> Result<
+        ::actix_web::web::Json<LogOutTelegramAsBotResponse>,
+        ::actix_prost::Error,
+    > {
+        let mut payload = payload.into_inner();
+        let json = <::actix_web::web::Json<
+            LogOutTelegramAsBotJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
+            .into_inner();
+        let request = LogOutTelegramAsbotRequest {
+            session_uuid: json.session_uuid,
+        };
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service.log_out_telegram_as_bot(request).await?;
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
@@ -221,23 +263,28 @@ pub mod auth_telegram_actix {
         config.app_data(::actix_web::web::Data::from(service));
         config
             .route(
-                "/api/authtelegram/sendCodeTelegram",
+                "/tele/api/authtelegram/sendCodeTelegram",
                 ::actix_web::web::post().to(call_send_code_telegram),
             );
         config
             .route(
-                "/api/authtelegram/signInTelegram",
+                "/tele/api/authtelegram/signInTelegram",
                 ::actix_web::web::post().to(call_sign_in_telegram),
             );
         config
             .route(
-                "/api/authtelegram/logOutTelegram",
+                "/tele/api/authtelegram/logOutTelegram",
                 ::actix_web::web::post().to(call_log_out_telegram),
             );
         config
             .route(
-                "/api/authtelegram/getDataRequestForZION",
-                ::actix_web::web::get().to(call_get_data_request_for_zion),
+                "/tele/api/authtelegram/signInTelegramAsBot",
+                ::actix_web::web::post().to(call_sign_in_telegram_as_bot),
+            );
+        config
+            .route(
+                "/tele/api/authtelegram/logOutTelegramAsBot",
+                ::actix_web::web::post().to(call_log_out_telegram_as_bot),
             );
     }
 }
@@ -368,13 +415,10 @@ pub mod auth_telegram_client {
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
-        pub async fn get_data_request_for_zion(
+        pub async fn sign_in_telegram_as_bot(
             &mut self,
-            request: impl tonic::IntoRequest<super::GetDataRequestForZionRequest>,
-        ) -> Result<
-            tonic::Response<super::GetDataRequestForZionResponse>,
-            tonic::Status,
-        > {
+            request: impl tonic::IntoRequest<super::SignInTelegramAsBotRequest>,
+        ) -> Result<tonic::Response<super::SignInTelegramAsBotResponse>, tonic::Status> {
             self.inner
                 .ready()
                 .await
@@ -386,7 +430,26 @@ pub mod auth_telegram_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/authtelegram.AuthTelegram/GetDataRequestForZION",
+                "/authtelegram.AuthTelegram/SignInTelegramAsBot",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        pub async fn log_out_telegram_as_bot(
+            &mut self,
+            request: impl tonic::IntoRequest<super::LogOutTelegramAsbotRequest>,
+        ) -> Result<tonic::Response<super::LogOutTelegramAsBotResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/authtelegram.AuthTelegram/LogOutTelegramAsBot",
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
@@ -411,13 +474,14 @@ pub mod auth_telegram_server {
             &self,
             request: tonic::Request<super::LogOutTelegramRequest>,
         ) -> Result<tonic::Response<super::LogOutTelegramResponse>, tonic::Status>;
-        async fn get_data_request_for_zion(
+        async fn sign_in_telegram_as_bot(
             &self,
-            request: tonic::Request<super::GetDataRequestForZionRequest>,
-        ) -> Result<
-            tonic::Response<super::GetDataRequestForZionResponse>,
-            tonic::Status,
-        >;
+            request: tonic::Request<super::SignInTelegramAsBotRequest>,
+        ) -> Result<tonic::Response<super::SignInTelegramAsBotResponse>, tonic::Status>;
+        async fn log_out_telegram_as_bot(
+            &self,
+            request: tonic::Request<super::LogOutTelegramAsbotRequest>,
+        ) -> Result<tonic::Response<super::LogOutTelegramAsBotResponse>, tonic::Status>;
     }
     /// Define the service for
     #[derive(Debug)]
@@ -599,25 +663,25 @@ pub mod auth_telegram_server {
                     };
                     Box::pin(fut)
                 }
-                "/authtelegram.AuthTelegram/GetDataRequestForZION" => {
+                "/authtelegram.AuthTelegram/SignInTelegramAsBot" => {
                     #[allow(non_camel_case_types)]
-                    struct GetDataRequestForZIONSvc<T: AuthTelegram>(pub Arc<T>);
+                    struct SignInTelegramAsBotSvc<T: AuthTelegram>(pub Arc<T>);
                     impl<
                         T: AuthTelegram,
-                    > tonic::server::UnaryService<super::GetDataRequestForZionRequest>
-                    for GetDataRequestForZIONSvc<T> {
-                        type Response = super::GetDataRequestForZionResponse;
+                    > tonic::server::UnaryService<super::SignInTelegramAsBotRequest>
+                    for SignInTelegramAsBotSvc<T> {
+                        type Response = super::SignInTelegramAsBotResponse;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
                             tonic::Status,
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::GetDataRequestForZionRequest>,
+                            request: tonic::Request<super::SignInTelegramAsBotRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
-                                (*inner).get_data_request_for_zion(request).await
+                                (*inner).sign_in_telegram_as_bot(request).await
                             };
                             Box::pin(fut)
                         }
@@ -627,7 +691,47 @@ pub mod auth_telegram_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
-                        let method = GetDataRequestForZIONSvc(inner);
+                        let method = SignInTelegramAsBotSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/authtelegram.AuthTelegram/LogOutTelegramAsBot" => {
+                    #[allow(non_camel_case_types)]
+                    struct LogOutTelegramAsBotSvc<T: AuthTelegram>(pub Arc<T>);
+                    impl<
+                        T: AuthTelegram,
+                    > tonic::server::UnaryService<super::LogOutTelegramAsbotRequest>
+                    for LogOutTelegramAsBotSvc<T> {
+                        type Response = super::LogOutTelegramAsBotResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::LogOutTelegramAsbotRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).log_out_telegram_as_bot(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = LogOutTelegramAsBotSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

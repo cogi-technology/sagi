@@ -72,3 +72,6 @@ actix-web-httpauth = "0.8.2"
 grammers-client = "0.6.0"
 grammers-session="0.5.2"
 uuid = { version = "1", features = ["v4"] }
+sha2 = "0.10"
+hmac = "0.12"
+reqwest = "0.11"

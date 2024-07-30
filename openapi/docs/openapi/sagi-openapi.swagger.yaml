@@ -1,8 +1,9 @@
 swagger: "2.0"
 info:
-  title: proto/auth_telegram.proto
+  title: proto/zion_authorization.proto
   version: version not set
 tags:
+  - name: ZionAuthorization
   - name: AuthTelegram
   - name: ERC20
   - name: ERC404
@@ -12,20 +13,6 @@ consumes:
 produces:
   - application/json
 paths:
-  /api/authtelegram/getDataRequestForZION:
-    get:
-      operationId: AuthTelegram_GetDataRequestForZION
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/authtelegramGetDataRequestForZionResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      tags:
-        - AuthTelegram
   /api/authtelegram/logOutTelegram:
     post:
       operationId: AuthTelegram_LogOutTelegram
@@ -44,6 +31,26 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/authtelegramLogOutTelegramRequest'
+      tags:
+        - AuthTelegram
+  /api/authtelegram/logOutTelegramAsBot:
+    post:
+      operationId: AuthTelegram_LogOutTelegramAsBot
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/authtelegramLogOutTelegramAsBotResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/authtelegramLogOutTelegramAsbotRequest'
       tags:
         - AuthTelegram
   /api/authtelegram/sendCodeTelegram:
@@ -86,7 +93,41 @@ paths:
             $ref: '#/definitions/authtelegramSignInTelegramRequest'
       tags:
         - AuthTelegram
-  /api/erc20/allowance:
+  /api/authtelegram/signInTelegramAsBot:
+    post:
+      operationId: AuthTelegram_SignInTelegramAsBot
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/authtelegramSignInTelegramAsBotResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/authtelegramSignInTelegramAsBotRequest'
+      tags:
+        - AuthTelegram
+  /api/zionauthorization/getDataRequestForZION:
+    get:
+      operationId: ZionAuthorization_GetDataRequestForZION
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/zionauthorizationGetDataRequestForZionResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      tags:
+        - ZionAuthorization
+  /auth/api/erc20/allowance:
     get:
       operationId: ERC20_Allowance
       responses:
@@ -113,7 +154,7 @@ paths:
           type: string
       tags:
         - ERC20
-  /api/erc20/approve:
+  /auth/api/erc20/approve:
     post:
       operationId: ERC20_Approve
       responses:
@@ -133,7 +174,7 @@ paths:
             $ref: '#/definitions/erc20ApproveRequest'
       tags:
         - ERC20
-  /api/erc20/balanceOf:
+  /auth/api/erc20/balanceOf:
     get:
       operationId: ERC20_BalanceOf
       responses:
@@ -156,7 +197,7 @@ paths:
           type: string
       tags:
         - ERC20
-  /api/erc20/deploy:
+  /auth/api/erc20/deploy:
     post:
       operationId: ERC20_Deploy
       responses:
@@ -176,7 +217,7 @@ paths:
             $ref: '#/definitions/erc20DeployRequest'
       tags:
         - ERC20
-  /api/erc20/totalSupply:
+  /auth/api/erc20/totalSupply:
     get:
       operationId: ERC20_TotalSupply
       responses:
@@ -195,7 +236,7 @@ paths:
           type: string
       tags:
         - ERC20
-  /api/erc20/transfer:
+  /auth/api/erc20/transfer:
     post:
       operationId: ERC20_Transfer
       responses:
@@ -215,7 +256,7 @@ paths:
             $ref: '#/definitions/erc20TransferRequest'
       tags:
         - ERC20
-  /api/erc20/transferFrom:
+  /auth/api/erc20/transferFrom:
     post:
       operationId: ERC20_TransferFrom
       responses:
@@ -235,7 +276,7 @@ paths:
             $ref: '#/definitions/erc20TransferFromRequest'
       tags:
         - ERC20
-  /api/erc404/allowance:
+  /auth/api/erc404/allowance:
     get:
       operationId: ERC404_Allowance
       responses:
@@ -262,7 +303,7 @@ paths:
           type: string
       tags:
         - ERC404
-  /api/erc404/approve:
+  /auth/api/erc404/approve:
     post:
       operationId: ERC404_Approve
       responses:
@@ -282,7 +323,7 @@ paths:
             $ref: '#/definitions/erc404ApproveRequest'
       tags:
         - ERC404
-  /api/erc404/balanceOf:
+  /auth/api/erc404/balanceOf:
     get:
       operationId: ERC404_BalanceOf
       responses:
@@ -305,7 +346,7 @@ paths:
           type: string
       tags:
         - ERC404
-  /api/erc404/balanceOfBatch:
+  /auth/api/erc404/balanceOfBatch:
     get:
       operationId: ERC404_BalanceOfBatch
       responses:
@@ -335,7 +376,7 @@ paths:
           collectionFormat: multi
       tags:
         - ERC404
-  /api/erc404/deploy:
+  /auth/api/erc404/deploy:
     post:
       operationId: ERC404_Deploy
       responses:
@@ -355,7 +396,7 @@ paths:
             $ref: '#/definitions/erc404DeployRequest'
       tags:
         - ERC404
-  /api/erc404/erc1155BalanceOf:
+  /auth/api/erc404/erc1155BalanceOf:
     get:
       operationId: ERC404_ERC1155BalanceOf
       responses:
@@ -382,7 +423,7 @@ paths:
           type: string
       tags:
         - ERC404
-  /api/erc404/erc1155TransferExempt:
+  /auth/api/erc404/erc1155TransferExempt:
     get:
       operationId: ERC404_ERC1155TransferExempt
       responses:
@@ -401,7 +442,7 @@ paths:
           type: string
       tags:
         - ERC404
-  /api/erc404/erc20BalanceOf:
+  /auth/api/erc404/erc20BalanceOf:
     get:
       operationId: ERC404_ERC20BalanceOf
       responses:
@@ -424,7 +465,7 @@ paths:
           type: string
       tags:
         - ERC404
-  /api/erc404/isApprovedForAll:
+  /auth/api/erc404/isApprovedForAll:
     get:
       operationId: ERC404_IsApprovedForAll
       responses:
@@ -451,7 +492,7 @@ paths:
           type: string
       tags:
         - ERC404
-  /api/erc404/safeBatchTransferFrom:
+  /auth/api/erc404/safeBatchTransferFrom:
     post:
       operationId: ERC404_SafeBatchTransferFrom
       responses:
@@ -471,7 +512,7 @@ paths:
             $ref: '#/definitions/erc404SafeBatchTransferFromRequest'
       tags:
         - ERC404
-  /api/erc404/safeTransferFrom:
+  /auth/api/erc404/safeTransferFrom:
     post:
       operationId: ERC404_SafeTransferFrom
       responses:
@@ -491,7 +532,7 @@ paths:
             $ref: '#/definitions/erc404SafeTransferFromRequest'
       tags:
         - ERC404
-  /api/erc404/setApprovalForAll:
+  /auth/api/erc404/setApprovalForAll:
     post:
       operationId: ERC404_SetApprovalForAll
       responses:
@@ -511,7 +552,7 @@ paths:
             $ref: '#/definitions/erc404SetApprovalForAllRequest'
       tags:
         - ERC404
-  /api/erc404/totalSupply:
+  /auth/api/erc404/totalSupply:
     get:
       operationId: ERC404_TotalSupply
       responses:
@@ -530,7 +571,7 @@ paths:
           type: string
       tags:
         - ERC404
-  /api/erc404/transfer:
+  /auth/api/erc404/transfer:
     post:
       operationId: ERC404_Transfer
       responses:
@@ -550,7 +591,7 @@ paths:
             $ref: '#/definitions/erc404TransferRequest'
       tags:
         - ERC404
-  /api/erc404/transferFrom:
+  /auth/api/erc404/transferFrom:
     post:
       operationId: ERC404_TransferFrom
       responses:
@@ -570,7 +611,7 @@ paths:
             $ref: '#/definitions/erc404TransferFromRequest'
       tags:
         - ERC404
-  /api/erc721/approve:
+  /auth/api/erc721/approve:
     post:
       operationId: ERC721_Approve
       responses:
@@ -590,7 +631,7 @@ paths:
             $ref: '#/definitions/erc721ApproveRequest'
       tags:
         - ERC721
-  /api/erc721/balanceOf:
+  /auth/api/erc721/balanceOf:
     get:
       operationId: ERC721_BalanceOf
       responses:
@@ -613,7 +654,7 @@ paths:
           type: string
       tags:
         - ERC721
-  /api/erc721/deploy:
+  /auth/api/erc721/deploy:
     post:
       operationId: ERC721_Deploy
       responses:
@@ -633,7 +674,7 @@ paths:
             $ref: '#/definitions/erc721DeployRequest'
       tags:
         - ERC721
-  /api/erc721/getApproved:
+  /auth/api/erc721/getApproved:
     get:
       operationId: ERC721_GetApproved
       responses:
@@ -657,7 +698,7 @@ paths:
           format: int32
       tags:
         - ERC721
-  /api/erc721/isApprovedForAll:
+  /auth/api/erc721/isApprovedForAll:
     get:
       operationId: ERC721_IsApprovedForAll
       responses:
@@ -684,7 +725,7 @@ paths:
           type: string
       tags:
         - ERC721
-  /api/erc721/ownerOf:
+  /auth/api/erc721/ownerOf:
     get:
       operationId: ERC721_OwnerOf
       responses:
@@ -708,7 +749,7 @@ paths:
           format: int32
       tags:
         - ERC721
-  /api/erc721/safeTransferFrom:
+  /auth/api/erc721/safeTransferFrom:
     post:
       operationId: ERC721_SafeTransferFrom
       responses:
@@ -728,7 +769,7 @@ paths:
             $ref: '#/definitions/erc721SafeTransferFromRequest'
       tags:
         - ERC721
-  /api/erc721/setApprovalForAll:
+  /auth/api/erc721/setApprovalForAll:
     post:
       operationId: ERC721_SetApprovalForAll
       responses:
@@ -748,7 +789,7 @@ paths:
             $ref: '#/definitions/erc721SetApprovalForAllRequest'
       tags:
         - ERC721
-  /api/erc721/transferFrom:
+  /auth/api/erc721/transferFrom:
     post:
       operationId: ERC721_TransferFrom
       responses:
@@ -769,51 +810,30 @@ paths:
       tags:
         - ERC721
 definitions:
-  authtelegramGetDataRequestForZionResponse:
+  authtelegramLogOutTelegramAsBotResponse:
     type: object
     properties:
-      salt:
+      sessionUuid:
         type: string
-      proof:
-        $ref: '#/definitions/authtelegramProofPoints'
-      ephemeralKeyPair:
+      message:
         type: string
-      beneficiaries:
-        type: array
-        items:
-          type: string
+  authtelegramLogOutTelegramAsbotRequest:
+    type: object
+    properties:
+      sessionUuid:
+        type: string
   authtelegramLogOutTelegramRequest:
     type: object
     properties:
-      phoneNumber:
-        type: string
-      phoneHash:
+      sessionUuid:
         type: string
   authtelegramLogOutTelegramResponse:
     type: object
     properties:
-      phoneNumber:
+      sessionUuid:
         type: string
-      phoneHash:
+      message:
         type: string
-  authtelegramProofPoints:
-    type: object
-    properties:
-      protocol:
-        type: string
-      pi_a:
-        type: array
-        items:
-          type: string
-      pi_b:
-        type: array
-        items:
-          type: object
-          $ref: '#/definitions/authtelegramStringArray'
-      pi_c:
-        type: array
-        items:
-          type: string
   authtelegramSendCodeTelegramRequest:
     type: object
     properties:
@@ -825,30 +845,38 @@ definitions:
     properties:
       phoneNumber:
         type: string
-      phoneHash:
+      sessionUuid:
+        type: string
+  authtelegramSignInTelegramAsBotRequest:
+    type: object
+    properties:
+      tokenAuth:
+        type: string
+  authtelegramSignInTelegramAsBotResponse:
+    type: object
+    properties:
+      jwt:
+        type: string
+      sessionUuid:
         type: string
   authtelegramSignInTelegramRequest:
     type: object
     properties:
       phoneNumber:
         type: string
-      phoneHash:
+      sessionUuid:
         type: string
       code:
+        type: string
+      code2Fa:
         type: string
   authtelegramSignInTelegramResponse:
     type: object
     properties:
       jwt:
         type: string
-  authtelegramStringArray:
-    type: object
-    properties:
-      values:
-        type: array
-        items:
-          type: string
-    title: Mảng một chiều của chuỗi
+      sessionUuid:
+        type: string
   erc20AllowanceResponse:
     type: object
     properties:
@@ -1204,3 +1232,42 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/protobufAny'
+  zionauthorizationGetDataRequestForZionResponse:
+    type: object
+    properties:
+      salt:
+        type: string
+      proof:
+        $ref: '#/definitions/zionauthorizationProofPoints'
+      ephemeralKeyPair:
+        type: string
+      beneficiaries:
+        type: array
+        items:
+          type: string
+  zionauthorizationProofPoints:
+    type: object
+    properties:
+      protocol:
+        type: string
+      pi_a:
+        type: array
+        items:
+          type: string
+      pi_b:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/zionauthorizationStringArray'
+      pi_c:
+        type: array
+        items:
+          type: string
+  zionauthorizationStringArray:
+    type: object
+    properties:
+      values:
+        type: array
+        items:
+          type: string
+    title: Mảng một chiều của chuỗi

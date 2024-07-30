@@ -3,7 +3,12 @@ use {
         reverted_error::*,
         utils::{into_anyhow, Result},
     },
+    crate::{
+        entity::telegram::LoginWidgetData,
+        helpers::telegram::{authorize, get_init_data_integrity_web},
+    },
     anyhow::anyhow,
+    chrono::Utc,
     ethers::{types::Address, utils::parse_ether},
     ethers_contract::{ContractError, ContractFactory},
     grammers_client::{types::LoginToken, Client, Config, SignInError},
@@ -15,8 +20,7 @@ use {
     openapi_logger::debug,
     openapi_proto::authtelegram_service::{auth_telegram_server::AuthTelegram, *},
     serde_json::json,
-    std::fs,
-    std::{env, ptr::null, sync::Arc},
+    std::{env, fs, ptr::null, sync::Arc},
     tonic::{Request, Response, Status},
     uuid::Uuid,
 };
@@ -40,14 +44,10 @@ impl AuthTelegram for AuthTelegramService {
     ) -> Result<Response<SendCodeTelegramResponse>> {
         debug!("{req:?}");
         let SendCodeTelegramRequest { phone_number } = req.into_inner();
-        println!("{}", phone_number);
         //
         let api_id = env::var("TELEGRAM_API_ID").map_err(|e| into_anyhow(e.into()))?;
         let api_hash = env::var("TELEGRAM_API_HASH").map_err(|e| into_anyhow(e.into()))?;
-        println!("{}", api_id);
-        println!("{}", api_hash);
         //
-        println!("Connecting to Telegram...");
         let session_uuid = Uuid::new_v4();
         // Extract the directory of the executable
         let session_file: String = format!("session_{}", session_uuid.to_string());
@@ -59,19 +59,16 @@ impl AuthTelegram for AuthTelegramService {
         })
         .await
         .map_err(|e| into_anyhow(e.into()))?;
-        println!("Connected!");
         // If we can't save the session, sign out once we're done.
         if !client
             .is_authorized()
             .await
             .map_err(|e| into_anyhow(e.into()))?
         {
-            println!("Sending Code ...");
             client
                 .request_login_code(&phone_number)
                 .await
                 .map_err(|e| into_anyhow(e.into()))?;
-            println!("Sent Code ...");
             match client.session().save_to_file(&session_file) {
                 Ok(_) => {}
                 Err(e) => {
@@ -92,6 +89,7 @@ impl AuthTelegram for AuthTelegramService {
         &self,
         req: Request<SignInTelegramRequest>,
     ) -> Result<Response<SignInTelegramResponse>> {
+        let mut jwt: String = "".to_string();
         let SignInTelegramRequest {
             phone_number,
             session_uuid,
@@ -99,12 +97,9 @@ impl AuthTelegram for AuthTelegramService {
             code2_fa,
         } = req.into_inner();
 
-        println!("{}", phone_number);
         //
         let api_id = env::var("TELEGRAM_API_ID").map_err(|e| into_anyhow(e.into()))?;
         let api_hash = env::var("TELEGRAM_API_HASH").map_err(|e| into_anyhow(e.into()))?;
-        println!("{}", api_id);
-        println!("{}", api_hash);
         //
         let session_file: String = format!("session_{}", session_uuid.to_string());
         let client = Client::connect(Config {
@@ -115,19 +110,16 @@ impl AuthTelegram for AuthTelegramService {
         })
         .await
         .map_err(|e| into_anyhow(e.into()))?;
-        println!("Connected!");
 
         if !client
             .is_authorized()
             .await
             .map_err(|e| into_anyhow(e.into()))?
         {
-            println!("Sending Code ...");
             let token = client
                 .request_login_code(&phone_number)
                 .await
                 .map_err(|e| into_anyhow(e.into()))?;
-            println!("Sent Code ...");
             let signed_in = client.sign_in(&token, &code).await;
             match signed_in {
                 Err(SignInError::PasswordRequired(password_token)) => {
@@ -146,11 +138,49 @@ impl AuthTelegram for AuthTelegramService {
                     return Err(into_anyhow(e.into()));
                 }
             };
-            println!("Signed in!");
             match client.session().save_to_file(&session_file) {
                 Ok(_) => {}
                 Err(e) => {
                     println!("NOTE: failed to save the session, will sign out when done: {e}");
+                    return Err(into_anyhow(e.into()));
+                }
+            }
+
+            // Get JWT
+            let user = client.get_me().await.map_err(|e| into_anyhow(e.into()))?;
+            let now = Utc::now();
+            // Number of seconds since the Unix epoch
+            let auth_date: u32 = now.timestamp() as u32;
+            // Convert Option<&str> to Option<String>
+            let dataUser: LoginWidgetData = LoginWidgetData {
+                id: user.id(),
+                first_name: user.first_name().to_string(),
+                last_name: user
+                    .last_name()
+                    .map(|name| name.to_string())
+                    .or_else(|| Some("".to_string())),
+                username: user.username().map(|name| name.to_string()),
+                photo_url: Some("".to_string()),
+                auth_date: auth_date,
+                hash: Some("".to_string()),
+            };
+            let token_auth_bot = env::var("TOKEN_AUTH_BOT").map_err(|e| into_anyhow(e.into()))?;
+            let dataUserGetInfo: LoginWidgetData =
+                get_init_data_integrity_web(&dataUser, &token_auth_bot);
+            let base_url =
+                env::var("NEXT_PUBLIC_SERVER_LOGIN_AUTHOR").map_err(|e| into_anyhow(e.into()))?;
+            let client_id = env::var("CLIENT_ID").map_err(|e| into_anyhow(e.into()))?;
+            match authorize(&base_url, &client_id, dataUserGetInfo.clone()).await {
+                Ok(response) => {
+                    if let Some(data) = response.id_token {
+                        jwt = data
+                    }
+                    if let Some(error) = response.error {
+                        println!("Error: {}", error);
+                        return Err(Status::new(tonic::Code::Aborted, format!("{}", error)));
+                    }
+                }
+                Err(e) => {
                     return Err(into_anyhow(e.into()));
                 }
             }
@@ -159,7 +189,8 @@ impl AuthTelegram for AuthTelegramService {
 
         // Get JWT
         Ok(Response::new(SignInTelegramResponse {
-            jwt: "".to_string(),
+            jwt: jwt.to_string(),
+            session_uuid: session_uuid,
         }))
     }
     async fn log_out_telegram(
@@ -167,16 +198,11 @@ impl AuthTelegram for AuthTelegramService {
         req: Request<LogOutTelegramRequest>,
     ) -> Result<Response<LogOutTelegramResponse>> {
         let LogOutTelegramRequest {
-            phone_number,
             session_uuid,
         } = req.into_inner();
-
-        println!("{}", phone_number);
         //
         let api_id = env::var("TELEGRAM_API_ID").map_err(|e| into_anyhow(e.into()))?;
         let api_hash = env::var("TELEGRAM_API_HASH").map_err(|e| into_anyhow(e.into()))?;
-        println!("{}", api_id);
-        println!("{}", api_hash);
         //
         let session_file: String = format!("session_{}", session_uuid.to_string());
         let client = Client::connect(Config {
@@ -187,17 +213,13 @@ impl AuthTelegram for AuthTelegramService {
         })
         .await
         .map_err(|e| into_anyhow(e.into()))?;
-        println!("Connected!");
 
         if client
             .is_authorized()
             .await
             .map_err(|e| into_anyhow(e.into()))?
         {
-            println!("Log out ...");
             client.sign_out().await.map_err(|e| into_anyhow(e.into()))?;
-            println!("Logged out!");
-
             // Attempt to remove the file
             match fs::remove_file(&session_file) {
                 Ok(_) => {}
@@ -210,35 +232,134 @@ impl AuthTelegram for AuthTelegramService {
         }
 
         Ok(Response::new(LogOutTelegramResponse {
-            phone_number: phone_number,
             session_uuid: session_uuid,
             message: "Logged out".to_string(),
         }))
     }
 
-    async fn get_data_request_for_zion(
+    async fn sign_in_telegram_as_bot(
         &self,
-        req: Request<GetDataRequestForZionRequest>,
-    ) -> Result<Response<GetDataRequestForZionResponse>> {
-        let proof_points = ProofPoints {
-            protocol: "example_protocol".to_string(),
-            pi_a: vec!["a".to_string(), "b".to_string()],
-            pi_b: vec![
-                StringArray {
-                    values: vec!["x".to_string(), "y".to_string()],
-                },
-                StringArray {
-                    values: vec!["z".to_string()],
-                },
-            ],
-            pi_c: vec!["c1".to_string(), "c2".to_string()],
-        };
-        let response = GetDataRequestForZionResponse {
-            salt: "some_salt".to_string(),
-            proof: Some(proof_points), // Wrapping the proof_points in Some
-            ephemeral_key_pair: "ephemeral_key".to_string(),
-            beneficiaries: vec!["beneficiary1".to_string(), "beneficiary2".to_string()],
-        };
-        Ok(Response::new(response))
+        req: Request<SignInTelegramAsBotRequest>,
+    ) -> Result<Response<SignInTelegramAsBotResponse>> {
+        let mut jwt: String = "".to_string();
+        let SignInTelegramAsBotRequest { token_auth } = req.into_inner();
+        //
+        let api_id = env::var("TELEGRAM_API_ID").map_err(|e| into_anyhow(e.into()))?;
+        let api_hash = env::var("TELEGRAM_API_HASH").map_err(|e| into_anyhow(e.into()))?;
+        //
+        let session_uuid = Uuid::new_v4();
+        let session_file: String = format!("session_{}", session_uuid.to_string());
+        let client = Client::connect(Config {
+            session: Session::load_file_or_create(&session_file)?,
+            api_id: api_id.parse::<i32>().expect("1"),
+            api_hash: api_hash.clone(),
+            params: Default::default(),
+        })
+        .await
+        .map_err(|e| into_anyhow(e.into()))?;
+
+        if !client
+            .is_authorized()
+            .await
+            .map_err(|e| into_anyhow(e.into()))?
+        {
+            let signed_in = client
+                .bot_sign_in(&token_auth)
+                .await
+                .map_err(|e| into_anyhow(e.into()))?;
+            match client.session().save_to_file(&session_file) {
+                Ok(_) => {}
+                Err(e) => {
+                    println!("NOTE: failed to save the session, will sign out when done: {e}");
+                    return Err(into_anyhow(e.into()));
+                }
+            }
+            // Get JWT
+            let user = client.get_me().await.map_err(|e| into_anyhow(e.into()))?;
+            let now = Utc::now();
+            // Number of seconds since the Unix epoch
+            let auth_date: u32 = now.timestamp() as u32;
+            // Convert Option<&str> to Option<String>
+            let dataUser: LoginWidgetData = LoginWidgetData {
+                id: user.id(),
+                first_name: user.first_name().to_string(),
+                last_name: user
+                    .last_name()
+                    .map(|name| name.to_string())
+                    .or_else(|| Some("".to_string())),
+                username: user.username().map(|name| name.to_string()),
+                photo_url: Some("".to_string()),
+                auth_date: auth_date,
+                hash: Some("".to_string()),
+            };
+            let token_auth_bot = env::var("TOKEN_AUTH_BOT").map_err(|e| into_anyhow(e.into()))?;
+            let dataUserGetInfo: LoginWidgetData =
+                get_init_data_integrity_web(&dataUser, &token_auth_bot);
+            let base_url =
+                env::var("NEXT_PUBLIC_SERVER_LOGIN_AUTHOR").map_err(|e| into_anyhow(e.into()))?;
+            let client_id = env::var("CLIENT_ID").map_err(|e| into_anyhow(e.into()))?;
+            match authorize(&base_url, &client_id, dataUserGetInfo.clone()).await {
+                Ok(response) => {
+                    if let Some(data) = response.id_token {
+                        jwt = data
+                    }
+                    if let Some(error) = response.error {
+                        println!("Error: {}", error);
+                        return Err(Status::new(tonic::Code::Aborted, format!("{}", error)));
+                    }
+                }
+                Err(e) => {
+                    return Err(into_anyhow(e.into()));
+                }
+            }
+        }
+
+        // Get JWT
+        Ok(Response::new(SignInTelegramAsBotResponse {
+            jwt: jwt.to_string(),
+            session_uuid: session_uuid.to_string(),
+        }))
+    }
+    async fn log_out_telegram_as_bot(
+        &self,
+        req: Request<LogOutTelegramAsbotRequest>,
+    ) -> Result<Response<LogOutTelegramAsBotResponse>> {
+        let LogOutTelegramAsbotRequest { session_uuid } = req.into_inner();
+        //
+        let api_id = env::var("TELEGRAM_API_ID").map_err(|e| into_anyhow(e.into()))?;
+        let api_hash = env::var("TELEGRAM_API_HASH").map_err(|e| into_anyhow(e.into()))?;
+        //
+        let session_file: String = format!("session_{}", session_uuid.to_string());
+        let client = Client::connect(Config {
+            session: Session::load_file_or_create(&session_file)?,
+            api_id: api_id.parse::<i32>().expect("1"),
+            api_hash: api_hash.clone(),
+            params: Default::default(),
+        })
+        .await
+        .map_err(|e| into_anyhow(e.into()))?;
+
+        if client
+            .is_authorized()
+            .await
+            .map_err(|e| into_anyhow(e.into()))?
+        {
+            client.sign_out().await.map_err(|e| into_anyhow(e.into()))?;
+
+            // Attempt to remove the file
+            match fs::remove_file(&session_file) {
+                Ok(_) => {}
+                Err(e) => {
+                    println!("NOTE: failed to save the session, will sign out when done: {e}");
+                    return Err(into_anyhow(e.into()));
+                }
+            }
+            //
+        }
+
+        Ok(Response::new(LogOutTelegramAsBotResponse {
+            session_uuid: session_uuid,
+            message: "Logged out".to_string(),
+        }))
     }
 }

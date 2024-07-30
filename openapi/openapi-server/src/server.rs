@@ -1,8 +1,9 @@
 use {
     crate::{
-        services::authtelegram::AuthTelegramService,
-        // interceptor::AuthInterceptor,
-        services::erc20::Erc20Service,
+        helpers::{
+            http_auth::validator_token, utils::into_anyhow
+        },
+        services::{authtelegram::AuthTelegramService, erc20::Erc20Service, zionauthorization::ZionAuthorizationService},
     },
     actix_files::Files,
     actix_web::{dev::ServiceRequest, web},
@@ -11,10 +12,12 @@ use {
         self, LaunchSettings, MetricsSettings, ServerSettings,
     },
     openapi_ethers::client::Client as EthereumClient,
-    openapi_proto::authtelegram_service::{
-        auth_telegram_actix::route_auth_telegram, auth_telegram_server::AuthTelegramServer,
+    openapi_proto::{
+        authtelegram_service::{
+            auth_telegram_actix::route_auth_telegram, auth_telegram_server::AuthTelegramServer,
+        },
+        erc20_service::{erc20_actix::route_erc20, erc20_server::Erc20Server}, zionauthorization_service::{zion_authorization_actix::route_zion_authorization, zion_authorization_server::{ZionAuthorization, ZionAuthorizationServer}},
     },
-    openapi_proto::erc20_service::{erc20_actix::route_erc20, erc20_server::Erc20Server},
     std::{net::SocketAddr, sync::Arc},
     tonic::transport::{Identity, ServerTlsConfig},
 };
@@ -33,6 +36,7 @@ pub struct ServerConfig {
 #[derive(Clone)]
 struct Router {
     authtelegram: AuthTelegramService,
+    zionauthorization: ZionAuthorizationService,
     erc20: Erc20Service,
     config: ServerConfig,
 }
@@ -48,6 +52,9 @@ impl Router {
             .add_service(AuthTelegramServer::from_arc(Arc::new(
                 self.authtelegram.clone(),
             )))
+            .add_service(ZionAuthorizationServer::from_arc(Arc::new(
+                self.zionauthorization.clone(),
+            )))
         // .map_err(|e| anyhow!("Failed {}", e.to_string()))
         // .unwrap()
         // .add_service(service)
@@ -58,10 +65,10 @@ impl launcher::HttpRouter for Router {
     fn register_routes(&self, service_config: &mut actix_web::web::ServiceConfig) {
         let cors = actix_cors::Cors::default()
             .allow_any_origin()
-            .allowed_methods(vec!["GET", "POST"])
-            .allow_any_header();
+            .allowed_methods(vec!["GET", "POST", "OPTIONS"])
+            .allow_any_header()
+            .max_age(3600);
         let _auth_secret = self.config.auth_secret.clone();
-
         service_config
             .service(
                 web::scope("/api-doc").wrap(cors).service(
@@ -71,17 +78,25 @@ impl launcher::HttpRouter for Router {
             )
             .service(
                 web::scope("")
-                    // .wrap(HttpAuthentication::bearer(
-                    //     move |req: ServiceRequest, credentials: BearerAuth| {
-                    //         let secret = _auth_secret.clone();
-                    //         async move {
-                    //             super::http_auth::validator(req, credentials, secret).await
-                    //         }
-                    //     },
-                    // ))
+                    .wrap(HttpAuthentication::bearer(
+                        move |req: ServiceRequest, credentials: BearerAuth| {
+                            let secret = _auth_secret.clone();
+                            async move {
+                                validator_token(req, credentials, secret).await
+                            }
+                            // async move { validator(req, credentials, secret.into()).await }
+                        },
+                    ))
                     .configure(|config| route_erc20(config, Arc::new(self.erc20.clone())))
-                    .configure(|config| route_auth_telegram(config, Arc::new(self.authtelegram.clone())))
+                    .configure(|config| route_zion_authorization(config, Arc::new(self.zionauthorization.clone()))),
+            )
+            .service(
+                web::scope("/tele")
+                .configure(|config| {
+                    route_auth_telegram(config, Arc::new(self.authtelegram.clone()))
+                })
             );
+
     }
 }
 
@@ -91,10 +106,12 @@ pub async fn run(
 ) -> Result<(), anyhow::Error> {
     let erc20 = Erc20Service::new(Arc::clone(&rpc_client));
     let authtelegram = AuthTelegramService::new(Arc::clone(&rpc_client));
+    let zionauthorization = ZionAuthorizationService::new(Arc::clone(&rpc_client));
 
     let router = Router {
         authtelegram,
         erc20,
+        zionauthorization,
         config: server_config.clone(),
     };
 

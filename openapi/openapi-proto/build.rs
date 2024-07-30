@@ -39,6 +39,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     ]));
     compile(
         &[
+            "proto/zion_authorization.proto",
             "proto/auth_telegram.proto",
             "proto/erc20.proto",
             "proto/erc404.proto",

@@ -4,16 +4,23 @@ config_version: 3
 http:
   rules:
     - selector: authtelegram.AuthTelegram.SendCodeTelegram
-      post: /api/authtelegram/sendCodeTelegram
+      post: /tele/api/authtelegram/sendCodeTelegram
       body: "*"
     - selector: authtelegram.AuthTelegram.SignInTelegram
-      post: /api/authtelegram/signInTelegram
+      post: /tele/api/authtelegram/signInTelegram
       body: "*"
     - selector: authtelegram.AuthTelegram.LogOutTelegram
-      post: /api/authtelegram/logOutTelegram
+      post: /tele/api/authtelegram/logOutTelegram
       body: "*"
-    - selector: authtelegram.AuthTelegram.GetDataRequestForZION
-      get: /api/authtelegram/getDataRequestForZION    
+    - selector: authtelegram.AuthTelegram.SignInTelegramAsBot
+      post: /tele/api/authtelegram/signInTelegramAsBot
+      body: "*"
+    - selector: authtelegram.AuthTelegram.LogOutTelegramAsBot
+      post: /tele/api/authtelegram/logOutTelegramAsBot
+      body: "*"
+
+    - selector: zionauthorization.ZionAuthorization.GetDataRequestForZION
+      get: /api/zionauthorization/getDataRequestForZION    
 
     - selector: erc20.ERC20.Deploy
       post: /api/erc20/deploy
@@ -36,7 +43,6 @@ http:
     - selector: erc20.ERC20.TransferFrom
       post: /api/erc20/transferFrom
       body: "*"
-
     - selector: erc721.ERC721.Deploy
       post: /api/erc721/deploy
       body: "*"

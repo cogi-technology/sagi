@@ -2,6 +2,7 @@ mod config;
 mod server;
 mod services;
 mod helpers;
+mod entity;
 
 use {
     anyhow::{anyhow, Result},
@@ -13,7 +14,7 @@ use {
     std::{env, fs},
 };
 
-pub mod entity;
+
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -41,7 +42,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         grpc_addr: c.grpc_listen,
         openapi_addr: c.openapi_listen,
     };
-
     info!("Started at {}", c.grpc_listen);
     tokio::select! {
         _ = async move {

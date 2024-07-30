@@ -33,3 +33,7 @@ hex.workspace = true
 grammers-client.workspace = true
 grammers-session.workspace = true
 uuid.workspace = true
+sha2.workspace = true
+hmac.workspace = true
+reqwest.workspace = true
+jsonwebtoken.workspace = true
