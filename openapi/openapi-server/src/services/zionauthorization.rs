@@ -21,7 +21,7 @@ use {
     openapi_proto::zionauthorization_service::{zion_authorization_server::ZionAuthorization, *},
     serde_json::json,
     std::{env, fs, ptr::null, sync::Arc},
-    tonic::{Request, Response, Status},
+    tonic::{metadata::MetadataMap, Request, Response, Status},
     uuid::Uuid,
 };
 
@@ -42,6 +42,22 @@ impl ZionAuthorization for ZionAuthorizationService {
         &self,
         req: Request<GetDataRequestForZionRequest>,
     ) -> Result<Response<GetDataRequestForZionResponse>> {
+        let metadata: &MetadataMap = req.metadata();
+        // Access a specific header, e.g., "authorization"
+        if let Some(authorization_header) = metadata.get("authorization") {
+            if let Ok(auth_str) = authorization_header.to_str() {
+                if auth_str.starts_with("Bearer ") {
+                    // Extract the JWT token by removing the "Bearer " prefix
+                    let token = &auth_str["Bearer ".len()..];
+                    println!("JWT Token: {}", token);
+
+                    
+                }
+            } 
+        } else {
+            println!("No Authorization header found");
+        }
+
         let proof_points = ProofPoints {
             protocol: "example_protocol".to_string(),
             pi_a: vec!["a".to_string(), "b".to_string()],

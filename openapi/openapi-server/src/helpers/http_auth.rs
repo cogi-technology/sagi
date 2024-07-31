@@ -1,5 +1,10 @@
 use {
-    actix_web::{dev::ServiceRequest, Error}, chrono::Utc, jsonwebtoken::{decode, decode_header, errors::ErrorKind, Algorithm, DecodingKey, Validation}, serde::{Deserialize, Serialize}
+    actix_web::{dev::ServiceRequest, Error},
+    chrono::Utc,
+    jsonwebtoken::{
+        decode, decode_header, errors::ErrorKind, Algorithm, DecodingKey, TokenData, Validation,
+    },
+    serde::{Deserialize, Serialize},
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -23,19 +28,39 @@ pub async fn validator_token(
 fn validate_token(
     token: &str,
     secret: &str,
-) -> Result<bool, jsonwebtoken::errors::Error> {
-    let header = decode_header(token).unwrap();
-    let algorithms = header.alg;
-    match decode_header(token) {
-        Ok(header) => {
-            let algorithm = header.alg;
-            if algorithm != Algorithm::RS256 {
-                return Err(jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken));
-            }
-            return Ok(true);
-        }
+) -> Result<TokenData<Claims>, jsonwebtoken::errors::Error> {
+    let key = DecodingKey::from_secret(&[]);
+    let header = match decode_header(token) {
+        Ok(header) => header,
         Err(e) => {
             return Err(e);
+        }
+    };
+    let algorithms = header.alg;
+    let mut validation = Validation::new(algorithms);
+    validation.insecure_disable_signature_validation();
+    validation.validate_aud = false;
+    // validation.set_audience(&["7109740482"]);
+    // Decode the token without verifying the signature
+    let token_data = decode::<Claims>(token, &key, &validation);
+
+    match token_data {
+        Ok(data) => {
+            println!("data {:?}", data);
+            let now = Utc::now();
+            // Number of seconds since the Unix epoch
+            let auth_date: u32 = now.timestamp() as u32;
+            println!("auth_date {:?}", auth_date);
+            if data.claims.exp > auth_date {
+                println!("Token is valid");
+            } else {
+                return Err(jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken));
+            }
+            return Ok(data);
+        }
+        Err(err) => {
+            println!("err {:?}", err);
+            return Err(err);
         }
     }
 }
