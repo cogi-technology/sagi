@@ -11,6 +11,7 @@ use ethers::{
 };
 use ethers_contract::EthLogDecode;
 use ethers_providers::Middleware;
+use hex::FromHex;
 use rand::Rng;
 use std::sync::Arc;
 
@@ -89,13 +90,13 @@ impl<M: Middleware + 'static> Operator<M> {
         aud: String,
     ) -> Result<Address> {
         let provider = get_provider_hashed(iss, aud);
-        let sub_in_hex = hex::decode(sub)?;
+        let sub_in_bytes = sub.into_bytes();
         let mut salt_in_hex = [0u8; 32];
         hex::decode_to_slice(salt, &mut salt_in_hex)?;
 
         let address = self
             .factory
-            .get_address(sub_in_hex.into(), salt_in_hex, provider)
+            .get_address(sub_in_bytes.into(), salt_in_hex, provider)
             .call()
             .await?;
         Ok(address)

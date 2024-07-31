@@ -4,6 +4,7 @@ pub mod key;
 pub mod otp;
 pub mod user;
 pub mod user_operation;
+pub mod login;
 
 #[cfg(test)]
 mod tests {

@@ -1,7 +1,6 @@
 // mod zero_knowledge;
+mod jwt;
 
-use std::fmt::Write;
-use std::sync::Arc;
 use crate::{
     contracts::{Account, EntryPoint},
     types::{
@@ -21,6 +20,10 @@ use ethers::{
     utils::{keccak256, rlp},
 };
 use ethers_providers::Middleware;
+use std::fmt::Write;
+use std::sync::Arc;
+
+pub use jwt::decode_jwt;
 
 #[macro_export]
 macro_rules! tokio_sleep_ms {
@@ -143,8 +146,9 @@ pub async fn fill_user_op<M: Middleware + 'static>(
 }
 
 pub fn get_provider_hashed(iss: String, aud: String) -> [u8; 32] {
-    let iss_in_hex = hex::decode(iss).unwrap();
-    let aud_in_hex = hex::decode(aud).unwrap();
+    println!("{}", iss);
+    let iss_in_hex = iss.into_bytes();
+    let aud_in_hex = aud.into_bytes();
 
     keccak256(encode(&[
         Token::Bytes(iss_in_hex),
