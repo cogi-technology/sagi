@@ -17,6 +17,17 @@ pub struct ProofPoints {
     pub protocol: Option<String>,
 }
 
+impl Default for ProofPoints {
+    fn default() -> Self {
+        ProofPoints {
+            pi_a: vec!["".to_string()],
+            pi_b: vec![vec!["".to_string()]],
+            pi_c: vec!["".to_string()],
+            protocol: None
+        }
+    }
+}
+
 // #[derive(Clone, Deserialize, Serialize)]
 // pub struct JWTHeader {
 //     #[serde(skip_serializing_if = "Option::is_none")]

@@ -6940,6 +6940,7 @@ dependencies = [
  "ethers-providers 2.0.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "fastcrypto-zkp",
  "hex",
+ "jsonwebtoken 9.3.0",
  "once_cell",
  "rand",
  "regex",

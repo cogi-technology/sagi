@@ -25,6 +25,9 @@ pub struct Config {
 
     #[serde(rename = "doc-path")]
     pub doc_path: String,
+
+    #[serde(rename = "tori-rpc")]
+    pub tori_rpc: String,
 }
 
 impl Config {

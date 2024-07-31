@@ -37,12 +37,12 @@ pub struct GetSaltRequest {
     pub jwt: String,
     pub index: i32,
 }
-
+#[derive(Serialize, Deserialize)]
 pub struct GetProofRequest {
     pub jwt: String,
     pub salt: String,
     pub signerPublicKey: String,
-    pub exp: i64,
+    pub exp: u64,
     pub keyClaimName: String,
 }
 
