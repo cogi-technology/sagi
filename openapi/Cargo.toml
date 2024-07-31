@@ -78,3 +78,4 @@ uuid = { version = "1", features = ["v4"] }
 sha2 = "0.10"
 hmac = "0.12"
 reqwest = "0.11"
+zion-aa = {"path" = "../sdk/rust/zion-aa"}

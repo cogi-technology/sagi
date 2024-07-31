@@ -4,8 +4,11 @@ use {
         utils::{into_anyhow, Result},
     },
     crate::{
-        entity::telegram::LoginWidgetData,
-        helpers::telegram::{authorize, get_init_data_integrity_web},
+        entity::telegram::{GetProofRequest, GetRequestType, GetSaltRequest, LoginWidgetData},
+        helpers::{
+            telegram::{authorize, get_init_data_integrity_web},
+            utils::{send_request_json, send_request_text},
+        },
     },
     anyhow::anyhow,
     chrono::Utc,
@@ -19,6 +22,7 @@ use {
     },
     openapi_logger::debug,
     openapi_proto::zionauthorization_service::{zion_authorization_server::ZionAuthorization, *},
+    reqwest::{Client as ClientReqwest, Method},
     serde_json::json,
     std::{env, fs, ptr::null, sync::Arc},
     tonic::{metadata::MetadataMap, Request, Response, Status},
@@ -43,6 +47,9 @@ impl ZionAuthorization for ZionAuthorizationService {
         req: Request<GetDataRequestForZionRequest>,
     ) -> Result<Response<GetDataRequestForZionResponse>> {
         let metadata: &MetadataMap = req.metadata();
+        let mut salt: Response<String> = Response::new("".to_string());
+        // let mut beneficiaries: Response<Vec<String>> = Response::new(vec!["".to_string()]);
+        let mut beneficiaries: Response<String> = Response::new("".to_string());
         // Access a specific header, e.g., "authorization"
         if let Some(authorization_header) = metadata.get("authorization") {
             if let Ok(auth_str) = authorization_header.to_str() {
@@ -50,10 +57,48 @@ impl ZionAuthorization for ZionAuthorizationService {
                     // Extract the JWT token by removing the "Bearer " prefix
                     let token = &auth_str["Bearer ".len()..];
                     println!("JWT Token: {}", token);
-
-                    
+                    let client = ClientReqwest::new();
+                    // Get Salt
+                    let base_url_salt = env::var("NEXT_PUBLIC_SERVER_LOGIN_WITH_TELEGRAM")
+                        .map_err(|e| into_anyhow(e.into()))?;
+                    let url_salt = format!("{}/v1/salt", base_url_salt);
+                    let body = GetSaltRequest {
+                        jwt: token.to_string(),
+                        index: 0,
+                    };
+                    salt = match send_request_text(&client, Method::POST, &url_salt, Some(&body), None)
+                        .await
+                    {
+                        Ok(response) => response,
+                        Err(e) => return Err(e),
+                    };
+                    // Get Proof
+                    let url_proof = format!("{}/v1/prove", base_url_salt);
+                    let body = GetProofRequest {
+                        jwt: token.to_string(),
+                        salt: salt.get_mut().to_string(),
+                        signerPublicKey: token.to_string(),
+                        keyClaimName: "sub".to_string(),
+                        exp: 0,
+                    };
+                    salt = match send_request_text(&client, Method::POST, &url_salt, Some(&body), None)
+                        .await
+                    {
+                        Ok(response) => response,
+                        Err(e) => return Err(e),
+                    };
+                    // Get beneficiaries
+                    let base_url_beneficiaries = env::var("NEXT_PUBLIC_TORII")
+                        .map_err(|e| into_anyhow(e.into()))?;
+                    let url_beneficiaries = format!("{}/v1/beneficiaries", base_url_beneficiaries);
+                    beneficiaries = match send_request_text::<GetRequestType>(&client, Method::GET, &url_beneficiaries, None, None)
+                        .await
+                    {
+                        Ok(response) => response,
+                        Err(e) => return Err(e),
+                    };
                 }
-            } 
+            }
         } else {
             println!("No Authorization header found");
         }
@@ -72,10 +117,10 @@ impl ZionAuthorization for ZionAuthorizationService {
             pi_c: vec!["c1".to_string(), "c2".to_string()],
         };
         let response = GetDataRequestForZionResponse {
-            salt: "some_salt".to_string(),
+            salt: salt.get_mut().to_string(),
             proof: Some(proof_points), // Wrapping the proof_points in Some
             ephemeral_key_pair: "ephemeral_key".to_string(),
-            beneficiaries: vec!["beneficiary1".to_string(), "beneficiary2".to_string()],
+            beneficiaries: serde_json::from_str(beneficiaries.get_mut()).expect("beneficiariesRes could not be parsed")
         };
         Ok(Response::new(response))
     }
