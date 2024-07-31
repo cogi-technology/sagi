@@ -1,6 +1,5 @@
 use super::login::LoginData;
-use crate::utils::decode_jwt;
-use anyhow::{Error, Result};
+use anyhow::Result;
 use ethers::{signers::WalletError, types::U256};
 use jsonwebtoken::{Header, TokenData};
 use serde::{Deserialize, Serialize};
@@ -8,7 +7,7 @@ use std::{str::FromStr, sync::Arc, vec::Vec};
 
 // Structs corresponding to TypeScript interfaces
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct ProofPoints {
     pub pi_a: Vec<String>,
     pub pi_b: Vec<Vec<String>>,
@@ -17,19 +16,9 @@ pub struct ProofPoints {
     pub protocol: Option<String>,
 }
 
-// #[derive(Clone, Deserialize, Serialize)]
-// pub struct JWTHeader {
-//     #[serde(skip_serializing_if = "Option::is_none")]
-//     pub alg: Option<String>,
-//     #[serde(skip_serializing_if = "Option::is_none")]
-//     pub typ: Option<String>,
-//     #[serde(skip_serializing_if = "Option::is_none")]
-//     pub kid: Option<String>,
-// }
-
 pub type JWTHeader = Header;
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct JWTPayload {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub iat: Option<u64>,

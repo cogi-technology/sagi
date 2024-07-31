@@ -2,7 +2,7 @@
 mod jwt;
 
 use crate::{
-    contracts::{Account, EntryPoint},
+    contracts::Account,
     types::{
         jwt::ProofPoints,
         key::RoleWeight,
@@ -84,14 +84,11 @@ fn call_data_cost(data: Bytes) -> U256 {
 
 pub async fn fill_user_op<M: Middleware + 'static>(
     op: UserOperationRequest,
-    entry_point: Arc<EntryPoint<M>>,
+    provider: Arc<M>,
 ) -> Result<UserOperationSigned> {
     let mut op1 = op;
-    let provider = Arc::clone(&entry_point.client());
-
-    let account = Account::new(op1.sender, Arc::clone(&provider));
-
-    op1.nonce = account.nonce().await?;
+    // let account = Account::new(op1.sender, Arc::clone(&provider));
+    // op1.nonce = account.nonce().await?;
 
     if op1.call_gas_limit.is_none() {
         let gas_estimated = provider
@@ -146,7 +143,6 @@ pub async fn fill_user_op<M: Middleware + 'static>(
 }
 
 pub fn get_provider_hashed(iss: String, aud: String) -> [u8; 32] {
-    println!("{}", iss);
     let iss_in_hex = iss.into_bytes();
     let aud_in_hex = aud.into_bytes();
 

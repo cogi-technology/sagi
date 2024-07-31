@@ -28,3 +28,7 @@ ethers = "2.0.14"
 ethers-contract = "2.0.14"
 ethers-providers = "2.0.14"
 ethers-core = "2.0.14"
+
+[dev-dependencies]
+mockall = "0.13.0"
+parking_lot = "0.12.3"

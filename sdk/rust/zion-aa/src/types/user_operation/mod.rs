@@ -93,7 +93,7 @@ impl UserOperationSigned {
     }
 
     /// Calculates the hash of the user operation
-    pub fn hash(&self, entry_point: &Address, chain_id: U256) -> UserOperationHash {
+    pub fn hash(&self, entry_point: Address, chain_id: U256) -> UserOperationHash {
         H256::from(keccak256(
             [
                 keccak256(self.pack_without_signature().deref()).to_vec(),

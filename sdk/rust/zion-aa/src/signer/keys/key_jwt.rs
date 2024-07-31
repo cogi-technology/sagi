@@ -40,13 +40,16 @@ impl<S: Signer + 'static> KeyBase for KeyJWT<S> {
             .await?;
         let call_data =
             groth16_export_solidity_call_data(self.inner.proof.clone(), vec!["0".into()]).await;
+        println!("call_data: {:?}", call_data);
         let re = regex::Regex::new(r#"[\[\]"\s]"#).unwrap();
         let argv = re
             .replace_all(&call_data, "")
             .to_string()
             .split(',')
-            .map(|x| U256::from_dec_str(x).unwrap())
+            .map(|x| U256::from_str_radix(x, 16).unwrap())
             .collect::<Vec<U256>>();
+
+        println!("argv: {:?}", argv);
 
         let a = Token::Array([Token::Uint(argv[0]), Token::Uint(argv[1])].into());
         let b = Token::Array(
@@ -58,15 +61,14 @@ impl<S: Signer + 'static> KeyBase for KeyJWT<S> {
         );
         let c = Token::Array([Token::Uint(argv[6]), Token::Uint(argv[7])].into());
 
-        ethers::abi::encode_packed(&[
+        Ok(ethers::abi::encode(&[
             Token::Bytes(signature.to_vec()),
             Token::Uint(self.inner.deadline.clone()),
             a,
             b,
             c,
         ])
-        .map(|ok| ok.into())
-        .map_err(|e| e.into())
+        .into())
     }
 
     fn serialize(&self) -> Bytes {

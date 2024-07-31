@@ -1,6 +1,6 @@
 use super::client::{Client, ClientMethods};
 use crate::{
-    contracts::{EntryPoint, Factory, NemoAccountCreatedFilter},
+    contracts::{Account, EntryPoint, Factory, NemoAccountCreatedFilter},
     types::contract_wallet::ContractWalletOperator,
     utils::get_provider_hashed,
 };
@@ -11,7 +11,6 @@ use ethers::{
 };
 use ethers_contract::EthLogDecode;
 use ethers_providers::Middleware;
-use hex::FromHex;
 use rand::Rng;
 use std::sync::Arc;
 
@@ -63,7 +62,7 @@ impl<M: Middleware + 'static> Operator<M> {
         aud: String,
     ) -> Result<Bytes> {
         let provider = get_provider_hashed(iss, aud);
-        let sub_in_hex = hex::decode(sub)?;
+        let sub_in_hex = sub.into_bytes();
         let mut salt_in_hex = [0u8; 32];
         hex::decode_to_slice(salt, &mut salt_in_hex)?;
 
@@ -110,7 +109,7 @@ impl<M: Middleware + 'static> Operator<M> {
         aud: String,
     ) -> Result<Address> {
         let provider = get_provider_hashed(iss, aud);
-        let sub_in_hex = hex::decode(sub)?;
+        let sub_in_hex = sub.into_bytes();
         let mut salt_in_hex = [0u8; 32];
         hex::decode_to_slice(salt, &mut salt_in_hex)?;
 
@@ -141,8 +140,10 @@ impl<M: Middleware + 'static> Operator<M> {
     }
 
     pub async fn is_created(&self, address: Address) -> bool {
-        let factory = Factory::new(address, self.signer());
-        factory.address() == self.factory.address()
+        let account = Account::new(address, self.signer());
+        let factory_address_from_account = account.factory().await.unwrap();
+
+        factory_address_from_account == self.factory.address()
     }
 
     pub fn signer(&self) -> Arc<M> {

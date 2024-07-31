@@ -184,7 +184,7 @@ where
             }
         }
 
-        let op = fill_user_op(op1.into(), Arc::clone(&self.entry_point()))
+        let op = fill_user_op(op1.into(), Arc::clone(&self.entry_point().client()))
             .await?
             .into_inner();
 
@@ -202,6 +202,7 @@ where
         }
 
         let receipt = handle_ops_transaction
+            .legacy()
             .send()
             .await?
             .await?
@@ -262,9 +263,15 @@ where
             return Err(anyhow!("Signers not set yet!"));
         }
 
-        let op = fill_and_sign(op1.into(), signers, self.entry_point(), chain_id)
-            .await?
-            .into_inner();
+        let op = fill_and_sign(
+            op1.into(),
+            signers,
+            self.entry_point().address(),
+            Arc::clone(&self.entry_point().client()),
+            chain_id,
+        )
+        .await?
+        .into_inner();
 
         let mut handle_ops_transaction = self
             .entry_point()
@@ -280,6 +287,7 @@ where
         }
 
         let signed_tx = handle_ops_transaction
+            .legacy()
             .send()
             .await?
             .await?
@@ -340,18 +348,26 @@ where
             return Err(anyhow!("Signers not set yet!"));
         }
 
-        let op = fill_and_sign(op1.into(), signers, self.entry_point(), chain_id)
-            .await?
-            .into_inner();
+        let op = fill_and_sign(
+            op1.into(),
+            signers,
+            self.entry_point().address(),
+            Arc::clone(&self.entry_point().client()),
+            chain_id,
+        )
+        .await?
+        .into_inner();
 
         let ret = if let Some(gas_limit) = transaction.gas {
             self.entry_point()
                 .handle_ops([op].into(), self.operator.pick_up_beneficiary())
                 .gas(gas_limit)
+                .legacy()
                 .tx
         } else {
             self.entry_point()
                 .handle_ops([op].into(), self.operator.pick_up_beneficiary())
+                .legacy()
                 .tx
         };
 

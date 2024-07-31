@@ -1,9 +1,9 @@
-use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, TokenData, Validation};
+use jsonwebtoken::{decode, decode_header, DecodingKey, TokenData, Validation};
 
 use crate::types::jwt::JWTPayload;
 
 pub fn decode_jwt(token: &str) -> Result<TokenData<JWTPayload>, jsonwebtoken::errors::Error> {
-    let header = decode_header(token).unwrap();
+    let header = decode_header(token)?;
     let key = DecodingKey::from_rsa_der(&[]);
 
     let mut validation = Validation::new(header.alg);
@@ -15,15 +15,12 @@ pub fn decode_jwt(token: &str) -> Result<TokenData<JWTPayload>, jsonwebtoken::er
 
 #[cfg(test)]
 mod test {
-    use jsonwebtoken::decode_header;
-
     use super::decode_jwt;
 
     #[test]
     fn test_decode_jwt() {
-        let token = "eyJhbGciOiJSUzI1NiIsImtpZCI6ImlHS1VBT05tQ0RBUU5oQXVCNHFhOUtCaiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MjIzMzQzNjcsImV4cCI6MTcyMjQyMDc2NywibmJmIjoxNzIyMzM0MzY3LCJpc3MiOiJodHRwczovL2lkLnRlbGVncmFtLm9yZyIsInN1YiI6IjcxMDk3NDA0ODIiLCJhdWQiOiI3MTA5NzQwNDgyIn0.XFDTx_hlLg4nT4rEaVLItqH_6TZ3PgnTmO7yiAtxN7rIEZEi0BlmkLw6M7dRsi7UXvtsvt49vrodlS0BkztpyK4Qs2BNWFckcUzjVoLLkiTRKG6j2QmKjqKidbJlf2N2vjEhhNh0__vd7BpEdyhqkl6qCLIsm-8MvOd1vEwZmfvMGAZyvGmeHLvVb911w50drlbUpn3yMiVAEoybfqCS20pYYfj3-oYg1tO0ZyUofgNZK0uBmMcvV7RYnNgKpGjW4JYtb-qLmY7Ly3EtM4lMiZFSWCv6JdxZETG9dQ35x7QTUxFPCAM_YjdAlNm8EgkSgHPSVptZeqLEE_M_usaT4Q";
+        let token = "eyJhbGciOiJSUzI1NiIsImtpZCI6ImlHS1VBT05tQ0RBUU5oQXVCNHFhOUtCaiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MjIzMzE2NzYsImV4cCI6MTcyMjQxODA3NiwibmJmIjoxNzIyMzk0MjAyLCJpc3MiOiJodHRwczovL2lkLnRlbGVncmFtLm9yZyIsInN1YiI6IjkyNTMzOTg4MyIsImF1ZCI6IjcxMDk3NDA0ODIifQ.JdW3BZGqk5tY52Z0SOk2gZBbCvWZpxZGEQAhN22zFh7WO5GWXaQItEQOVNx_joBU6fBUO1EYFVN3Em720oEv2FujFJa1lW8v7V6h9QkuWb-da3r7_zTibLIa0w8VMZDywVUo79nWapiWeerHp0hC_P4m094IMzcT50u0n1-mmvQ9yYzgxH81qxs8keoaVs4YMo0Jt2Rvh4i7wlIiPGhKko0qyfDvHlYHF_epGtozRCkCznGb1aKxCbjzVSEPKzOJ6gJLiQ6vHHMGaS85bTBWHFGcIcBXpcUnfZi7ndb5FA4-byBbZEHsbd3bNjgDoS0TsbQTYE_QhRalwWPbXMv6kw";
 
-        let header = decode_header(token).unwrap();
         let ret = decode_jwt(token).unwrap();
 
         println!("{:?}", ret);
