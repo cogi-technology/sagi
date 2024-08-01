@@ -7,7 +7,7 @@ use std::{str::FromStr, sync::Arc, vec::Vec};
 
 // Structs corresponding to TypeScript interfaces
 
-#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ProofPoints {
     pub pi_a: Vec<String>,
     pub pi_b: Vec<Vec<String>>,
@@ -22,7 +22,7 @@ impl Default for ProofPoints {
             pi_a: vec!["".to_string()],
             pi_b: vec![vec!["".to_string()]],
             pi_c: vec!["".to_string()],
-            protocol: None
+            protocol: None,
         }
     }
 }
