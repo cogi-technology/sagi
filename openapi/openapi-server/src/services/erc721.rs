@@ -1,11 +1,12 @@
 use {
-    super::Result,
+    super::utils::Result,
     crate::proto::erc721_service::{erc721_server::Erc721, *},
+    openapi_ethers::client::Client,
     tonic::{Request, Response},
 };
 
 pub struct Erc721Service {
-    // erc721_etherman: Arc<Erc721_Etherman>
+    client: Arc<EthereumClient>,
 }
 
 #[tonic::async_trait]

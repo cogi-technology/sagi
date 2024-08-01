@@ -1,15 +1,11 @@
 use {
-    super::{
-        reverted_error::*,
-        utils::{into_anyhow, Result},
-        zionauthorization::get_data_request_for_zion_logic,
-    },
+    super::utils::{init_contract_wallet, into_anyhow, Result},
     anyhow::anyhow,
     ethers::{
-        types::{Address, BlockNumber},
+        types::{Address, BlockNumber, Eip1559TransactionRequest, TransactionRequest, U256},
         utils::parse_ether,
     },
-    ethers_contract::{ContractError, ContractFactory},
+    ethers_contract::ContractFactory,
     ethers_providers::Middleware,
     openapi_ethers::{
         client::Client as EthereumClient,
@@ -19,7 +15,7 @@ use {
     openapi_proto::erc20_service::{erc20_server::Erc20, *},
     std::{borrow::Borrow, sync::Arc},
     tonic::{Request, Response},
-    zion_aa::{address_to_string, contract_wallet::wallet::ContractWallet},
+    zion_aa::address_to_string,
 };
 
 #[derive(Debug, Clone)]
@@ -60,30 +56,8 @@ impl Erc20 for Erc20Service {
             .deploy((name, symbol, initial_supply))
             .map_err(|e| into_anyhow(e.into()))?;
 
-        println!(
-            "babalance: {:?}",
-            self.client.get_balance(self.client.address(), None).await
-        );
-
-        let estimate_gas = self
-            .client
-            .provider()
-            .estimate_gas(deployer.tx.borrow(), None)
-            .await
-            .map_err(|e| into_anyhow(e.into()))?;
-
-        let block = self
-            .client
-            .provider()
-            .get_block(BlockNumber::Latest)
-            .await
-            .map_err(|e| into_anyhow(e.into()))?
-            .unwrap();
-        let network_gas_limit = block.gas_limit;
-        // Use the minimum of our calculated gas limit and the network gas limit
-        let gas_limit = std::cmp::min(estimate_gas, network_gas_limit);
-
-        deployer.tx.set_gas(1000000000);
+        deployer.tx.set_gas(U256::from(1_000_000));
+        deployer.tx.set_gas_price(U256::from(10_000));
 
         let deployed_contract = deployer
             .legacy()
@@ -103,31 +77,29 @@ impl Erc20 for Erc20Service {
         &self,
         req: Request<TotalSupplyRequest>,
     ) -> Result<Response<TotalSupplyResponse>> {
-        let metadata = req.metadata();
-        let initial_data = get_data_request_for_zion_logic(metadata)
-            .await
-            .map_err(into_anyhow)?;
-
         let TotalSupplyRequest { contract } = req.into_inner();
         let contract_address = contract
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
 
         let contract = ERC20Contract::new(contract_address, Arc::clone(&self.client));
-        let calldata = contract
+        let total_supply = contract
             .total_supply()
             .legacy()
-            .calldata()
-            .ok_or_else(|| into_anyhow(anyhow!("Functioncall convert to calldata failed")))?;
+            .call()
+            .await
+            .map_err(|e| into_anyhow(e.into()))?
+            .to_string();
 
-        // let contract_wallet = ContractWallet::new(contract_wallet_address, operator)
-
-        Ok(Response::new(TotalSupplyResponse {
-            total_supply: "total_supply".into(),
-        }))
+        Ok(Response::new(TotalSupplyResponse { total_supply }))
     }
 
     async fn approve(&self, req: Request<ApproveRequest>) -> Result<Response<ApproveResponse>> {
+        let header_metadata = req.metadata();
+        let contract_wallet = init_contract_wallet(header_metadata)
+            .await
+            .map_err(into_anyhow)?;
+
         let ApproveRequest {
             contract,
             spender,
@@ -142,12 +114,17 @@ impl Erc20 for Erc20Service {
         let amount = parse_ether(amount).map_err(|e| into_anyhow(e.into()))?;
 
         let contract = ERC20Contract::new(contract_address, Arc::clone(&self.client));
-        let function_call = contract.approve(spender_address, amount).legacy();
-        let txhash = function_call
-            .send()
+        let calldata = contract
+            .approve(spender_address, amount)
+            .calldata()
+            .ok_or(into_anyhow(anyhow!("Calldata is None")))?;
+        let transaction = Eip1559TransactionRequest::new().data(calldata);
+
+        let txhash = contract_wallet
+            .send_transaction(transaction, None)
             .await
-            .map_err(|e| into_anyhow(e.into()))?
-            .tx_hash()
+            .map_err(into_anyhow)?
+            .transaction_hash
             .to_string();
 
         Ok(Response::new(ApproveResponse { txhash }))
@@ -198,6 +175,7 @@ impl Erc20 for Erc20Service {
         let contract = ERC20Contract::new(contract_address, Arc::clone(&self.client));
         let remaining_amount = contract
             .allowance(owner_address, spender_address)
+            .legacy()
             .call()
             .await
             .map_err(|e| into_anyhow(e.into()))?
@@ -207,6 +185,10 @@ impl Erc20 for Erc20Service {
     }
 
     async fn transfer(&self, req: Request<TransferRequest>) -> Result<Response<TransferResponse>> {
+        let contract_wallet = init_contract_wallet(req.metadata())
+            .await
+            .map_err(into_anyhow)?;
+
         let TransferRequest {
             contract,
             recipient,
@@ -221,12 +203,16 @@ impl Erc20 for Erc20Service {
         let amount = parse_ether(amount).map_err(|e| into_anyhow(e.into()))?;
 
         let contract = ERC20Contract::new(contract_address, Arc::clone(&self.client));
-        let function_call = contract.transfer(recipient_address, amount).legacy();
-        let txhash = function_call
-            .send()
+        let calldata = contract
+            .transfer(recipient_address, amount)
+            .calldata()
+            .ok_or(into_anyhow(anyhow!("Calldata is None")))?;
+
+        let txhash = contract_wallet
+            .send_transaction(Eip1559TransactionRequest::new().data(calldata), None)
             .await
             .map_err(|e| into_anyhow(e.into()))?
-            .tx_hash()
+            .transaction_hash
             .to_string();
 
         Ok(Response::new(TransferResponse { txhash }))
@@ -236,6 +222,10 @@ impl Erc20 for Erc20Service {
         &self,
         req: Request<TransferFromRequest>,
     ) -> Result<Response<TransferFromResponse>> {
+        let contract_wallet = init_contract_wallet(req.metadata())
+            .await
+            .map_err(into_anyhow)?;
+
         let TransferFromRequest {
             contract,
             sender,
@@ -254,14 +244,16 @@ impl Erc20 for Erc20Service {
         let amount = parse_ether(amount).map_err(|e| into_anyhow(e.into()))?;
 
         let contract = ERC20Contract::new(contract_address, Arc::clone(&self.client));
-        let function_call = contract
+        let calldata = contract
             .transfer_from(sender_address, recipient_address, amount)
-            .legacy();
-        let txhash = function_call
-            .send()
+            .calldata()
+            .ok_or(into_anyhow(anyhow!("Calldata is None")))?;
+
+        let txhash = contract_wallet
+            .send_transaction(Eip1559TransactionRequest::new().data(calldata), None)
             .await
             .map_err(|e| into_anyhow(e.into()))?
-            .tx_hash()
+            .transaction_hash
             .to_string();
 
         Ok(Response::new(TransferFromResponse { txhash }))

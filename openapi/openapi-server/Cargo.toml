@@ -39,3 +39,9 @@ reqwest.workspace = true
 jsonwebtoken.workspace = true
 zion-aa.workspace = true
 
+[patch]
+[patch.crates-io]
+ethers = "=2.0.14"
+ethers-contract = "=2.0.14"
+ethers-providers = "=2.0.14"
+ethers-core = "=2.0.14"

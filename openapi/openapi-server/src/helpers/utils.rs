@@ -97,8 +97,7 @@ where
 
 pub async fn init_contract_wallet(
     header_metadata: &tonic::metadata::MetadataMap,
-    client: Arc<Client>,
-) -> AnyhowResult<()> {
+) -> AnyhowResult<ContractWallet<ZionClient, LocalWallet>> {
     let (
         GetDataRequestForZionResponse {
             salt,
@@ -118,7 +117,7 @@ pub async fn init_contract_wallet(
     let contract_wallet_operator =
         get_contract_wallet_operator(Some(Networkish::Name("ziontestnet".into())));
 
-    let rpc_endpoint = "https://torii.zionx.network/";
+    let rpc_endpoint = "https://devnet-rpc.zionx.network";
     let client = Arc::new(
         ZionClient::try_new(
             rpc_endpoint,
@@ -142,9 +141,8 @@ pub async fn init_contract_wallet(
     ));
     let contract_address = "0x4307E9f6cEd7aC3deC02dD90040F45034d55F8ab".parse::<Address>()?;
 
-    let mut contract_wallet =
-        ContractWallet::<ZionClient, _>::new(contract_address, operator);
+    let mut contract_wallet = ContractWallet::<ZionClient, _>::new(contract_address, operator);
     contract_wallet.set_jwt(jwt_options);
 
-    Ok(())
+    Ok(contract_wallet)
 }
