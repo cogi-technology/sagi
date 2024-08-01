@@ -382,7 +382,7 @@ where
         let handle_ops_transaction = self.populate_transaction(transaction, chain_id).await?;
 
         self.signer()
-            .send_transaction(handle_ops_transaction, Some(BlockNumber::Latest.into()))
+            .send_transaction(handle_ops_transaction, None)
             .await?
             .await?
             .ok_or(anyhow!("Tx Receipt is None!"))

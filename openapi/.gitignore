@@ -3,3 +3,4 @@ target
 **/session*
 openapi-proto/src/lib_bk.rs
 openapi-proto/src/generated/**
+**/Cargo.lock

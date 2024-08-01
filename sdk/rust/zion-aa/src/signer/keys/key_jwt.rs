@@ -61,8 +61,12 @@ impl<S: Signer + 'static> KeyBase for KeyJWT<S> {
         );
         let c = Token::Array([Token::Uint(argv[6]), Token::Uint(argv[7])].into());
 
-        Ok(ethers::abi::encode(&[
+        let sig = ethers::abi::encode_packed(&[
+            Token::Uint((KeyType::JWTZKProof as u8).into()),
             Token::Bytes(signature.to_vec()),
+        ])?;
+        Ok(ethers::abi::encode(&[
+            Token::Bytes(sig),
             Token::Uint(self.inner.deadline.clone()),
             a,
             b,

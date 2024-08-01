@@ -212,3 +212,4 @@ pub fn make_pin_code_holder(code: &Bytes, salt: &Bytes) -> Result<LocalWallet> {
 
     prv.parse::<LocalWallet>().map_err(|e| e.into())
 }
+
