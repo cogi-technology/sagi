@@ -32,7 +32,7 @@ async fn test_init_contract_wallet() -> Result<()> {
         .iter()
         .map(|b| b.parse::<Address>().unwrap())
         .collect::<Vec<_>>();
-    let jwt_options = JWTOptions::<LocalWallet>::try_into(toke_data.clone(), login_data.clone())?;
+    let jwt_options = JWTOptions::<LocalWallet>::try_init(toke_data.clone(), login_data.clone())?;
 
     // Get JWT
     let contract_wallet_operator =
@@ -62,20 +62,20 @@ async fn test_init_contract_wallet() -> Result<()> {
     let mut contract_wallet = ContractWallet::<Client, _>::new(contract_wallet_address, operator);
     contract_wallet.set_jwt(jwt_options);
 
-    // if contract_wallet.is_readonly().await {
-    //     let request = contract_wallet.get_required_prefund()?;
-    //     let wallet_balance = client
-    //         .provider()
-    //         .get_balance(contract_wallet.address(), None)
-    //         .await?;
+    if contract_wallet.is_readonly().await {
+        let request = contract_wallet.get_required_prefund()?;
+        let wallet_balance = client
+            .provider()
+            .get_balance(contract_wallet.address(), None)
+            .await?;
 
-    //     if wallet_balance < request {
-    //         println!("request: {}, wallet bal: {}", request, wallet_balance);
-    //         return Err(anyhow!("didn't pay prefund"));
-    //     }
+        if wallet_balance < request {
+            println!("request: {}, wallet bal: {}", request, wallet_balance);
+            return Err(anyhow!("didn't pay prefund"));
+        }
 
-    //     let _ = contract_wallet.create(None, None).await?;
-    // }
+        let _ = contract_wallet.create(None, None).await?;
+    }
 
     assert!(contract_wallet.is_writeable().await);
 

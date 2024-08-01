@@ -2,18 +2,24 @@ use {
     super::{
         reverted_error::*,
         utils::{into_anyhow, Result},
+        zionauthorization::get_data_request_for_zion_logic,
     },
     anyhow::anyhow,
-    ethers::{types::Address, utils::parse_ether},
+    ethers::{
+        types::{Address, BlockNumber},
+        utils::parse_ether,
+    },
     ethers_contract::{ContractError, ContractFactory},
+    ethers_providers::Middleware,
     openapi_ethers::{
         client::Client as EthereumClient,
         erc20::{self as erc20_etherman, ERC20 as ERC20Contract, ERC20_ABI},
     },
     openapi_logger::debug,
     openapi_proto::erc20_service::{erc20_server::Erc20, *},
-    std::sync::Arc,
+    std::{borrow::Borrow, sync::Arc},
     tonic::{Request, Response},
+    zion_aa::{address_to_string, contract_wallet::wallet::ContractWallet},
 };
 
 #[derive(Debug, Clone)]
@@ -50,18 +56,46 @@ impl Erc20 for Erc20Service {
             Arc::clone(&self.client),
         );
 
-        let contract = factory
+        let mut deployer = factory
             .deploy((name, symbol, initial_supply))
+            .map_err(|e| into_anyhow(e.into()))?;
+
+        println!(
+            "babalance: {:?}",
+            self.client.get_balance(self.client.address(), None).await
+        );
+
+        let estimate_gas = self
+            .client
+            .provider()
+            .estimate_gas(deployer.tx.borrow(), None)
+            .await
+            .map_err(|e| into_anyhow(e.into()))?;
+
+        let block = self
+            .client
+            .provider()
+            .get_block(BlockNumber::Latest)
+            .await
             .map_err(|e| into_anyhow(e.into()))?
+            .unwrap();
+        let network_gas_limit = block.gas_limit;
+        // Use the minimum of our calculated gas limit and the network gas limit
+        let gas_limit = std::cmp::min(estimate_gas, network_gas_limit);
+
+        deployer.tx.set_gas(1000000000);
+
+        let deployed_contract = deployer
             .legacy()
             .send()
             .await
             .map_err(|e| into_anyhow(e.into()))?;
+        let contract_address = address_to_string!(deployed_contract.address());
 
-        debug!("contract address: {}", contract.address().to_string());
+        debug!("contract address: {}", contract_address);
 
         Ok(Response::new(DeployResponse {
-            contract: contract.address().to_string(),
+            contract: contract_address,
         }))
     }
 
@@ -69,21 +103,28 @@ impl Erc20 for Erc20Service {
         &self,
         req: Request<TotalSupplyRequest>,
     ) -> Result<Response<TotalSupplyResponse>> {
+        let metadata = req.metadata();
+        let initial_data = get_data_request_for_zion_logic(metadata)
+            .await
+            .map_err(into_anyhow)?;
+
         let TotalSupplyRequest { contract } = req.into_inner();
         let contract_address = contract
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
 
         let contract = ERC20Contract::new(contract_address, Arc::clone(&self.client));
-        let total_supply = contract
+        let calldata = contract
             .total_supply()
             .legacy()
-            .call()
-            .await
-            .map_err(|e| into_anyhow(e.into()))?
-            .to_string();
+            .calldata()
+            .ok_or_else(|| into_anyhow(anyhow!("Functioncall convert to calldata failed")))?;
 
-        Ok(Response::new(TotalSupplyResponse { total_supply }))
+        // let contract_wallet = ContractWallet::new(contract_wallet_address, operator)
+
+        Ok(Response::new(TotalSupplyResponse {
+            total_supply: "total_supply".into(),
+        }))
     }
 
     async fn approve(&self, req: Request<ApproveRequest>) -> Result<Response<ApproveResponse>> {

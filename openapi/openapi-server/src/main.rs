@@ -1,8 +1,8 @@
 mod config;
+mod entity;
+mod helpers;
 mod server;
 mod services;
-mod helpers;
-mod entity;
 
 use {
     anyhow::{anyhow, Result},
@@ -13,8 +13,6 @@ use {
     server::{run as run_server, ServerConfig},
     std::{env, fs},
 };
-
-
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

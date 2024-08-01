@@ -1,6 +1,9 @@
 use super::login::LoginData;
 use anyhow::Result;
-use ethers::{signers::WalletError, types::U256};
+use ethers::{
+    signers::{LocalWallet, Signer, WalletError},
+    types::U256,
+};
 use jsonwebtoken::{Header, TokenData};
 use serde::{Deserialize, Serialize};
 use std::{str::FromStr, sync::Arc, vec::Vec};
@@ -53,9 +56,10 @@ pub struct JWTOptions<S> {
 }
 
 impl<S: FromStr> JWTOptions<S> {
-    pub fn try_into(token_data: TokenData<JWTPayload>, login_data: LoginData) -> Result<Self>
+    pub fn try_init(token_data: TokenData<JWTPayload>, login_data: LoginData) -> Result<Self>
     where
-        S: FromStr<Err = WalletError>,
+        S: FromStr,
+        <S as FromStr>::Err: std::error::Error + Send + Sync + 'static,
     {
         let deadline = token_data.claims.exp;
         let ephemeral_key_pair = login_data.ephemeral_key_pair.parse()?;
