@@ -1,5 +1,12 @@
 use {
-    super::utils::into_anyhow, crate::entity::telegram::{AuthRequest, AuthResponse, LoginWidgetData}, hex::encode, hmac::{Hmac, Mac}, reqwest::Client, serde_json::json, sha2::{Digest, Sha256}, std::env
+    super::utils::into_anyhow,
+    crate::entity::telegram::{AuthRequest, AuthResponse, LoginWidgetData},
+    hex::encode,
+    hmac::{Hmac, Mac},
+    reqwest::{Client, RequestBuilder},
+    serde_json::json,
+    sha2::{Digest, Sha256},
+    std::env,
 };
 
 // Define a type alias for Hmac-Sha256
@@ -36,8 +43,11 @@ pub fn get_init_data_integrity_web(
     return result;
 }
 
-
-pub async fn authorize(base_url: &str, client_id: &str, init_data: LoginWidgetData) -> Result<AuthResponse, reqwest::Error> {
+pub async fn authorize(
+    base_url: &str,
+    client_id: &str,
+    init_data: LoginWidgetData,
+) -> Result<AuthResponse, reqwest::Error> {
     let client = Client::new();
     let url = format!("{}/auth/v1/oidc/authorize", base_url);
 
@@ -52,7 +62,10 @@ pub async fn authorize(base_url: &str, client_id: &str, init_data: LoginWidgetDa
         .send()
         .await?
         .json::<AuthResponse>()
-        .await?;
+        .await;
 
-    Ok(response)
+    match response {
+        Ok(response) => Ok(response),
+        Err(err) => Err(err),
+    }
 }

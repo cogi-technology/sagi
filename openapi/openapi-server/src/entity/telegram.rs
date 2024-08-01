@@ -31,3 +31,21 @@ pub struct AuthResponse {
     pub message: Option<String>,
     pub timestamp: Option<i64>,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct GetSaltRequest {
+    pub jwt: String,
+    pub index: i32,
+}
+#[derive(Serialize, Deserialize)]
+pub struct GetProofRequest {
+    pub jwt: String,
+    pub salt: String,
+    pub signerPublicKey: String,
+    pub exp: u64,
+    pub keyClaimName: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct GetRequestType {
+}

@@ -1,10 +1,10 @@
 use anyhow::{anyhow, Result};
 use ethers::{
     middleware::SignerMiddleware,
-    signers::{LocalWallet, Signer},
+    signers::{LocalWallet, Signer, Wallet},
 };
 use ethers_core::k256::schnorr::SigningKey;
-use ethers_providers::{Http, Provider, ProviderExt};
+use ethers_providers::{Http, Middleware, Provider, ProviderExt};
 use rand::rngs::OsRng;
 use std::sync::Arc;
 
@@ -35,9 +35,7 @@ impl ClientMethods for Client {
         // Generate a random signing key
         let signing_key = SigningKey::random(&mut OsRng).to_bytes().to_vec();
         let signer = LocalWallet::from_bytes(&signing_key)?;
-
         let client = SignerMiddleware::new(Arc::new(provider), signer.with_chain_id(chain_id));
-
         Ok(client)
     }
 }
