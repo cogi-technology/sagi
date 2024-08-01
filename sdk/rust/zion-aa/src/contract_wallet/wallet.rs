@@ -252,12 +252,12 @@ where
             }
         }
 
-        let mut signers: Vec<Arc<dyn KeyBase>> = Vec::new();
+        let mut signers: Vec<Arc<dyn KeyBase + Send + Sync>> = Vec::new();
         if let Some(pin_code) = &self.pin_code {
-            signers.push(Arc::clone(pin_code) as Arc<dyn KeyBase>);
+            signers.push(pin_code.clone());
         }
         if let Some(jwt_proof) = &self.jwt_proof {
-            signers.push(Arc::clone(jwt_proof) as Arc<dyn KeyBase>);
+            signers.push(jwt_proof.clone());
         }
         if signers.is_empty() {
             return Err(anyhow!("Signers not set yet!"));
@@ -337,12 +337,12 @@ where
             mut_op1.max_priority_fee_per_gas = max_priority_fee_per_gas;
         }
 
-        let mut signers: Vec<Arc<dyn KeyBase>> = Vec::new();
+        let mut signers: Vec<Arc<dyn KeyBase + Send + Sync>> = Vec::new();
         if let Some(pin_code) = &self.pin_code {
-            signers.push(Arc::clone(pin_code) as Arc<dyn KeyBase>);
+            signers.push(Arc::clone(pin_code) as Arc<dyn KeyBase + Send + Sync>);
         }
         if let Some(jwt_proof) = &self.jwt_proof {
-            signers.push(Arc::clone(jwt_proof) as Arc<dyn KeyBase>);
+            signers.push(Arc::clone(jwt_proof) as Arc<dyn KeyBase + Send + Sync>);
         }
         if signers.is_empty() {
             return Err(anyhow!("Signers not set yet!"));

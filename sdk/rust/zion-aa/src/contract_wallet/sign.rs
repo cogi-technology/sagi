@@ -14,7 +14,7 @@ use ethers_providers::Middleware;
 
 pub async fn fill_and_sign<M: Middleware + 'static>(
     op: UserOperationRequest,
-    signers: Vec<Arc<dyn KeyBase>>,
+    signers: Vec<Arc<dyn KeyBase + Send + Sync>>,
     entry_point_address: Address,
     entry_point_provider: Arc<M>,
     chain_id: U256,
@@ -71,7 +71,7 @@ mod test {
 
         let mock_signer = KeyJWT::new(jwt_options);
 
-        let signers: Vec<Arc<dyn KeyBase>> = vec![Arc::new(mock_signer)];
+        let signers: Vec<Arc<dyn KeyBase + Send + Sync>> = vec![Arc::new(mock_signer)];
 
         let result = fill_and_sign(op.into(), signers, random_address, provider, chain_id).await?;
 
