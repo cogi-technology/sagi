@@ -1,12 +1,8 @@
 use {
-    super::utils::into_anyhow,
     crate::entity::telegram::{AuthRequest, AuthResponse, LoginWidgetData},
-    hex::encode,
     hmac::{Hmac, Mac},
-    reqwest::{Client, RequestBuilder},
-    serde_json::json,
+    reqwest::Client,
     sha2::{Digest, Sha256},
-    std::env,
 };
 
 // Define a type alias for Hmac-Sha256

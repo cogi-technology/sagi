@@ -25,8 +25,8 @@ pub struct SignInTelegramRequest {
     pub session_uuid: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
     pub code: ::prost::alloc::string::String,
-    #[prost(string, tag = "4")]
-    pub code2_fa: ::prost::alloc::string::String,
+    #[prost(string, optional, tag = "4")]
+    pub code2_fa: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -108,8 +108,8 @@ pub mod auth_telegram_actix {
         pub session_uuid: ::prost::alloc::string::String,
         #[prost(string, tag = "3")]
         pub code: ::prost::alloc::string::String,
-        #[prost(string, tag = "4")]
-        pub code2_fa: ::prost::alloc::string::String,
+        #[prost(string, optional, tag = "4")]
+        pub code2_fa: ::core::option::Option<::prost::alloc::string::String>,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]

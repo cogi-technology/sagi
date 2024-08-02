@@ -18,7 +18,7 @@ message SignInTelegramRequest {
   string phoneNumber = 1;
   string sessionUuid = 2;
   string code = 3;
-  string code2Fa = 4;
+  optional string code2Fa = 4;
 }
 
 message SignInTelegramResponse {

@@ -1,38 +1,25 @@
 use {
-    super::{
-        reverted_error::*,
-        utils::{into_anyhow, Result},
-    },
+    super::utils::{into_anyhow, Result},
     crate::{
         entity::telegram::LoginWidgetData,
         helpers::telegram::{authorize, get_init_data_integrity_web},
     },
-    anyhow::anyhow,
     chrono::Utc,
-    ethers::{types::Address, utils::parse_ether},
-    ethers_contract::{ContractError, ContractFactory},
-    grammers_client::{types::LoginToken, Client, Config, SignInError},
+    grammers_client::{Client, Config, SignInError},
     grammers_session::Session,
-    openapi_ethers::{
-        client::Client as EthereumClient,
-        erc20::{self as erc20_etherman, ERC20 as ERC20Contract, ERC20_ABI},
-    },
     openapi_logger::debug,
     openapi_proto::authtelegram_service::{auth_telegram_server::AuthTelegram, *},
-    serde_json::json,
-    std::{env, fs, ptr::null, sync::Arc},
+    std::{env, fs},
     tonic::{Request, Response, Status},
     uuid::Uuid,
 };
 
 #[derive(Debug, Clone)]
-pub struct AuthTelegramService {
-    client: Arc<EthereumClient>,
-}
+pub struct AuthTelegramService {}
 
 impl AuthTelegramService {
-    pub fn new(client: Arc<EthereumClient>) -> Self {
-        Self { client }
+    pub fn new() -> Self {
+        Self {}
     }
 }
 
@@ -72,7 +59,6 @@ impl AuthTelegram for AuthTelegramService {
             match client.session().save_to_file(&session_file) {
                 Ok(_) => {}
                 Err(e) => {
-                    println!("NOTE: failed to save the session, will sign out when done: {e}");
                     return Err(into_anyhow(e.into()));
                 }
             }
@@ -125,11 +111,18 @@ impl AuthTelegram for AuthTelegramService {
                 Err(SignInError::PasswordRequired(password_token)) => {
                     // Note: this `prompt` method will echo the password in the console.
                     //       Real code might want to use a better way to handle this.
-                    let hint = password_token.hint().unwrap_or("None");
-                    let password = code2_fa.clone();
-
+                    // let hint = password_token.hint().unwrap_or("None");
+                    let password = match code2_fa {
+                        Some(code2_fa) => code2_fa,
+                        None => {
+                            return Err(Status::new(
+                                tonic::Code::InvalidArgument,
+                                "2FA code is required",
+                            ));
+                        }
+                    };
                     client
-                        .check_password(password_token, password.trim())
+                        .check_password(password_token, password.clone().trim())
                         .await
                         .map_err(|e| into_anyhow(e.into()))?;
                 }
@@ -141,7 +134,6 @@ impl AuthTelegram for AuthTelegramService {
             match client.session().save_to_file(&session_file) {
                 Ok(_) => {}
                 Err(e) => {
-                    println!("NOTE: failed to save the session, will sign out when done: {e}");
                     return Err(into_anyhow(e.into()));
                 }
             }
@@ -152,7 +144,7 @@ impl AuthTelegram for AuthTelegramService {
             // Number of seconds since the Unix epoch
             let auth_date: u32 = now.timestamp() as u32;
             // Convert Option<&str> to Option<String>
-            let dataUser: LoginWidgetData = LoginWidgetData {
+            let data_user: LoginWidgetData = LoginWidgetData {
                 id: user.id(),
                 first_name: user.first_name().to_string(),
                 last_name: user
@@ -165,12 +157,12 @@ impl AuthTelegram for AuthTelegramService {
                 hash: Some("".to_string()),
             };
             let token_auth_bot = env::var("TOKEN_AUTH_BOT").map_err(|e| into_anyhow(e.into()))?;
-            let dataUserGetInfo: LoginWidgetData =
-                get_init_data_integrity_web(&dataUser, &token_auth_bot);
+            let data_user_get_info: LoginWidgetData =
+                get_init_data_integrity_web(&data_user, &token_auth_bot);
             let base_url =
                 env::var("NEXT_PUBLIC_SERVER_LOGIN_AUTHOR").map_err(|e| into_anyhow(e.into()))?;
             let client_id = env::var("CLIENT_ID").map_err(|e| into_anyhow(e.into()))?;
-            match authorize(&base_url, &client_id, dataUserGetInfo.clone()).await {
+            match authorize(&base_url, &client_id, data_user_get_info.clone()).await {
                 Ok(response) => {
                     if let Some(data) = response.id_token {
                         jwt = data
@@ -197,9 +189,7 @@ impl AuthTelegram for AuthTelegramService {
         &self,
         req: Request<LogOutTelegramRequest>,
     ) -> Result<Response<LogOutTelegramResponse>> {
-        let LogOutTelegramRequest {
-            session_uuid,
-        } = req.into_inner();
+        let LogOutTelegramRequest { session_uuid } = req.into_inner();
         //
         let api_id = env::var("TELEGRAM_API_ID").map_err(|e| into_anyhow(e.into()))?;
         let api_hash = env::var("TELEGRAM_API_HASH").map_err(|e| into_anyhow(e.into()))?;
@@ -224,7 +214,6 @@ impl AuthTelegram for AuthTelegramService {
             match fs::remove_file(&session_file) {
                 Ok(_) => {}
                 Err(e) => {
-                    println!("NOTE: failed to save the session, will sign out when done: {e}");
                     return Err(into_anyhow(e.into()));
                 }
             }
@@ -263,14 +252,13 @@ impl AuthTelegram for AuthTelegramService {
             .await
             .map_err(|e| into_anyhow(e.into()))?
         {
-            let signed_in = client
+            let _ = client
                 .bot_sign_in(&token_auth)
                 .await
                 .map_err(|e| into_anyhow(e.into()))?;
             match client.session().save_to_file(&session_file) {
                 Ok(_) => {}
                 Err(e) => {
-                    println!("NOTE: failed to save the session, will sign out when done: {e}");
                     return Err(into_anyhow(e.into()));
                 }
             }
@@ -280,7 +268,7 @@ impl AuthTelegram for AuthTelegramService {
             // Number of seconds since the Unix epoch
             let auth_date: u32 = now.timestamp() as u32;
             // Convert Option<&str> to Option<String>
-            let dataUser: LoginWidgetData = LoginWidgetData {
+            let data_user: LoginWidgetData = LoginWidgetData {
                 id: user.id(),
                 first_name: user.first_name().to_string(),
                 last_name: user
@@ -293,12 +281,12 @@ impl AuthTelegram for AuthTelegramService {
                 hash: Some("".to_string()),
             };
             let token_auth_bot = env::var("TOKEN_AUTH_BOT").map_err(|e| into_anyhow(e.into()))?;
-            let dataUserGetInfo: LoginWidgetData =
-                get_init_data_integrity_web(&dataUser, &token_auth_bot);
+            let data_user_get_info: LoginWidgetData =
+                get_init_data_integrity_web(&data_user, &token_auth_bot);
             let base_url =
                 env::var("NEXT_PUBLIC_SERVER_LOGIN_AUTHOR").map_err(|e| into_anyhow(e.into()))?;
             let client_id = env::var("CLIENT_ID").map_err(|e| into_anyhow(e.into()))?;
-            match authorize(&base_url, &client_id, dataUserGetInfo.clone()).await {
+            match authorize(&base_url, &client_id, data_user_get_info.clone()).await {
                 Ok(response) => {
                     if let Some(data) = response.id_token {
                         jwt = data
@@ -350,7 +338,6 @@ impl AuthTelegram for AuthTelegramService {
             match fs::remove_file(&session_file) {
                 Ok(_) => {}
                 Err(e) => {
-                    println!("NOTE: failed to save the session, will sign out when done: {e}");
                     return Err(into_anyhow(e.into()));
                 }
             }

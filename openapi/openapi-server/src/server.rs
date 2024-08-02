@@ -104,8 +104,8 @@ pub async fn run(
     server_config: ServerConfig,
 ) -> Result<(), anyhow::Error> {
     let erc20 = Erc20Service::new(Arc::clone(&rpc_client));
-    let authtelegram = AuthTelegramService::new(Arc::clone(&rpc_client));
-    let zionauthorization = ZionAuthorizationService::new(Arc::clone(&rpc_client));
+    let authtelegram = AuthTelegramService::new();
+    let zionauthorization = ZionAuthorizationService::new();
 
     let router = Router {
         authtelegram,
