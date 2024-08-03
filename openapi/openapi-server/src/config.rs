@@ -20,6 +20,9 @@ pub struct Config {
 
     pub tls: TlsConfig,
 
+    #[serde(rename = "telegram-auth")]
+    pub telegram_auth: TelegramAuthConfig,
+
     #[serde(rename = "auth-secret")]
     pub auth_secret: String,
 
@@ -65,6 +68,28 @@ impl TlsConfig {
         Identity::from_pem(cert, key)
     }
 }
+
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+pub struct TelegramAuthConfig {
+    pub telegram_api_id: i32,
+    pub telegram_api_hash: String,
+    pub client_id: String,
+    pub token_auth_bot: String,
+    pub next_public_server_login_author: String,
+    pub next_public_server_login_with_telegram: String,
+    pub next_public_torii: String,
+}
+
+// impl TelegramAuthConfig {
+//     pub fn from_cfg(cfg: &str) -> Result<Self> {
+//         serde_yaml::from_str(cfg).map_err(|x| anyhow!(x))
+//     }
+
+//     #[allow(dead_code)]
+//     pub fn to_cfg(&self) -> Result<String> {
+//         serde_yaml::to_string(self).map_err(|x| anyhow!(x))
+//     }
+// }
 
 #[cfg(test)]
 mod tests {

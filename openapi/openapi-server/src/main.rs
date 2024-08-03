@@ -15,7 +15,6 @@ use {
 };
 
 
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     //logger
@@ -45,7 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("Started at {}", c.grpc_listen);
     tokio::select! {
         _ = async move {
-            run_server(rpc_client, server_config).await
+            run_server(rpc_client, server_config, c.telegram_auth).await
         } => {},
     }
 

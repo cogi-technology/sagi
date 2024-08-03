@@ -1,11 +1,8 @@
-use actix_web::dev::ServiceRequest;
-use actix_web_httpauth::extractors::bearer::BearerAuth;
 use reqwest::{Client, Method, RequestBuilder};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::result::Result::Ok;
-use std::sync::Arc;
 use tonic::{Response, Status};
 
 pub type Result<T> = std::result::Result<T, tonic::Status>;

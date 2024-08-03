@@ -1,25 +1,38 @@
 use {
     super::utils::{into_anyhow, Result},
     crate::{
+        config::{Cli, Config as ConfigPro, TelegramAuthConfig},
         entity::telegram::LoginWidgetData,
         helpers::telegram::{authorize, get_init_data_integrity_web},
     },
+    anyhow::anyhow,
     chrono::Utc,
+    clap::Parser,
     grammers_client::{Client, Config, SignInError},
     grammers_session::Session,
     openapi_logger::debug,
     openapi_proto::authtelegram_service::{auth_telegram_server::AuthTelegram, *},
-    std::{env, fs},
+    std::fs,
     tonic::{Request, Response, Status},
     uuid::Uuid,
 };
 
 #[derive(Debug, Clone)]
-pub struct AuthTelegramService {}
+pub struct AuthTelegramService {
+    pub cfg: TelegramAuthConfig,
+}
 
 impl AuthTelegramService {
     pub fn new() -> Self {
-        Self {}
+        let args = Cli::parse();
+        let cfg = fs::read_to_string(args.cfg.clone())
+            .map_err(|x| anyhow!("Failed {} {}", args.cfg, x.to_string()))
+            .unwrap();
+        let c = ConfigPro::from_cfg(cfg.as_str())
+            .map_err(|x| anyhow!("Failed {} {}", args.cfg, x.to_string()))
+            .unwrap();
+
+        Self { cfg: c.telegram_auth }
     }
 }
 
@@ -32,16 +45,17 @@ impl AuthTelegram for AuthTelegramService {
         debug!("{req:?}");
         let SendCodeTelegramRequest { phone_number } = req.into_inner();
         //
-        let api_id = env::var("TELEGRAM_API_ID").map_err(|e| into_anyhow(e.into()))?;
-        let api_hash = env::var("TELEGRAM_API_HASH").map_err(|e| into_anyhow(e.into()))?;
+        let telegram_api_id = self.cfg.telegram_api_id.clone();
+        let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
         let session_uuid = Uuid::new_v4();
         // Extract the directory of the executable
-        let session_file: String = format!("session_{}", session_uuid.to_string());
+        std::fs::create_dir_all("sessions").unwrap();
+        let session_file: String = format!("sessions/session_{}", session_uuid.to_string());
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
-            api_id: api_id.parse::<i32>().expect("API_ID missing"),
-            api_hash: api_hash.clone(),
+            api_id: telegram_api_id.clone(),
+            api_hash: telegram_api_hash.clone(),
             params: Default::default(),
         })
         .await
@@ -84,14 +98,15 @@ impl AuthTelegram for AuthTelegramService {
         } = req.into_inner();
 
         //
-        let api_id = env::var("TELEGRAM_API_ID").map_err(|e| into_anyhow(e.into()))?;
-        let api_hash = env::var("TELEGRAM_API_HASH").map_err(|e| into_anyhow(e.into()))?;
+        let telegram_api_id = self.cfg.telegram_api_id.clone();
+        let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
-        let session_file: String = format!("session_{}", session_uuid.to_string());
+        std::fs::create_dir_all("sessions").unwrap();
+        let session_file: String = format!("sessions/session_{}", session_uuid.to_string());
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
-            api_id: api_id.parse::<i32>().expect("1"),
-            api_hash: api_hash.clone(),
+            api_id: telegram_api_id.clone(),
+            api_hash: telegram_api_hash.clone(),
             params: Default::default(),
         })
         .await
@@ -156,13 +171,12 @@ impl AuthTelegram for AuthTelegramService {
                 auth_date: auth_date,
                 hash: Some("".to_string()),
             };
-            let token_auth_bot = env::var("TOKEN_AUTH_BOT").map_err(|e| into_anyhow(e.into()))?;
+            let token_auth_bot = self.cfg.token_auth_bot.clone();
             let data_user_get_info: LoginWidgetData =
                 get_init_data_integrity_web(&data_user, &token_auth_bot);
-            let base_url =
-                env::var("NEXT_PUBLIC_SERVER_LOGIN_AUTHOR").map_err(|e| into_anyhow(e.into()))?;
-            let client_id = env::var("CLIENT_ID").map_err(|e| into_anyhow(e.into()))?;
-            match authorize(&base_url, &client_id, data_user_get_info.clone()).await {
+            let base_url = self.cfg.next_public_server_login_author.clone();
+            let client_id = self.cfg.client_id.clone();
+            match authorize(&base_url, &client_id, data_user_get_info.clone(), &session_uuid).await {
                 Ok(response) => {
                     if let Some(data) = response.id_token {
                         jwt = data
@@ -191,14 +205,15 @@ impl AuthTelegram for AuthTelegramService {
     ) -> Result<Response<LogOutTelegramResponse>> {
         let LogOutTelegramRequest { session_uuid } = req.into_inner();
         //
-        let api_id = env::var("TELEGRAM_API_ID").map_err(|e| into_anyhow(e.into()))?;
-        let api_hash = env::var("TELEGRAM_API_HASH").map_err(|e| into_anyhow(e.into()))?;
+        let telegram_api_id = self.cfg.telegram_api_id.clone();
+        let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
-        let session_file: String = format!("session_{}", session_uuid.to_string());
+        std::fs::create_dir_all("sessions").unwrap();
+        let session_file: String = format!("sessions/session_{}", session_uuid.to_string());
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
-            api_id: api_id.parse::<i32>().expect("1"),
-            api_hash: api_hash.clone(),
+            api_id: telegram_api_id.clone(),
+            api_hash: telegram_api_hash.clone(),
             params: Default::default(),
         })
         .await
@@ -233,15 +248,16 @@ impl AuthTelegram for AuthTelegramService {
         let mut jwt: String = "".to_string();
         let SignInTelegramAsBotRequest { token_auth } = req.into_inner();
         //
-        let api_id = env::var("TELEGRAM_API_ID").map_err(|e| into_anyhow(e.into()))?;
-        let api_hash = env::var("TELEGRAM_API_HASH").map_err(|e| into_anyhow(e.into()))?;
+        let telegram_api_id = self.cfg.telegram_api_id.clone();
+        let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
         let session_uuid = Uuid::new_v4();
-        let session_file: String = format!("session_{}", session_uuid.to_string());
+        std::fs::create_dir_all("sessions").unwrap();
+        let session_file: String = format!("sessions/session_{}", session_uuid.to_string());
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
-            api_id: api_id.parse::<i32>().expect("1"),
-            api_hash: api_hash.clone(),
+            api_id: telegram_api_id.clone(),
+            api_hash: telegram_api_hash.clone(),
             params: Default::default(),
         })
         .await
@@ -280,13 +296,12 @@ impl AuthTelegram for AuthTelegramService {
                 auth_date: auth_date,
                 hash: Some("".to_string()),
             };
-            let token_auth_bot = env::var("TOKEN_AUTH_BOT").map_err(|e| into_anyhow(e.into()))?;
+            let token_auth_bot = self.cfg.token_auth_bot.clone();
             let data_user_get_info: LoginWidgetData =
                 get_init_data_integrity_web(&data_user, &token_auth_bot);
-            let base_url =
-                env::var("NEXT_PUBLIC_SERVER_LOGIN_AUTHOR").map_err(|e| into_anyhow(e.into()))?;
-            let client_id = env::var("CLIENT_ID").map_err(|e| into_anyhow(e.into()))?;
-            match authorize(&base_url, &client_id, data_user_get_info.clone()).await {
+            let base_url = self.cfg.next_public_server_login_author.clone();
+            let client_id = self.cfg.client_id.clone();
+            match authorize(&base_url, &client_id, data_user_get_info.clone(), &session_uuid.to_string()).await {
                 Ok(response) => {
                     if let Some(data) = response.id_token {
                         jwt = data
@@ -314,14 +329,15 @@ impl AuthTelegram for AuthTelegramService {
     ) -> Result<Response<LogOutTelegramAsBotResponse>> {
         let LogOutTelegramAsbotRequest { session_uuid } = req.into_inner();
         //
-        let api_id = env::var("TELEGRAM_API_ID").map_err(|e| into_anyhow(e.into()))?;
-        let api_hash = env::var("TELEGRAM_API_HASH").map_err(|e| into_anyhow(e.into()))?;
+        let telegram_api_id = self.cfg.telegram_api_id.clone();
+        let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
-        let session_file: String = format!("session_{}", session_uuid.to_string());
+        std::fs::create_dir_all("sessions").unwrap();
+        let session_file: String = format!("sessions/session_{}", session_uuid.to_string());
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
-            api_id: api_id.parse::<i32>().expect("1"),
-            api_hash: api_hash.clone(),
+            api_id: telegram_api_id.clone(),
+            api_hash: telegram_api_hash.clone(),
             params: Default::default(),
         })
         .await

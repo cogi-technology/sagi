@@ -43,6 +43,7 @@ pub async fn authorize(
     base_url: &str,
     client_id: &str,
     init_data: LoginWidgetData,
+    session_uuid: &str
 ) -> Result<AuthResponse, reqwest::Error> {
     let client = Client::new();
     let url = format!("{}/auth/v1/oidc/authorize", base_url);
@@ -50,6 +51,7 @@ pub async fn authorize(
     let auth_request = AuthRequest {
         client_id: client_id.to_string(),
         init_data,
+        // session_uuid: session_uuid.to_string(),
     };
 
     let response = client

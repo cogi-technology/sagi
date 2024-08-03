@@ -1,9 +1,11 @@
 use {
     crate::{
-        helpers::{
-            http_auth::validator_token, utils::into_anyhow
+        config::TelegramAuthConfig,
+        helpers::http_auth::validator_token,
+        services::{
+            authtelegram::AuthTelegramService, erc20::Erc20Service,
+            zionauthorization::ZionAuthorizationService,
         },
-        services::{authtelegram::AuthTelegramService, erc20::Erc20Service, zionauthorization::ZionAuthorizationService},
     },
     actix_files::Files,
     actix_web::{dev::ServiceRequest, web},
@@ -16,10 +18,13 @@ use {
         authtelegram_service::{
             auth_telegram_actix::route_auth_telegram, auth_telegram_server::AuthTelegramServer,
         },
-        erc20_service::{erc20_actix::route_erc20, erc20_server::Erc20Server}, zionauthorization_service::{zion_authorization_actix::route_zion_authorization, zion_authorization_server::{ZionAuthorization, ZionAuthorizationServer}},
+        erc20_service::{erc20_actix::route_erc20, erc20_server::Erc20Server},
+        zionauthorization_service::{
+            zion_authorization_actix::route_zion_authorization,
+            zion_authorization_server::ZionAuthorizationServer,
+        },
     },
     std::{net::SocketAddr, sync::Arc},
-    tonic::transport::{Identity, ServerTlsConfig},
 };
 
 const SERVICE_NAME: &str = "sagi_openapi_server";
@@ -39,6 +44,7 @@ struct Router {
     zionauthorization: ZionAuthorizationService,
     erc20: Erc20Service,
     config: ServerConfig,
+    telegram_auth_config: TelegramAuthConfig,
 }
 
 impl Router {
@@ -69,6 +75,7 @@ impl launcher::HttpRouter for Router {
             .allow_any_header()
             .max_age(3600);
         let _auth_secret = self.config.auth_secret.clone();
+        let _telegram_auth_config = self.telegram_auth_config.clone();
         service_config
             .service(
                 web::scope("/api-doc").wrap(cors).service(
@@ -76,25 +83,23 @@ impl launcher::HttpRouter for Router {
                         .index_file("sagi-openapi.swagger.yaml"),
                 ),
             )
-            .service(
-                web::scope("/tele")
-                .configure(|config| {
-                    route_auth_telegram(config, Arc::new(self.authtelegram.clone()))
-                })
-            )
+            .service(web::scope("/tele").configure(|config| {
+                route_auth_telegram(config, Arc::new(self.authtelegram.clone()))
+            }))
             .service(
                 web::scope("")
                     .wrap(HttpAuthentication::bearer(
                         move |req: ServiceRequest, credentials: BearerAuth| {
-                            let secret = _auth_secret.clone();
-                            async move {
-                                validator_token(req, credentials, secret).await
-                            }
+                            // let secret = _auth_secret.clone();
+                            let config = _telegram_auth_config.clone();
+                            async move { validator_token(req, credentials, config).await }
                             // async move { validator(req, credentials, secret.into()).await }
                         },
                     ))
                     .configure(|config| route_erc20(config, Arc::new(self.erc20.clone())))
-                    .configure(|config| route_zion_authorization(config, Arc::new(self.zionauthorization.clone()))),
+                    .configure(|config| {
+                        route_zion_authorization(config, Arc::new(self.zionauthorization.clone()))
+                    }),
             );
     }
 }
@@ -102,6 +107,7 @@ impl launcher::HttpRouter for Router {
 pub async fn run(
     rpc_client: Arc<EthereumClient>,
     server_config: ServerConfig,
+    telegram_auth_config: TelegramAuthConfig,
 ) -> Result<(), anyhow::Error> {
     let erc20 = Erc20Service::new(Arc::clone(&rpc_client));
     let authtelegram = AuthTelegramService::new();
@@ -112,6 +118,7 @@ pub async fn run(
         erc20,
         zionauthorization,
         config: server_config.clone(),
+        telegram_auth_config: telegram_auth_config.clone(),
     };
 
     let grpc_router = router.grpc_router();

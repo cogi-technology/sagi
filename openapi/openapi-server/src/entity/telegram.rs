@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::helpers::jwk::{JwkKeyPairAlg, JwkKeyPairType};
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LoginWidgetData {
     pub id: i64,
@@ -13,14 +15,14 @@ pub struct LoginWidgetData {
 
     pub auth_date: u32,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub hash: Option<String>
+    pub hash: Option<String>,
 }
-
 
 #[derive(Serialize)]
 pub struct AuthRequest {
     pub client_id: String,
     pub init_data: LoginWidgetData,
+    // pub session_uuid: String,
 }
 
 #[derive(Deserialize)]
@@ -46,6 +48,23 @@ pub struct GetProofRequest {
     pub keyClaimName: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct GetRequestType {
+    pub keys: Vec<JWKSPublicKeyCerts>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct JWKSPublicKeyCerts {
+    pub kty: JwkKeyPairType,
+    pub alg: JwkKeyPairAlg,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub crv: Option<String>, // Ed25519
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub kid: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub n: Option<String>, // RSA
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub e: Option<String>, // RSA
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub x: Option<String>, // OCT
 }

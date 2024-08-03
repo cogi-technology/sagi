@@ -1,26 +1,39 @@
 use {
     super::utils::{into_anyhow, Result},
     crate::{
+        config::{Cli, TelegramAuthConfig, Config as ConfigPro},
         entity::telegram::{GetProofRequest, GetRequestType, GetSaltRequest},
         helpers::utils::send_request_text,
     },
+    anyhow::anyhow,
+    clap::Parser,
     ethers::signers::{LocalWallet, Signer},
     ethers_core::{k256::ecdsa::SigningKey, rand::rngs::OsRng},
     hex,
     jsonwebtoken::TokenData,
     openapi_proto::zionauthorization_service::{zion_authorization_server::ZionAuthorization, *},
     reqwest::{Client as ClientReqwest, Method},
-    std::env,
+    std::fs,
     tonic::{metadata::MetadataMap, Request, Response},
     zion_aa::types::jwt::JWTPayload,
 };
 
 #[derive(Debug, Clone)]
-pub struct ZionAuthorizationService {}
+pub struct ZionAuthorizationService {
+    pub cfg: TelegramAuthConfig,
+}
 
 impl ZionAuthorizationService {
     pub fn new() -> Self {
-        Self { }
+        let args = Cli::parse();
+        let cfg = fs::read_to_string(args.cfg.clone())
+            .map_err(|x| anyhow!("Failed {} {}", args.cfg, x.to_string()))
+            .unwrap();
+        let c = ConfigPro::from_cfg(cfg.as_str())
+            .map_err(|x| anyhow!("Failed {} {}", args.cfg, x.to_string()))
+            .unwrap();
+
+        Self { cfg: c.telegram_auth }
     }
 }
 
@@ -51,8 +64,7 @@ impl ZionAuthorization for ZionAuthorizationService {
                         zion_aa::utils::decode_jwt(token).unwrap();
                     let client = ClientReqwest::new();
                     // Get Salt
-                    let base_url_salt = env::var("NEXT_PUBLIC_SERVER_LOGIN_WITH_TELEGRAM")
-                        .map_err(|e| into_anyhow(e.into()))?;
+                    let base_url_salt = self.cfg.next_public_server_login_with_telegram.clone();
                     let url_salt = format!("{}/v1/salt", base_url_salt);
                     let body = GetSaltRequest {
                         jwt: token.to_string(),
@@ -99,8 +111,7 @@ impl ZionAuthorization for ZionAuthorizationService {
                     //         Err(e) => return Err(e),
                     //     };
                     // Get beneficiaries
-                    let base_url_beneficiaries =
-                        env::var("NEXT_PUBLIC_TORII").map_err(|e| into_anyhow(e.into()))?;
+                    let base_url_beneficiaries = self.cfg.next_public_torii.clone();
                     let url_beneficiaries = format!("{}/v1/beneficiaries", base_url_beneficiaries);
                     beneficiaries = match send_request_text::<GetRequestType>(
                         &client,
@@ -128,7 +139,7 @@ impl ZionAuthorization for ZionAuthorizationService {
             pi_a: proof_point_data.pi_a.clone(),
             pi_b: pi_b_res,
             pi_c: proof_point_data.pi_c.clone(),
-            protocol: proof_point_data.protocol.clone().expect("REASON"),
+            protocol: proof_point_data.protocol.clone().expect("protocol"),
         };
         let response = GetDataRequestForZionResponse {
             salt: salt.get_mut().to_string(),
