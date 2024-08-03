@@ -1,8 +1,4 @@
-use {
-    ethers::types::H160,
-    serde::{Deserialize, Serialize},
-    std::str::FromStr,
-};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct Config {
