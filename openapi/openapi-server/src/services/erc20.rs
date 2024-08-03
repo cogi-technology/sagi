@@ -2,18 +2,17 @@ use {
     super::utils::{init_contract_wallet, into_anyhow, Result},
     anyhow::anyhow,
     ethers::{
-        types::{Address, BlockNumber, Eip1559TransactionRequest, TransactionRequest, U256},
+        types::{Address, Eip1559TransactionRequest},
         utils::parse_ether,
     },
     ethers_contract::ContractFactory,
-    ethers_providers::Middleware,
     openapi_ethers::{
         client::Client as EthereumClient,
-        erc20::{self as erc20_etherman, ERC20 as ERC20Contract, ERC20_ABI},
+        erc20::{erc20_bytecode, ERC20 as ERC20Contract, ERC20_ABI},
     },
     openapi_logger::debug,
     openapi_proto::erc20_service::{erc20_server::Erc20, *},
-    std::{borrow::Borrow, sync::Arc},
+    std::sync::Arc,
     tonic::{Request, Response},
     zion_aa::address_to_string,
 };
@@ -31,14 +30,14 @@ impl Erc20Service {
 
 #[tonic::async_trait]
 impl Erc20 for Erc20Service {
-    async fn deploy(&self, req: Request<DeployRequest>) -> Result<Response<DeployResponse>> {
-        debug!("{req:?}");
+    async fn deploy(&self, request: Request<DeployRequest>) -> Result<Response<DeployResponse>> {
+        debug!("{request:?}");
         let DeployRequest {
             owner,
             name,
             symbol,
             initial_supply,
-        } = req.into_inner();
+        } = request.into_inner();
         let owner = owner
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
@@ -48,24 +47,19 @@ impl Erc20 for Erc20Service {
 
         let factory = ContractFactory::new(
             ERC20_ABI.clone(),
-            erc20_etherman::erc20_bytecode().into(),
+            erc20_bytecode(),
             Arc::clone(&self.client),
         );
 
-        let mut deployer = factory
+        let contract = factory
             .deploy((name, symbol, initial_supply))
-            .map_err(|e| into_anyhow(e.into()))?;
-
-        deployer.tx.set_gas(U256::from(1_000_000));
-        deployer.tx.set_gas_price(U256::from(10_000));
-
-        let deployed_contract = deployer
+            .map_err(|e| into_anyhow(e.into()))?
             .legacy()
             .send()
             .await
             .map_err(|e| into_anyhow(e.into()))?;
-        let contract_address = address_to_string!(deployed_contract.address());
 
+        let contract_address = address_to_string!(contract.address());
         debug!("contract address: {}", contract_address);
 
         Ok(Response::new(DeployResponse {
@@ -75,9 +69,9 @@ impl Erc20 for Erc20Service {
 
     async fn total_supply(
         &self,
-        req: Request<TotalSupplyRequest>,
+        request: Request<TotalSupplyRequest>,
     ) -> Result<Response<TotalSupplyResponse>> {
-        let TotalSupplyRequest { contract } = req.into_inner();
+        let TotalSupplyRequest { contract } = request.into_inner();
         let contract_address = contract
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
@@ -94,8 +88,8 @@ impl Erc20 for Erc20Service {
         Ok(Response::new(TotalSupplyResponse { total_supply }))
     }
 
-    async fn approve(&self, req: Request<ApproveRequest>) -> Result<Response<ApproveResponse>> {
-        let header_metadata = req.metadata();
+    async fn approve(&self, request: Request<ApproveRequest>) -> Result<Response<ApproveResponse>> {
+        let header_metadata = request.metadata();
         let contract_wallet = init_contract_wallet(header_metadata)
             .await
             .map_err(into_anyhow)?;
@@ -104,7 +98,7 @@ impl Erc20 for Erc20Service {
             contract,
             spender,
             amount,
-        } = req.into_inner();
+        } = request.into_inner();
         let contract_address = contract
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
@@ -132,9 +126,9 @@ impl Erc20 for Erc20Service {
 
     async fn balance_of(
         &self,
-        req: Request<BalanceOfRequest>,
+        request: Request<BalanceOfRequest>,
     ) -> Result<Response<BalanceOfResponse>> {
-        let BalanceOfRequest { contract, account } = req.into_inner();
+        let BalanceOfRequest { contract, account } = request.into_inner();
         let contract_address = contract
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
@@ -155,13 +149,13 @@ impl Erc20 for Erc20Service {
 
     async fn allowance(
         &self,
-        req: Request<AllowanceRequest>,
+        request: Request<AllowanceRequest>,
     ) -> Result<Response<AllowanceResponse>> {
         let AllowanceRequest {
             contract,
             owner,
             spender,
-        } = req.into_inner();
+        } = request.into_inner();
         let contract_address = contract
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
@@ -184,8 +178,8 @@ impl Erc20 for Erc20Service {
         Ok(Response::new(AllowanceResponse { remaining_amount }))
     }
 
-    async fn transfer(&self, req: Request<TransferRequest>) -> Result<Response<TransferResponse>> {
-        let contract_wallet = init_contract_wallet(req.metadata())
+    async fn transfer(&self, request: Request<TransferRequest>) -> Result<Response<TransferResponse>> {
+        let contract_wallet = init_contract_wallet(request.metadata())
             .await
             .map_err(into_anyhow)?;
 
@@ -193,7 +187,7 @@ impl Erc20 for Erc20Service {
             contract,
             recipient,
             amount,
-        } = req.into_inner();
+        } = request.into_inner();
         let contract_address = contract
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
@@ -220,9 +214,9 @@ impl Erc20 for Erc20Service {
 
     async fn transfer_from(
         &self,
-        req: Request<TransferFromRequest>,
+        request: Request<TransferFromRequest>,
     ) -> Result<Response<TransferFromResponse>> {
-        let contract_wallet = init_contract_wallet(req.metadata())
+        let contract_wallet = init_contract_wallet(request.metadata())
             .await
             .map_err(into_anyhow)?;
 
@@ -231,7 +225,7 @@ impl Erc20 for Erc20Service {
             sender,
             recipient,
             amount,
-        } = req.into_inner();
+        } = request.into_inner();
         let contract_address = contract
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;

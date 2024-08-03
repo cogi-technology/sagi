@@ -1,9 +1,10 @@
 use {
     crate::{
-        helpers::{
-            http_auth::validator_token, utils::into_anyhow
+        helpers::{http_auth::validator_token, utils::into_anyhow},
+        services::{
+            authtelegram::AuthTelegramService, erc20::Erc20Service,
+            zionauthorization::ZionAuthorizationService,
         },
-        services::{authtelegram::AuthTelegramService, erc20::Erc20Service, zionauthorization::ZionAuthorizationService},
     },
     actix_files::Files,
     actix_web::{dev::ServiceRequest, web},
@@ -16,7 +17,11 @@ use {
         authtelegram_service::{
             auth_telegram_actix::route_auth_telegram, auth_telegram_server::AuthTelegramServer,
         },
-        erc20_service::{erc20_actix::route_erc20, erc20_server::Erc20Server}, zionauthorization_service::{zion_authorization_actix::route_zion_authorization, zion_authorization_server::{ZionAuthorization, ZionAuthorizationServer}},
+        erc20_service::{erc20_actix::route_erc20, erc20_server::Erc20Server},
+        zionauthorization_service::{
+            zion_authorization_actix::route_zion_authorization,
+            zion_authorization_server::{ZionAuthorization, ZionAuthorizationServer},
+        },
     },
     std::{net::SocketAddr, sync::Arc},
     tonic::transport::{Identity, ServerTlsConfig},
@@ -76,25 +81,22 @@ impl launcher::HttpRouter for Router {
                         .index_file("sagi-openapi.swagger.yaml"),
                 ),
             )
-            .service(
-                web::scope("/tele")
-                .configure(|config| {
-                    route_auth_telegram(config, Arc::new(self.authtelegram.clone()))
-                })
-            )
+            .service(web::scope("/tele").configure(|config| {
+                route_auth_telegram(config, Arc::new(self.authtelegram.clone()))
+            }))
             .service(
                 web::scope("")
                     .wrap(HttpAuthentication::bearer(
                         move |req: ServiceRequest, credentials: BearerAuth| {
                             let secret = _auth_secret.clone();
-                            async move {
-                                validator_token(req, credentials, secret).await
-                            }
+                            async move { validator_token(req, credentials, secret).await }
                             // async move { validator(req, credentials, secret.into()).await }
                         },
                     ))
                     .configure(|config| route_erc20(config, Arc::new(self.erc20.clone())))
-                    .configure(|config| route_zion_authorization(config, Arc::new(self.zionauthorization.clone()))),
+                    .configure(|config| {
+                        route_zion_authorization(config, Arc::new(self.zionauthorization.clone()))
+                    }),
             );
     }
 }

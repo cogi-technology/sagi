@@ -1,5 +1,3 @@
-use actix_web::dev::ServiceRequest;
-use actix_web_httpauth::extractors::bearer::BearerAuth;
 use anyhow::Result as AnyhowResult;
 use ethers::{signers::LocalWallet, types::Address};
 use openapi_proto::zionauthorization_service::GetDataRequestForZionResponse;
