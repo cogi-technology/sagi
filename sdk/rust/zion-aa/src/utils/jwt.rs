@@ -23,6 +23,6 @@ mod test {
 
         let ret = decode_jwt(token).unwrap();
 
-        println!("{:?}", ret);
+        println!("{:#?}", ret);
     }
 }

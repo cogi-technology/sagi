@@ -114,7 +114,7 @@ where
 
     pub async fn validate_and_set_pin_code(
         &mut self,
-        code: Bytes,
+        code: String,
         set_onchain: bool,
         options: Option<Overrides>,
     ) -> Result<()> {
@@ -124,9 +124,10 @@ where
         if !self.operator.is_created(self.address()).await {
             return Err(anyhow!("Wallet not created"));
         }
-        let salt = hex::decode(self.salt().unwrap())?;
+        let salt = self.salt().ok_or(anyhow!("salt is None"))?;
 
-        let pin_code_holder = make_pin_code_holder(&code, &salt.into())?;
+        let pin_code_holder = make_pin_code_holder(code.clone(), salt)?;
+
         let mut pin_code_onchain = self.get_pin_code_holder().await?;
 
         if set_onchain && pin_code_holder.address() != pin_code_onchain {
@@ -168,10 +169,10 @@ where
         mut_op1.sender = self.contract.address();
         mut_op1.nonce = U256::zero();
         mut_op1.init_code = self.operator.get_init_code(
-            self.sub().unwrap(),
-            self.salt().unwrap(),
-            self.iss().unwrap(),
-            self.aud().unwrap(),
+            self.sub().ok_or(anyhow!("sub is None"))?,
+            self.salt().ok_or(anyhow!("salt is None"))?,
+            self.iss().ok_or(anyhow!("iss is None"))?,
+            self.aud().ok_or(anyhow!("aud is None"))?,
         )?;
         mut_op1.signature = vec![0u8; 1].into();
 
@@ -213,7 +214,7 @@ where
 
     pub async fn onchain_update_pin_code(
         &self,
-        code: Bytes,
+        code: String,
         options: Option<Overrides>,
     ) -> Result<TransactionReceipt> {
         let chain_id = self.entry_point().client().get_chainid().await.unwrap();
@@ -227,9 +228,15 @@ where
         if self.has_pin_code().await? && self.pin_code.is_none() {
             return Err(anyhow!("Old PIN Code not setup"));
         }
-        let salt = hex::decode(&self.jwt_proof.as_ref().unwrap().inner.salt)?;
+        let salt = self
+            .jwt_proof
+            .as_ref()
+            .ok_or(anyhow!("jwt_proof signer is None"))?
+            .inner
+            .salt
+            .clone();
 
-        let pin_code_holder = make_pin_code_holder(&code, &salt.into())?;
+        let pin_code_holder = make_pin_code_holder(code, salt)?;
 
         let tx_exec_data = self
             .contract
@@ -322,6 +329,11 @@ where
             .execute(to, tx_value, tx_data)
             .calldata()
             .ok_or_else(|| anyhow!("Calldata is None!"))?;
+        // Debug
+        println!(
+            "ContractWallet::populate_tx::line331::tx_exec_data: {}",
+            hex::encode(tx_exec_data.clone())
+        );
 
         let mut op1 = UserOperationSigned::default();
         let mut_op1 = op1.mut_inner();
@@ -358,6 +370,9 @@ where
         .await?
         .into_inner();
 
+        // Debug
+        println!("ContractWallet::populate_tx::line373::op: {op:#?}",);
+
         let ret = if let Some(gas_limit) = transaction.gas {
             self.entry_point()
                 .handle_ops([op].into(), self.operator.pick_up_beneficiary())
@@ -370,6 +385,9 @@ where
                 .legacy()
                 .tx
         };
+
+        // Debug
+        println!("ContractWallet::populate_tx::line387::ret: {ret:#?}",);
 
         Ok(ret)
     }

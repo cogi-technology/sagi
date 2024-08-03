@@ -20,7 +20,8 @@ pub async fn fill_and_sign<M: Middleware + 'static>(
     chain_id: U256,
 ) -> Result<UserOperationSigned> {
     let mut op2 = fill_user_op(op, Arc::clone(&entry_point_provider)).await?;
-    let message = op2.hash(entry_point_address, chain_id);
+
+    let message = op2.hash(entry_point_address, chain_id)?;
 
     let mut sig = Bytes::new();
     for signer in signers {
@@ -58,7 +59,7 @@ mod test {
         let provider = Arc::new(random_wallet.provider().clone());
 
         let a = provider.get_accounts().await?;
-        println!("{:?}", a);
+        println!("{:#?}", a);
 
         let jwt_options = JWTOptions {
             header: Default::default(),

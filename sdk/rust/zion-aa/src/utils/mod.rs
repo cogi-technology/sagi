@@ -1,13 +1,10 @@
 // mod zero_knowledge;
 mod jwt;
 
-use crate::{
-    contracts::Account,
-    types::{
-        jwt::ProofPoints,
-        key::RoleWeight,
-        user_operation::{request::UserOperationRequest, UserOperationSigned},
-    },
+use crate::types::{
+    jwt::ProofPoints,
+    key::RoleWeight,
+    user_operation::{request::UserOperationRequest, UserOperationSigned},
 };
 use anyhow::{anyhow, Result};
 use ethers::{
@@ -204,12 +201,13 @@ pub async fn groth16_export_solidity_call_data(
     s
 }
 
-pub fn make_pin_code_holder(code: &Bytes, salt: &Bytes) -> Result<LocalWallet> {
-    let prv = hex::encode(keccak256(ethers::abi::encode(&[
-        Token::Bytes(code.to_vec()),
-        Token::FixedBytes(salt.to_vec()),
-    ])));
+pub fn make_pin_code_holder(code: String, salt: String) -> Result<LocalWallet> {
+    let salt = hex::decode(salt)?.to_vec();
+
+    let prv = hex::encode(keccak256(ethers::abi::encode_packed(&[
+        Token::Bytes(code.into_bytes()),
+        Token::FixedBytes(salt),
+    ])?));
 
     prv.parse::<LocalWallet>().map_err(|e| e.into())
 }
-
