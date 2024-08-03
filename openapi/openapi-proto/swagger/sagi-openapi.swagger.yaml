@@ -349,10 +349,13 @@ paths:
           in: query
           required: false
           type: string
-        - name: owner
+        - name: accounts
           in: query
           required: false
-          type: string
+          type: array
+          items:
+            type: string
+          collectionFormat: multi
         - name: token_ids
           in: query
           required: false
@@ -422,6 +425,10 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
         - name: target
           in: query
           required: false
@@ -680,8 +687,7 @@ paths:
         - name: token_id
           in: query
           required: false
-          type: integer
-          format: int32
+          type: string
       tags:
         - ERC721
   /api/erc721/isApprovedForAll:
@@ -731,8 +737,7 @@ paths:
         - name: token_id
           in: query
           required: false
-          type: integer
-          format: int32
+          type: string
       tags:
         - ERC721
   /api/erc721/safeTransferFrom:
@@ -975,7 +980,7 @@ definitions:
   erc404BalanceOfBatchResponse:
     type: object
     properties:
-      amounts:
+      batch_balances:
         type: array
         items:
           type: string
@@ -1032,6 +1037,8 @@ definitions:
   erc404SafeBatchTransferFromRequest:
     type: object
     properties:
+      contract:
+        type: string
       from:
         type: string
       to:
@@ -1046,6 +1053,7 @@ definitions:
           type: string
       data:
         type: string
+        format: byte
   erc404SafeBatchTransferFromResponse:
     type: object
     properties:
@@ -1054,6 +1062,8 @@ definitions:
   erc404SafeTransferFromRequest:
     type: object
     properties:
+      contract:
+        type: string
       from:
         type: string
       to:

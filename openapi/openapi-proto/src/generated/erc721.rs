@@ -39,8 +39,8 @@ pub struct BalanceOfResponse {
 pub struct OwnerOfRequest {
     #[prost(string, tag = "1")]
     pub contract: ::prost::alloc::string::String,
-    #[prost(int32, tag = "2")]
-    pub token_id: i32,
+    #[prost(string, tag = "2")]
+    pub token_id: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -113,8 +113,8 @@ pub struct ApproveResponse {
 pub struct GetApprovedRequest {
     #[prost(string, tag = "1")]
     pub contract: ::prost::alloc::string::String,
-    #[prost(int32, tag = "2")]
-    pub token_id: i32,
+    #[prost(string, tag = "2")]
+    pub token_id: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -191,8 +191,8 @@ pub mod erc721_actix {
     pub struct OwnerOfQuery {
         #[prost(string, tag = "1")]
         pub contract: ::prost::alloc::string::String,
-        #[prost(int32, tag = "2")]
-        pub token_id: i32,
+        #[prost(string, tag = "2")]
+        pub token_id: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -237,8 +237,8 @@ pub mod erc721_actix {
     pub struct GetApprovedQuery {
         #[prost(string, tag = "1")]
         pub contract: ::prost::alloc::string::String,
-        #[prost(int32, tag = "2")]
-        pub token_id: i32,
+        #[prost(string, tag = "2")]
+        pub token_id: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]

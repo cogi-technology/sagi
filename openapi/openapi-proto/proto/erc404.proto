@@ -79,12 +79,12 @@ message TransferFromResponse {
 
 message BalanceOfBatchRequest {
   string contract = 1;
-  string owner = 2;
+  repeated string accounts = 2;
   repeated string token_ids = 3;
 }
 
 message BalanceOfBatchResponse {
-  repeated string amounts = 1;
+  repeated string batch_balances = 1;
 }
 
 message SetApprovalForAllRequest {
@@ -108,11 +108,12 @@ message IsApprovedForAllResponse {
 }
 
 message SafeTransferFromRequest {
-  string from = 1;
-  string to = 2;
-  string token_id = 3;
-  string value = 4;
-  string data = 5;
+  string contract = 1;
+  string from = 2;
+  string to = 3;
+  string token_id = 4;
+  string value = 5;
+  string data = 6;
 }
 
 message SafeTransferFromResponse {
@@ -120,11 +121,12 @@ message SafeTransferFromResponse {
 }
 
 message SafeBatchTransferFromRequest {
-  string from = 1;
-  string to = 2;
-  repeated string token_ids = 3;
-  repeated string values = 4;
-  string data = 5;
+  string contract = 1;
+  string from = 2;
+  string to = 3;
+  repeated string token_ids = 4;
+  repeated string values = 5;
+  bytes data = 6;
 }
 
 message SafeBatchTransferFromResponse {
@@ -151,7 +153,8 @@ message ERC20BalanceOfResponse {
 }
 
 message ERC1155TransferExemptRequest {
-  string target = 1;
+  string contract = 1;
+  string target = 2;
 }
 
 message ERC1155TransferExemptResponse {
