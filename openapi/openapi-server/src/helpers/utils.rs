@@ -4,6 +4,9 @@ use serde::Serialize;
 use std::collections::HashMap;
 use std::result::Result::Ok;
 use tonic::{Response, Status};
+use std::fs;
+use std::path::Path;
+use tokio::time::{sleep, Duration};
 
 pub type Result<T> = std::result::Result<T, tonic::Status>;
 
@@ -75,3 +78,17 @@ where
         Err(e) => return Err(into_anyhow(e.into())),
     };
 }
+
+// pub async fn delete_file_after_time(file_path: &str, time: u64) -> bool {
+//     // Sleep for time
+//     // sleep(Duration::from_secs(24 * 60 * 60)).await;
+//     sleep(Duration::from_secs(time)).await;
+//     // Check if the file exists
+//     if Path::new(file_path).exists() {
+//         match fs::remove_file(file_path) {
+//             Ok(res) => res,
+//             Err(_) => {},
+//         }
+//     }
+//     return true;
+// }

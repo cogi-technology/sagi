@@ -9,7 +9,7 @@ use {
 struct Claims {
     sub: String,
     exp: u32,
-    session_uuid: Option<String>
+    uid: Option<String>
 }
 
 pub async fn validator_token(
@@ -58,7 +58,7 @@ async fn validate_token(
     //     Ok(data) => data,
     //     Err(_) => return Err(jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken))
     // };
-    // let _= match payload.claims.session_uuid {
+    // let _= match payload.claims.uid {
     //     Some(session_uuid) => {
     //         let session_file: String = format!("sessions/session_{}", session_uuid.to_string());
     //         let path = PathFile::new(&session_file);

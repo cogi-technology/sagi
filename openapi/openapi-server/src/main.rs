@@ -34,6 +34,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let rpc_client = client::init_client(c.rpc_client, key_password).await?;
     // let identity = c.tls.get_tls_identity();
 
+    // sessions user
+    let dir_sessions = "sessions";
+    std::fs::remove_dir_all(dir_sessions).unwrap();
+    std::fs::create_dir_all(dir_sessions).unwrap();
+    //
     let server_config = ServerConfig {
         auth_secret: c.auth_secret,
         doc_path: c.doc_path,

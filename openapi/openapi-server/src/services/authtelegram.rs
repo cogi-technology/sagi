@@ -49,8 +49,6 @@ impl AuthTelegram for AuthTelegramService {
         let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
         let session_uuid = Uuid::new_v4();
-        // Extract the directory of the executable
-        std::fs::create_dir_all("sessions").unwrap();
         let session_file: String = format!("sessions/session_{}", session_uuid.to_string());
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
@@ -101,7 +99,6 @@ impl AuthTelegram for AuthTelegramService {
         let telegram_api_id = self.cfg.telegram_api_id.clone();
         let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
-        std::fs::create_dir_all("sessions").unwrap();
         let session_file: String = format!("sessions/session_{}", session_uuid.to_string());
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
@@ -208,7 +205,6 @@ impl AuthTelegram for AuthTelegramService {
         let telegram_api_id = self.cfg.telegram_api_id.clone();
         let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
-        std::fs::create_dir_all("sessions").unwrap();
         let session_file: String = format!("sessions/session_{}", session_uuid.to_string());
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
@@ -252,7 +248,6 @@ impl AuthTelegram for AuthTelegramService {
         let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
         let session_uuid = Uuid::new_v4();
-        std::fs::create_dir_all("sessions").unwrap();
         let session_file: String = format!("sessions/session_{}", session_uuid.to_string());
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
@@ -332,7 +327,6 @@ impl AuthTelegram for AuthTelegramService {
         let telegram_api_id = self.cfg.telegram_api_id.clone();
         let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
-        std::fs::create_dir_all("sessions").unwrap();
         let session_file: String = format!("sessions/session_{}", session_uuid.to_string());
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,

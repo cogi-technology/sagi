@@ -22,7 +22,7 @@ pub struct LoginWidgetData {
 pub struct AuthRequest {
     pub client_id: String,
     pub init_data: LoginWidgetData,
-    // pub session_uuid: String,
+    pub session_uuid: String,
 }
 
 #[derive(Deserialize)]
