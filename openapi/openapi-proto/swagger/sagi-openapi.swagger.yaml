@@ -641,7 +641,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: owner
+        - name: account
           in: query
           required: false
           type: string
@@ -885,7 +885,7 @@ definitions:
   erc20AllowanceResponse:
     type: object
     properties:
-      remainingAmount:
+      remaining_amount:
         type: string
   erc20ApproveRequest:
     type: object
@@ -895,6 +895,8 @@ definitions:
       spender:
         type: string
       amount:
+        type: string
+      pin_code:
         type: string
   erc20ApproveResponse:
     type: object
@@ -909,13 +911,13 @@ definitions:
   erc20DeployRequest:
     type: object
     properties:
-      owner:
-        type: string
       name:
         type: string
       symbol:
         type: string
       initial_supply:
+        type: string
+      pin_code:
         type: string
     title: Define messages for the requests and responses for ERC20
   erc20DeployResponse:
@@ -939,6 +941,8 @@ definitions:
         type: string
       amount:
         type: string
+      pin_code:
+        type: string
   erc20TransferFromResponse:
     type: object
     properties:
@@ -952,6 +956,8 @@ definitions:
       recipient:
         type: string
       amount:
+        type: string
+      pin_code:
         type: string
   erc20TransferResponse:
     type: object
@@ -971,6 +977,8 @@ definitions:
       spender:
         type: string
       amount:
+        type: string
+      pin_code:
         type: string
   erc404ApproveResponse:
     type: object
@@ -992,8 +1000,6 @@ definitions:
   erc404DeployRequest:
     type: object
     properties:
-      owner:
-        type: string
       name:
         type: string
       symbol:
@@ -1007,6 +1013,8 @@ definitions:
         items:
           type: string
       uri:
+        type: string
+      pin_code:
         type: string
     title: Define messages for the requests and responses for ERC404
   erc404DeployResponse:
@@ -1054,6 +1062,8 @@ definitions:
       data:
         type: string
         format: byte
+      pin_code:
+        type: string
   erc404SafeBatchTransferFromResponse:
     type: object
     properties:
@@ -1074,6 +1084,8 @@ definitions:
         type: string
       data:
         type: string
+      pin_code:
+        type: string
   erc404SafeTransferFromResponse:
     type: object
     properties:
@@ -1088,6 +1100,8 @@ definitions:
         type: string
       approved:
         type: boolean
+      pin_code:
+        type: string
   erc404SetApprovalForAllResponse:
     type: object
     properties:
@@ -1109,6 +1123,8 @@ definitions:
         type: string
       value:
         type: string
+      pin_code:
+        type: string
   erc404TransferFromResponse:
     type: object
     properties:
@@ -1123,6 +1139,8 @@ definitions:
         type: string
       amount:
         type: string
+      pin_code:
+        type: string
   erc404TransferResponse:
     type: object
     properties:
@@ -1136,6 +1154,8 @@ definitions:
       to:
         type: string
       token_id:
+        type: string
+      pin_code:
         type: string
   erc721ApproveResponse:
     type: object
@@ -1154,7 +1174,9 @@ definitions:
         type: string
       symbol:
         type: string
-      owner:
+      base_uri:
+        type: string
+      pin_code:
         type: string
     title: Define messages for the requests and responses for ERC721
   erc721DeployResponse:
@@ -1188,6 +1210,8 @@ definitions:
         type: string
       token_id:
         type: string
+      pin_code:
+        type: string
   erc721SafeTransferFromResponse:
     type: object
     properties:
@@ -1202,6 +1226,8 @@ definitions:
         type: string
       approved:
         type: boolean
+      pin_code:
+        type: string
   erc721SetApprovalForAllResponse:
     type: object
     properties:
@@ -1217,6 +1243,8 @@ definitions:
       to:
         type: string
       token_id:
+        type: string
+      pin_code:
         type: string
   erc721TransferFromResponse:
     type: object

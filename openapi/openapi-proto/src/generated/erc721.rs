@@ -8,7 +8,9 @@ pub struct DeployRequest {
     #[prost(string, tag = "2")]
     pub symbol: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
-    pub owner: ::prost::alloc::string::String,
+    pub base_uri: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
+    pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -24,7 +26,7 @@ pub struct BalanceOfRequest {
     #[prost(string, tag = "1")]
     pub contract: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]
-    pub owner: ::prost::alloc::string::String,
+    pub account: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -61,6 +63,8 @@ pub struct SafeTransferFromRequest {
     pub to: ::prost::alloc::string::String,
     #[prost(string, tag = "4")]
     pub token_id: ::prost::alloc::string::String,
+    #[prost(string, tag = "5")]
+    pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -81,6 +85,8 @@ pub struct TransferFromRequest {
     pub to: ::prost::alloc::string::String,
     #[prost(string, tag = "4")]
     pub token_id: ::prost::alloc::string::String,
+    #[prost(string, tag = "5")]
+    pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -99,6 +105,8 @@ pub struct ApproveRequest {
     pub to: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
     pub token_id: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
+    pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -133,6 +141,8 @@ pub struct SetApprovalForAllRequest {
     pub operator: ::prost::alloc::string::String,
     #[prost(bool, tag = "3")]
     pub approved: bool,
+    #[prost(string, tag = "4")]
+    pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -174,7 +184,9 @@ pub mod erc721_actix {
         #[prost(string, tag = "2")]
         pub symbol: ::prost::alloc::string::String,
         #[prost(string, tag = "3")]
-        pub owner: ::prost::alloc::string::String,
+        pub base_uri: ::prost::alloc::string::String,
+        #[prost(string, tag = "4")]
+        pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -183,7 +195,7 @@ pub mod erc721_actix {
         #[prost(string, tag = "1")]
         pub contract: ::prost::alloc::string::String,
         #[prost(string, tag = "2")]
-        pub owner: ::prost::alloc::string::String,
+        pub account: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -206,6 +218,8 @@ pub mod erc721_actix {
         pub to: ::prost::alloc::string::String,
         #[prost(string, tag = "4")]
         pub token_id: ::prost::alloc::string::String,
+        #[prost(string, tag = "5")]
+        pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -219,6 +233,8 @@ pub mod erc721_actix {
         pub to: ::prost::alloc::string::String,
         #[prost(string, tag = "4")]
         pub token_id: ::prost::alloc::string::String,
+        #[prost(string, tag = "5")]
+        pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -230,6 +246,8 @@ pub mod erc721_actix {
         pub to: ::prost::alloc::string::String,
         #[prost(string, tag = "3")]
         pub token_id: ::prost::alloc::string::String,
+        #[prost(string, tag = "4")]
+        pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -250,6 +268,8 @@ pub mod erc721_actix {
         pub operator: ::prost::alloc::string::String,
         #[prost(bool, tag = "3")]
         pub approved: bool,
+        #[prost(string, tag = "4")]
+        pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -280,7 +300,8 @@ pub mod erc721_actix {
         let request = DeployRequest {
             name: json.name,
             symbol: json.symbol,
-            owner: json.owner,
+            base_uri: json.base_uri,
+            pin_code: json.pin_code,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.deploy(request).await?;
@@ -302,7 +323,7 @@ pub mod erc721_actix {
             .into_inner();
         let request = BalanceOfRequest {
             contract: query.contract,
-            owner: query.owner,
+            account: query.account,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.balance_of(request).await?;
@@ -351,6 +372,7 @@ pub mod erc721_actix {
             from: json.from,
             to: json.to,
             token_id: json.token_id,
+            pin_code: json.pin_code,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.safe_transfer_from(request).await?;
@@ -377,6 +399,7 @@ pub mod erc721_actix {
             from: json.from,
             to: json.to,
             token_id: json.token_id,
+            pin_code: json.pin_code,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.transfer_from(request).await?;
@@ -402,6 +425,7 @@ pub mod erc721_actix {
             contract: json.contract,
             to: json.to,
             token_id: json.token_id,
+            pin_code: json.pin_code,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.approve(request).await?;
@@ -452,6 +476,7 @@ pub mod erc721_actix {
             contract: json.contract,
             operator: json.operator,
             approved: json.approved,
+            pin_code: json.pin_code,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.set_approval_for_all(request).await?;
