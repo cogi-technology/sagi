@@ -1,10 +1,10 @@
 use anyhow::{anyhow, Result};
 use ethers::{
     middleware::SignerMiddleware,
-    signers::{LocalWallet, Signer, Wallet},
+    signers::{LocalWallet, Signer},
 };
 use ethers_core::k256::schnorr::SigningKey;
-use ethers_providers::{Http, Middleware, Provider, ProviderExt};
+use ethers_providers::{Http, Provider, ProviderExt};
 use rand::rngs::OsRng;
 use std::sync::Arc;
 

@@ -11,10 +11,10 @@ use ethers::{
     abi::{encode, Token},
     signers::LocalWallet,
     types::{
-        transaction::eip2718::TypedTransaction, Address, BlockNumber, Bytes,
-        Eip1559TransactionRequest, Eip2930TransactionRequest, TransactionRequest, U256,
+        transaction::eip2718::TypedTransaction, Address, BlockNumber, Bytes, TransactionRequest,
+        U256,
     },
-    utils::{keccak256, rlp},
+    utils::keccak256,
 };
 use ethers_providers::Middleware;
 pub use jwt::decode_jwt;
@@ -50,31 +50,8 @@ pub fn get_address(buf: &[u8]) -> Option<Address> {
     }
 }
 
-fn bytes_to_typed_transaction(tx_bytes: &Bytes) -> Result<TypedTransaction> {
-    // Try decoding the bytes using RLP
-    let rlp_stream = rlp::Rlp::new(tx_bytes);
-
-    // Detect the transaction type and decode accordingly
-    if tx_bytes[0] <= 0x7f {
-        // Legacy transaction
-        let tx: TransactionRequest = rlp_stream.as_val()?;
-        Ok(TypedTransaction::Legacy(tx))
-    } else if tx_bytes[0] == 0x01 {
-        // EIP-2930 transaction
-        let tx: Eip2930TransactionRequest = rlp_stream.as_val()?;
-        Ok(TypedTransaction::Eip2930(tx))
-    } else if tx_bytes[0] == 0x02 {
-        // EIP-1559 transaction
-        let tx: Eip1559TransactionRequest = rlp_stream.as_val()?;
-        Ok(TypedTransaction::Eip1559(tx))
-    } else {
-        Err(anyhow!("Unknown transaction type"))
-    }
-}
-
 fn call_data_cost(data: Bytes) -> U256 {
     let cost: usize = data.iter().map(|&x| if x == 0 { 4 } else { 16 }).sum();
-
     U256::from(cost)
 }
 

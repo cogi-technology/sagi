@@ -13,7 +13,7 @@ use anyhow::{anyhow, Result};
 use ethers::{
     signers::Signer,
     types::{
-        transaction::eip2718::TypedTransaction, Address, BlockNumber, Bytes,
+        transaction::eip2718::TypedTransaction, Address, Bytes,
         Eip1559TransactionRequest, TransactionReceipt, H160, U256,
     },
 };
