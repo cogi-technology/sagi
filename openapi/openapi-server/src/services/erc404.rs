@@ -3,29 +3,34 @@ use {
     crate::helpers::utils::into_anyhow,
     anyhow::anyhow,
     ethers::{
-        types::{Address, Eip1559TransactionRequest, U256},
+        types::{Address, BlockNumber, Eip1559TransactionRequest, U256},
         utils::parse_ether,
     },
     ethers_contract::ContractFactory,
-    openapi_ethers::{
-        client::Client as EthereumClient,
-        erc404::{erc404_bytecode, ERC404 as ERC404Contract, ERC404_ABI},
-    },
+    ethers_providers::{Http, Middleware, Provider},
+    openapi_ethers::erc404::{erc404_bytecode, ERC404 as ERC404Contract, ERC404_ABI},
     openapi_logger::debug,
     openapi_proto::erc404_service::{erc404_server::Erc404, SafeTransferFromRequest, *},
-    serde_json::value,
     std::{str::FromStr, sync::Arc},
     tonic::{Request, Response},
-    zion_aa::address_to_string,
+    zion_aa::{
+        address_to_string,
+        contract_wallet::client::{Client as EthereumClient, ClientMethods},
+    },
 };
 
+#[derive(Debug, Clone)]
 pub struct Erc404Service {
-    client: Arc<EthereumClient>,
+    zion_provider: Arc<Provider<Http>>,
+    torii_provider: Arc<Provider<Http>>,
 }
 
 impl Erc404Service {
-    pub fn new(client: Arc<EthereumClient>) -> Self {
-        Self { client }
+    pub fn new(zion_provider: Arc<Provider<Http>>, torii_provider: Arc<Provider<Http>>) -> Self {
+        Self {
+            zion_provider,
+            torii_provider,
+        }
     }
 }
 
@@ -33,20 +38,96 @@ impl Erc404Service {
 impl Erc404 for Erc404Service {
     async fn deploy(&self, request: Request<DeployRequest>) -> Result<Response<DeployResponse>> {
         debug!("{request:?}");
-
+        let header_metadata = request.metadata().clone();
         let DeployRequest {
-            owner,
             name,
             symbol,
             initial_supply,
             units,
             ids,
             uri,
+            pin_code,
         } = request.into_inner();
 
-        let owner = owner
-            .parse::<Address>()
+        let chain_id = self
+            .zion_provider
+            .get_chainid()
+            .await
             .map_err(|e| into_anyhow(e.into()))?;
+        let zion_rpc_endpoint = self.zion_provider.url().as_str();
+        let torii_rpc_endpoint = self.torii_provider.url().as_str();
+
+        let random_client = Arc::new(
+            EthereumClient::random_wallet(zion_rpc_endpoint, chain_id.as_u64())
+                .await
+                .map_err(|e| into_anyhow(e.into()))?,
+        );
+
+        let mut contract_wallet = init_contract_wallet(&header_metadata, torii_rpc_endpoint)
+            .await
+            .map_err(into_anyhow)?;
+        debug!("contract wallet address: {:#x}", contract_wallet.address());
+
+        // This session for contract wallet fund to deploy the contract
+        {
+            let before_balance = self
+                .zion_provider
+                .get_balance(contract_wallet.address(), Some(BlockNumber::Latest.into()))
+                .await
+                .map_err(|e| into_anyhow(e.into()))?;
+            debug!(
+                "Balance of contract wallet before fund for deployment: {}",
+                before_balance
+            );
+
+            let has_pin_code = contract_wallet.has_pin_code().await.map_err(into_anyhow)?;
+            contract_wallet
+                .validate_and_set_pin_code(pin_code.clone(), !has_pin_code, None)
+                .await
+                .map_err(into_anyhow)?;
+            debug!("Validated pin code");
+
+            let deployment_fund =
+                ethers::utils::parse_ether("0.00001").map_err(|e| into_anyhow(e.into()))?;
+
+            let fund_to_deploy_transaction = Eip1559TransactionRequest::new()
+                .to(random_client.address())
+                .value(deployment_fund);
+
+            debug!("Waiting for fund for deployment...");
+            let receipt = contract_wallet
+                .send_transaction(fund_to_deploy_transaction, None)
+                .await
+                .map_err(into_anyhow)?;
+
+            if receipt.status.unwrap().is_zero() {
+                return Err(into_anyhow(anyhow!("Transaction failed")));
+            }
+
+            debug!(
+                "Contract wallet funded for deployment: {:#x}",
+                receipt.transaction_hash
+            );
+            let after_balance = self
+                .zion_provider
+                .get_balance(contract_wallet.address(), Some(BlockNumber::Latest.into()))
+                .await
+                .map_err(|e| into_anyhow(e.into()))?;
+            debug!(
+                "Balance of contract wallet after fund for deployment: {}",
+                after_balance
+            );
+            let random_wallet_balance = self
+                .zion_provider
+                .get_balance(random_client.address(), Some(BlockNumber::Latest.into()))
+                .await
+                .map_err(|e| into_anyhow(e.into()))?;
+            debug!(
+                "Balance of random wallet after fund for deployment: {}",
+                random_wallet_balance
+            );
+        }
+
         let initial_supply = parse_ether(initial_supply).map_err(|e| into_anyhow(e.into()))?;
         let units = U256::from_str(&units).map_err(|e| into_anyhow(e.into()))?;
         let ids = ids
@@ -54,16 +135,24 @@ impl Erc404 for Erc404Service {
             .map(|id| U256::from_str(&id).map_err(|e| into_anyhow(e.into())))
             .collect::<Result<Vec<U256>>>()?;
 
-        debug!("owner: {owner:?}, initial_supply: {initial_supply:?}, units: {units:?}, ids: {ids:?}, uri: {uri}");
+        debug!("owner: {:?}, initial_supply: {initial_supply:?}, units: {units:?}, ids: {ids:?}, uri: {uri}", contract_wallet.address());
 
         let factory = ContractFactory::new(
             ERC404_ABI.clone(),
             erc404_bytecode(),
-            Arc::clone(&self.client),
+            Arc::clone(&random_client),
         );
 
         let contract = factory
-            .deploy((name, symbol, initial_supply, units, ids, uri))
+            .deploy((
+                contract_wallet.address(),
+                name,
+                symbol,
+                initial_supply,
+                units,
+                ids,
+                uri,
+            ))
             .map_err(|e| into_anyhow(e.into()))?
             .legacy()
             .send()
@@ -87,7 +176,7 @@ impl Erc404 for Erc404Service {
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
 
-        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.client));
+        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let total_supply = contract
             .total_supply()
             .legacy()
@@ -101,14 +190,16 @@ impl Erc404 for Erc404Service {
 
     async fn approve(&self, request: Request<ApproveRequest>) -> Result<Response<ApproveResponse>> {
         let header_metadata = request.metadata();
-        let contract_wallet = init_contract_wallet(header_metadata)
-            .await
-            .map_err(into_anyhow)?;
+        let mut contract_wallet =
+            init_contract_wallet(header_metadata, self.torii_provider.url().as_str())
+                .await
+                .map_err(into_anyhow)?;
 
         let ApproveRequest {
             contract,
             spender,
             amount,
+            pin_code,
         } = request.into_inner();
         let contract_address = contract
             .parse::<Address>()
@@ -118,12 +209,22 @@ impl Erc404 for Erc404Service {
             .map_err(|e| into_anyhow(e.into()))?;
         let amount = parse_ether(amount).map_err(|e| into_anyhow(e.into()))?;
 
-        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.client));
+        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let calldata = contract
             .approve(spender_address, amount)
             .calldata()
             .ok_or(into_anyhow(anyhow!("Calldata is None")))?;
         let transaction = Eip1559TransactionRequest::new().data(calldata);
+
+        // This session is used to validate the pin code
+        {
+            let has_pin_code = contract_wallet.has_pin_code().await.map_err(into_anyhow)?;
+            contract_wallet
+                .validate_and_set_pin_code(pin_code, !has_pin_code, None)
+                .await
+                .map_err(into_anyhow)?;
+            debug!("Validated pin code");
+        }
 
         let txhash = contract_wallet
             .send_transaction(transaction, None)
@@ -147,7 +248,7 @@ impl Erc404 for Erc404Service {
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
 
-        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.client));
+        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let amount = contract
             .balance_of(account_address)
             .legacy()
@@ -186,7 +287,7 @@ impl Erc404 for Erc404Service {
 
         debug!("contract address: {contract_address:?}, accounts: {accounts:?}, token_ids: {token_ids:?}");
 
-        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.client));
+        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let batch_balances = contract
             .balance_of_batch(accounts, token_ids)
             .legacy()
@@ -216,7 +317,7 @@ impl Erc404 for Erc404Service {
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
 
-        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.client));
+        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let remaining_amount = contract
             .allowance(owner_address, spender_address)
             .legacy()
@@ -232,14 +333,16 @@ impl Erc404 for Erc404Service {
         &self,
         request: Request<TransferRequest>,
     ) -> Result<Response<TransferResponse>> {
-        let contract_wallet = init_contract_wallet(request.metadata())
-            .await
-            .map_err(into_anyhow)?;
+        let mut contract_wallet =
+            init_contract_wallet(request.metadata(), self.torii_provider.url().as_str())
+                .await
+                .map_err(into_anyhow)?;
 
         let TransferRequest {
             contract,
             recipient,
             amount,
+            pin_code,
         } = request.into_inner();
         let contract_address = contract
             .parse::<Address>()
@@ -249,11 +352,21 @@ impl Erc404 for Erc404Service {
             .map_err(|e| into_anyhow(e.into()))?;
         let amount = parse_ether(amount).map_err(|e| into_anyhow(e.into()))?;
 
-        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.client));
+        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let calldata = contract
             .transfer(recipient_address, amount)
             .calldata()
             .ok_or(into_anyhow(anyhow!("Calldata is None")))?;
+
+        // This session is used to validate the pin code
+        {
+            let has_pin_code = contract_wallet.has_pin_code().await.map_err(into_anyhow)?;
+            contract_wallet
+                .validate_and_set_pin_code(pin_code, !has_pin_code, None)
+                .await
+                .map_err(into_anyhow)?;
+            debug!("Validated pin code");
+        }
 
         let txhash = contract_wallet
             .send_transaction(Eip1559TransactionRequest::new().data(calldata), None)
@@ -269,15 +382,17 @@ impl Erc404 for Erc404Service {
         &self,
         request: Request<TransferFromRequest>,
     ) -> Result<Response<TransferFromResponse>> {
-        let contract_wallet = init_contract_wallet(request.metadata())
-            .await
-            .map_err(into_anyhow)?;
+        let mut contract_wallet =
+            init_contract_wallet(request.metadata(), self.torii_provider.url().as_str())
+                .await
+                .map_err(into_anyhow)?;
 
         let TransferFromRequest {
             contract,
             from,
             to,
             value,
+            pin_code,
         } = request.into_inner();
         let contract_address = contract
             .parse::<Address>()
@@ -286,11 +401,21 @@ impl Erc404 for Erc404Service {
         let recipient_address = to.parse::<Address>().map_err(|e| into_anyhow(e.into()))?;
         let amount = parse_ether(value).map_err(|e| into_anyhow(e.into()))?;
 
-        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.client));
+        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let calldata = contract
             .transfer_from(sender_address, recipient_address, amount)
             .calldata()
             .ok_or(into_anyhow(anyhow!("Calldata is None")))?;
+
+        // This session is used to validate the pin code
+        {
+            let has_pin_code = contract_wallet.has_pin_code().await.map_err(into_anyhow)?;
+            contract_wallet
+                .validate_and_set_pin_code(pin_code, !has_pin_code, None)
+                .await
+                .map_err(into_anyhow)?;
+            debug!("Validated pin code");
+        }
 
         let txhash = contract_wallet
             .send_transaction(Eip1559TransactionRequest::new().data(calldata), None)
@@ -307,14 +432,16 @@ impl Erc404 for Erc404Service {
         request: Request<SetApprovalForAllRequest>,
     ) -> Result<Response<SetApprovalForAllResponse>> {
         let header_metadata = request.metadata();
-        let contract_wallet = init_contract_wallet(header_metadata)
-            .await
-            .map_err(into_anyhow)?;
+        let mut contract_wallet =
+            init_contract_wallet(header_metadata, self.torii_provider.url().as_str())
+                .await
+                .map_err(into_anyhow)?;
 
         let SetApprovalForAllRequest {
             contract,
             operator,
             approved,
+            pin_code,
         } = request.into_inner();
         let contract_address = contract
             .parse::<Address>()
@@ -325,12 +452,22 @@ impl Erc404 for Erc404Service {
 
         debug!("contract: {contract_address:?}, operator: {operator_address:?}");
 
-        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.client));
+        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let calldata = contract
             .set_approval_for_all(operator_address, approved)
             .calldata()
             .ok_or(into_anyhow(anyhow!("Calldata is None")))?;
         let transaction = Eip1559TransactionRequest::new().data(calldata);
+
+        // This session is used to validate the pin code
+        {
+            let has_pin_code = contract_wallet.has_pin_code().await.map_err(into_anyhow)?;
+            contract_wallet
+                .validate_and_set_pin_code(pin_code, !has_pin_code, None)
+                .await
+                .map_err(into_anyhow)?;
+            debug!("Validated pin code");
+        }
 
         let txhash = contract_wallet
             .send_transaction(transaction, None)
@@ -362,7 +499,7 @@ impl Erc404 for Erc404Service {
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
 
-        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.client));
+        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let ret = contract
             .is_approved_for_all(owner_adress, operator_address)
             .legacy()
@@ -377,9 +514,10 @@ impl Erc404 for Erc404Service {
         request: Request<SafeTransferFromRequest>,
     ) -> Result<Response<SafeTransferFromResponse>> {
         let header_metadata = request.metadata();
-        let contract_wallet = init_contract_wallet(header_metadata)
-            .await
-            .map_err(into_anyhow)?;
+        let mut contract_wallet =
+            init_contract_wallet(header_metadata, self.torii_provider.url().as_str())
+                .await
+                .map_err(into_anyhow)?;
 
         let SafeTransferFromRequest {
             contract,
@@ -388,6 +526,7 @@ impl Erc404 for Erc404Service {
             token_id,
             value,
             data,
+            pin_code,
         } = request.into_inner();
 
         let contract_address = contract
@@ -401,12 +540,22 @@ impl Erc404 for Erc404Service {
 
         debug!("contract: {contract_address:?}, from: {from:?}, to: {to:?}, token_id: {token_id:?}, value: {value:?}, data: {data:?}");
 
-        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.client));
+        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let calldata = contract
             .safe_transfer_from(from, to, token_id, value, data)
             .calldata()
             .ok_or(into_anyhow(anyhow!("Calldata is None")))?;
         let transaction = Eip1559TransactionRequest::new().data(calldata);
+
+        // This session is used to validate the pin code
+        {
+            let has_pin_code = contract_wallet.has_pin_code().await.map_err(into_anyhow)?;
+            contract_wallet
+                .validate_and_set_pin_code(pin_code, !has_pin_code, None)
+                .await
+                .map_err(into_anyhow)?;
+            debug!("Validated pin code");
+        }
 
         let txhash = contract_wallet
             .send_transaction(transaction, None)
@@ -423,9 +572,10 @@ impl Erc404 for Erc404Service {
         request: Request<SafeBatchTransferFromRequest>,
     ) -> Result<Response<SafeBatchTransferFromResponse>> {
         let header_metadata = request.metadata();
-        let contract_wallet = init_contract_wallet(header_metadata)
-            .await
-            .map_err(into_anyhow)?;
+        let mut contract_wallet =
+            init_contract_wallet(header_metadata, self.torii_provider.url().as_str())
+                .await
+                .map_err(into_anyhow)?;
 
         let SafeBatchTransferFromRequest {
             contract,
@@ -434,6 +584,7 @@ impl Erc404 for Erc404Service {
             token_ids,
             values,
             data,
+            pin_code,
         } = request.into_inner();
 
         let contract_address = contract
@@ -453,12 +604,22 @@ impl Erc404 for Erc404Service {
 
         debug!("contract: {contract_address:?}, from: {from:?}, to: {to:?}, token_ids: {token_ids:?}, values: {values:?}, data: {data:?}");
 
-        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.client));
+        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let calldata = contract
             .safe_batch_transfer_from(from, to, token_ids, values, data)
             .calldata()
             .ok_or(into_anyhow(anyhow!("Calldata is None")))?;
         let transaction = Eip1559TransactionRequest::new().data(calldata);
+
+        // This session is used to validate the pin code
+        {
+            let has_pin_code = contract_wallet.has_pin_code().await.map_err(into_anyhow)?;
+            contract_wallet
+                .validate_and_set_pin_code(pin_code, !has_pin_code, None)
+                .await
+                .map_err(into_anyhow)?;
+            debug!("Validated pin code");
+        }
 
         let txhash = contract_wallet
             .send_transaction(transaction, None)
@@ -490,7 +651,7 @@ impl Erc404 for Erc404Service {
 
         debug!("contract: {contract_address:?}, account: {account:?}, token_id: {toke_id:?}");
 
-        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.client));
+        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let amount = contract
             .erc_1155_balance_of(account, toke_id)
             .legacy()
@@ -513,7 +674,7 @@ impl Erc404 for Erc404Service {
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
 
-        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.client));
+        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let amount = contract
             .erc_20_balance_of(account_address)
             .legacy()
@@ -536,7 +697,7 @@ impl Erc404 for Erc404Service {
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
 
-        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.client));
+        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let result = contract
             .erc_1155_transfer_exempt(target)
             .legacy()
