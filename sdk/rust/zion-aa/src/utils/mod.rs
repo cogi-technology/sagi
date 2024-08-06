@@ -17,10 +17,9 @@ use ethers::{
     utils::{keccak256, rlp},
 };
 use ethers_providers::Middleware;
+pub use jwt::decode_jwt;
 use std::fmt::Write;
 use std::sync::Arc;
-
-pub use jwt::decode_jwt;
 
 #[macro_export]
 macro_rules! tokio_sleep_ms {
@@ -80,17 +79,23 @@ fn call_data_cost(data: Bytes) -> U256 {
 }
 
 pub async fn fill_user_op<M: Middleware + 'static>(
-    op: UserOperationRequest,
+    request_op: UserOperationRequest,
     provider: Arc<M>,
+    entry_point_address: Address,
 ) -> Result<UserOperationSigned> {
-    let mut op1 = op;
+    let mut op1 = request_op;
     // let account = Account::new(op1.sender, Arc::clone(&provider));
     // op1.nonce = account.nonce().await?;
+    // println!("{:#?}", op1.call_data);
 
     if op1.call_gas_limit.is_none() {
+        let tx = TransactionRequest::new()
+            .from(entry_point_address)
+            .to(op1.sender)
+            .data(op1.call_data.clone());
         let gas_estimated = provider
             .estimate_gas(
-                &bytes_to_typed_transaction(&op1.call_data)?,
+                &TypedTransaction::Legacy(tx),
                 Some(BlockNumber::Latest.into()),
             )
             .await?;

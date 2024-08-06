@@ -1,3 +1,5 @@
+mod helper;
+
 use {
     crate::{
         constants::{get_contract_wallet_operator, Networkish},
@@ -15,8 +17,9 @@ use {
     anyhow::{anyhow, Result},
     ethers::{
         signers::LocalWallet,
-        types::{Address, Eip1559TransactionRequest},
+        types::{Address, BlockNumber, Eip1559TransactionRequest},
     },
+    ethers_providers::Middleware,
     jsonwebtoken::TokenData,
     std::{io::BufReader, sync::Arc},
 };
@@ -84,14 +87,39 @@ async fn test_init_contract_wallet() -> Result<()> {
         .validate_and_set_pin_code(code, !has_pin_code, None)
         .await?;
 
+    let dest = "0x053591Bc227838526c80aCF2400377F4822d8623".parse::<Address>()?;
+
+    let before_bal_of_contract_wallet = client
+        .get_balance(contract_wallet.address(), Some(BlockNumber::Latest.into()))
+        .await?;
+    let before_bal_of_wallet = client
+        .get_balance(dest, Some(BlockNumber::Latest.into()))
+        .await?;
+
     let transaction = Eip1559TransactionRequest::new()
-        .to("0x053591Bc227838526c80aCF2400377F4822d8623".parse::<Address>()?)
-        .value(ethers::utils::parse_ether("0.00000000000001")?);
+        .to(dest)
+        .value(ethers::utils::parse_ether("0.00001")?);
 
     let result = contract_wallet
         .send_transaction(transaction, None)
         .await
         .unwrap();
+
+    let after_bal_of_contract_wallet = client
+        .get_balance(contract_wallet.address(), Some(BlockNumber::Latest.into()))
+        .await?;
+    let after_bal_of_wallet = client
+        .get_balance(dest, Some(BlockNumber::Latest.into()))
+        .await?;
+
+    println!(
+        "balance of contract_wallet: before: {:#?} after: {:#?}",
+        before_bal_of_contract_wallet, after_bal_of_contract_wallet
+    );
+    println!(
+        "balance of wallet: before: {:#?} after: {:#?}",
+        before_bal_of_wallet, after_bal_of_wallet
+    );
 
     println!("{:#?}", result);
 

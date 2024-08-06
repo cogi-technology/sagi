@@ -74,7 +74,7 @@ impl<S: Signer + 'static> KeyBase for KeyJWT<S> {
 
     fn serialize(&self) -> Bytes {
         //Debug
-        println!("gethash {:?}", self.get_hash().to_string());
+        // println!("gethash {:?}", self.get_hash().to_string());
 
         ethers::abi::encode_packed(&[
             Token::Uint((KeyType::JWTZKProof as u8).into()),
@@ -89,8 +89,8 @@ impl<S: Signer + 'static> KeyBase for KeyJWT<S> {
         let sub_in_hex = self.inner.payload.sub.as_bytes().to_vec();
 
         //Debug
-        println!("payload.sub {:?}", self.inner.payload.sub);
-        println!("payload.sub_in_hex {:?}", sub_in_hex);
+        // println!("payload.sub {:?}", self.inner.payload.sub);
+        // println!("payload.sub_in_hex {:?}", sub_in_hex);
 
         ethers::abi::encode_packed(&[
             Token::Uint((KeyType::JWTZKProof as u8).into()),

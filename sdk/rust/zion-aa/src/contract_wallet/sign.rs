@@ -19,7 +19,7 @@ pub async fn fill_and_sign<M: Middleware + 'static>(
     entry_point_provider: Arc<M>,
     chain_id: U256,
 ) -> Result<UserOperationSigned> {
-    let mut op2 = fill_user_op(op, Arc::clone(&entry_point_provider)).await?;
+    let mut op2 = fill_user_op(op, Arc::clone(&entry_point_provider), entry_point_address).await?;
 
     let message = op2.hash(entry_point_address, chain_id)?;
 

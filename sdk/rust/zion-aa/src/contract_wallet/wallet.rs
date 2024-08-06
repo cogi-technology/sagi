@@ -3,7 +3,10 @@ use std::{collections::HashMap, sync::Arc};
 use crate::{
     contracts::{Account, EntryPoint, Factory},
     signer::keys::{key_jwt::KeyJWT, pincode::PINCode, KeyBase},
-    types::{jwt::JWTOptions, user_operation::UserOperationSigned},
+    types::{
+        jwt::JWTOptions,
+        user_operation::{request::UserOperationRequest, UserOperationSigned},
+    },
     utils::{fill_user_op, make_pin_code_holder},
 };
 use anyhow::{anyhow, Result};
@@ -15,6 +18,7 @@ use ethers::{
     },
 };
 use ethers_providers::Middleware;
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 
 use super::{operator::Operator, sign::fill_and_sign};
@@ -164,34 +168,41 @@ where
             return Err(anyhow!("Wallet already exists"));
         }
 
-        let mut op1 = UserOperationSigned::default();
-        let mut_op1 = op1.mut_inner();
-        mut_op1.sender = self.contract.address();
-        mut_op1.nonce = U256::zero();
-        mut_op1.init_code = self.operator.get_init_code(
+        let init_code = self.operator.get_init_code(
             self.sub().ok_or(anyhow!("sub is None"))?,
             self.salt().ok_or(anyhow!("salt is None"))?,
             self.iss().ok_or(anyhow!("iss is None"))?,
             self.aud().ok_or(anyhow!("aud is None"))?,
         )?;
-        mut_op1.signature = vec![0u8; 1].into();
+        let signature = vec![rand::thread_rng().r#gen::<u8>(); 1];
+        let mut request_op = UserOperationRequest {
+            sender: self.contract.address(),
+            nonce: U256::zero(),
+            init_code: Some(init_code),
+            signature: Some(signature.into()),
+            ..Default::default()
+        };
 
         if let Some(options) = options.clone() {
-            if let Some(max_fee_per_gas) = options.max_fee_per_gas {
-                mut_op1.max_fee_per_gas = max_fee_per_gas;
+            if options.max_fee_per_gas.is_some() {
+                request_op.max_fee_per_gas = options.max_fee_per_gas;
             }
-            if let Some(max_priority_fee_per_gas) = options.max_priority_fee_per_gas {
-                mut_op1.max_priority_fee_per_gas = max_priority_fee_per_gas;
+            if options.max_priority_fee_per_gas.is_some() {
+                request_op.max_priority_fee_per_gas = options.max_priority_fee_per_gas;
             }
         }
 
-        let op = fill_user_op(op1.into(), Arc::clone(&self.entry_point().client()))
-            .await?
-            .into_inner();
+        let signed_op = fill_user_op(
+            request_op,
+            Arc::clone(&self.entry_point().client()),
+            self.entry_point().address(),
+        )
+        .await?
+        .into_inner();
 
         let mut handle_ops_transaction = self
             .entry_point()
-            .handle_ops(vec![op], self.operator.pick_up_beneficiary());
+            .handle_ops(vec![signed_op], self.operator.pick_up_beneficiary());
 
         if let Some(options) = options {
             if let Some(gas_limit) = options.gas_limit {
@@ -244,18 +255,19 @@ where
             .calldata()
             .ok_or_else(|| anyhow!("Calldata is None!"))?;
 
-        let mut op1 = UserOperationSigned::default();
-        let mut_op1 = op1.mut_inner();
-        mut_op1.sender = self.contract.address();
-        mut_op1.nonce = self.nonce().await?;
-        mut_op1.call_data = tx_exec_data;
+        let mut request_op = UserOperationRequest {
+            sender: self.contract.address(),
+            nonce: self.nonce().await?,
+            call_data: tx_exec_data,
+            ..Default::default()
+        };
 
         if let Some(options) = options.clone() {
-            if let Some(max_fee_per_gas) = options.max_fee_per_gas {
-                mut_op1.max_fee_per_gas = max_fee_per_gas;
+            if options.max_fee_per_gas.is_some() {
+                request_op.max_fee_per_gas = options.max_fee_per_gas;
             }
-            if let Some(max_priority_fee_per_gas) = options.max_priority_fee_per_gas {
-                mut_op1.max_priority_fee_per_gas = max_priority_fee_per_gas;
+            if options.max_priority_fee_per_gas.is_some() {
+                request_op.max_priority_fee_per_gas = options.max_priority_fee_per_gas;
             }
         }
 
@@ -270,8 +282,8 @@ where
             return Err(anyhow!("Signers not set yet!"));
         }
 
-        let op = fill_and_sign(
-            op1.into(),
+        let signed_op = fill_and_sign(
+            request_op,
             signers,
             self.entry_point().address(),
             Arc::clone(&self.entry_point().client()),
@@ -282,7 +294,7 @@ where
 
         let mut handle_ops_transaction = self
             .entry_point()
-            .handle_ops(vec![op], self.operator.pick_up_beneficiary());
+            .handle_ops(vec![signed_op], self.operator.pick_up_beneficiary());
 
         if let Some(options) = options {
             if let Some(gas_limit) = options.gas_limit {
@@ -314,7 +326,6 @@ where
 
         let default_chain_id = self.entry_point().client().get_chainid().await.unwrap();
         let chain_id = chain_id.unwrap_or(default_chain_id);
-
         let tx_value = transaction.value.unwrap_or(U256::zero());
         let tx_data = transaction.data.unwrap_or(Bytes::new());
         let to = transaction
@@ -330,23 +341,23 @@ where
             .calldata()
             .ok_or_else(|| anyhow!("Calldata is None!"))?;
         // Debug
-        println!(
-            "ContractWallet::populate_tx::line331::tx_exec_data: {}",
-            hex::encode(tx_exec_data.clone())
-        );
+        // println!(
+        //     "ContractWallet::populate_tx::line331::tx_exec_data: {}",
+        //     hex::encode(tx_exec_data.clone())
+        // );
 
-        let mut op1 = UserOperationSigned::default();
-        let mut_op1 = op1.mut_inner();
+        let mut request_op = UserOperationRequest {
+            nonce: self.nonce().await?,
+            sender: self.contract.address(),
+            call_data: tx_exec_data,
+            ..Default::default()
+        };
 
-        mut_op1.sender = self.contract.address();
-        mut_op1.nonce = self.nonce().await?;
-        mut_op1.call_data = tx_exec_data;
-
-        if let Some(max_fee_per_gas) = transaction.max_fee_per_gas {
-            mut_op1.max_fee_per_gas = max_fee_per_gas;
+        if transaction.max_fee_per_gas.is_some() {
+            request_op.max_fee_per_gas = transaction.max_fee_per_gas;
         }
-        if let Some(max_priority_fee_per_gas) = transaction.max_priority_fee_per_gas {
-            mut_op1.max_priority_fee_per_gas = max_priority_fee_per_gas;
+        if transaction.max_priority_fee_per_gas.is_some() {
+            request_op.max_priority_fee_per_gas = transaction.max_priority_fee_per_gas;
         }
 
         let mut signers: Vec<Arc<dyn KeyBase + Send + Sync>> = Vec::new();
@@ -360,8 +371,8 @@ where
             return Err(anyhow!("Signers not set yet!"));
         }
 
-        let op = fill_and_sign(
-            op1.into(),
+        let signed_op = fill_and_sign(
+            request_op,
             signers,
             self.entry_point().address(),
             Arc::clone(&self.entry_point().client()),
@@ -371,23 +382,23 @@ where
         .into_inner();
 
         // Debug
-        println!("ContractWallet::populate_tx::line373::op: {op:#?}",);
+        // println!("ContractWallet::populate_tx::line373::op: {signed_op:#?}",);
 
         let ret = if let Some(gas_limit) = transaction.gas {
             self.entry_point()
-                .handle_ops([op].into(), self.operator.pick_up_beneficiary())
+                .handle_ops([signed_op].into(), self.operator.pick_up_beneficiary())
                 .gas(gas_limit)
                 .legacy()
                 .tx
         } else {
             self.entry_point()
-                .handle_ops([op].into(), self.operator.pick_up_beneficiary())
+                .handle_ops([signed_op].into(), self.operator.pick_up_beneficiary())
                 .legacy()
                 .tx
         };
 
         // Debug
-        println!("ContractWallet::populate_tx::line387::ret: {ret:#?}",);
+        // println!("ContractWallet::populate_tx::line387::ret: {ret:#?}",);
 
         Ok(ret)
     }
