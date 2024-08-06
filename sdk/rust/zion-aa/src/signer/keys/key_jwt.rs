@@ -107,21 +107,21 @@ impl<S: Signer + 'static> KeyBase for KeyJWT<S> {
 
 #[cfg(test)]
 mod tests {
-    use std::{str::FromStr, sync::Arc};
+    use std::str::FromStr;
 
     use ethers::signers::LocalWallet;
     use jsonwebtoken::TokenData;
 
     use crate::types::{
         jwt::{JWTHeader, JWTPayload, ProofPoints},
-        login::LoginData,
+        request::AuthorizationData,
     };
 
     use super::*;
 
     #[tokio::test]
     async fn test_generate_signature_is_ok() {
-        let login_data = LoginData {
+        let authorization_data = AuthorizationData {
             salt: "8b007c3425216674ebb4db21f7531a274fdf9e567173ef8d93d95a01375d26b0".into(),
             proof: ProofPoints {
                 pi_a: [
@@ -162,14 +162,8 @@ mod tests {
             header: JWTHeader {
                 typ: Some("JWT".into()),
                 alg: jsonwebtoken::Algorithm::RS256,
-                cty: None,
-                jku: None,
-                jwk: None,
                 kid: Some("iGKUAONmCDAQNhAuB4qa9KBj".into()),
-                x5u: None,
-                x5c: None,
-                x5t: None,
-                x5t_s256: None,
+                ..Default::default()
             },
             claims: JWTPayload {
                 iat: Some(1722652848),
@@ -182,7 +176,13 @@ mod tests {
             },
         };
 
-        let jwt_options = JWTOptions::<LocalWallet>::try_init(token_data, login_data).unwrap();
+        let jwt_options = JWTOptions::<LocalWallet>::try_init(
+            token_data,
+            authorization_data.ephemeral_key_pair,
+            authorization_data.proof,
+            authorization_data.salt,
+        )
+        .unwrap();
         let jwt_signer = KeyJWT::new(jwt_options);
 
         let digest_hash =
@@ -200,7 +200,7 @@ mod tests {
 
     #[test]
     fn test_serialize_is_ok() {
-        let login_data = LoginData {
+        let authorization_data = AuthorizationData {
             salt: "8b007c3425216674ebb4db21f7531a274fdf9e567173ef8d93d95a01375d26b0".into(),
             proof: ProofPoints {
                 pi_a: [
@@ -241,14 +241,8 @@ mod tests {
             header: JWTHeader {
                 typ: Some("JWT".into()),
                 alg: jsonwebtoken::Algorithm::RS256,
-                cty: None,
-                jku: None,
-                jwk: None,
                 kid: Some("iGKUAONmCDAQNhAuB4qa9KBj".into()),
-                x5u: None,
-                x5c: None,
-                x5t: None,
-                x5t_s256: None,
+                ..Default::default()
             },
             claims: JWTPayload {
                 iat: Some(1722652848),
@@ -261,7 +255,13 @@ mod tests {
             },
         };
 
-        let jwt_options = JWTOptions::<LocalWallet>::try_init(token_data, login_data).unwrap();
+        let jwt_options = JWTOptions::<LocalWallet>::try_init(
+            token_data,
+            authorization_data.ephemeral_key_pair,
+            authorization_data.proof,
+            authorization_data.salt,
+        )
+        .unwrap();
         let jwt_signer = KeyJWT::new(jwt_options);
 
         let serialized = jwt_signer.serialize().to_string();
