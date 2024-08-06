@@ -8,7 +8,6 @@ use {
     ethers::signers::{LocalWallet, Signer},
     ethers_core::{k256::ecdsa::SigningKey, rand::rngs::OsRng},
     jsonwebtoken::TokenData,
-    openapi_ethers::client::Client as EthereumClient,
     openapi_logger::debug,
     openapi_proto::zionauthorization_service::{zion_authorization_server::ZionAuthorization, *},
     reqwest::{Client as ClientReqwest, Method},
@@ -21,13 +20,11 @@ use {
 };
 
 #[derive(Debug, Clone)]
-pub struct ZionAuthorizationService {
-    client: Arc<EthereumClient>,
-}
+pub struct ZionAuthorizationService {}
 
 impl ZionAuthorizationService {
-    pub fn new(client: Arc<EthereumClient>) -> Self {
-        Self { client }
+    pub fn new() -> Self {
+        Self {}
     }
 }
 
@@ -64,15 +61,23 @@ pub async fn get_data_request_for_zion_logic(
     if !authorization_header.starts_with("Bearer ") {
         return Err(anyhow!("Invalid authorization header"));
     }
+    debug!(
+        "get_data_request_for_zion_logic::authorization_header: {}",
+        authorization_header
+    );
 
     // Extract the JWT token by removing the "Bearer " prefix
     let token = &authorization_header["Bearer ".len()..];
     let parsed_token = zion_aa::utils::decode_jwt(token)?;
-    debug!("parsed_token: {:?}", parsed_token);
+    debug!(
+        "get_data_request_for_zion_logic::parsed_token: {:?}",
+        parsed_token
+    );
 
     // Get Login data
     let client = ClientReqwest::new();
     let base_url = env::var("NEXT_PUBLIC_SERVER_LOGIN_WITH_TELEGRAM")?;
+    debug!("get_data_request_for_zion_logic::base_url: {:?}", base_url);
 
     // get salt
     let base_url_salt = env::var("NEXT_PUBLIC_SERVER_LOGIN_WITH_TELEGRAM")?;
@@ -84,6 +89,7 @@ pub async fn get_data_request_for_zion_logic(
     let salt = send_request_text(&client, Method::POST, &url_salt, Some(&body), None)
         .await?
         .into_inner();
+    debug!("get_data_request_for_zion_logic::salt: {}", salt);
 
     // get proof
     let url_proof = format!("{}/v1/prove", base_url);
@@ -101,24 +107,32 @@ pub async fn get_data_request_for_zion_logic(
         .await?
         .json::<SdkProofPoints>()
         .await?;
+    debug!(
+        "get_data_request_for_zion_logic::sdk_proof: {:#?}",
+        sdk_proof
+    );
+    // Proof for Response
+    let proto_proof = proto_proofpoint_from(sdk_proof);
+    debug!("get_data_request_for_zion_logic::proto_proof: {:#?}", proto_proof);
 
     // Get beneficiaries
+
     let base_url_beneficiaries = env::var("NEXT_PUBLIC_TORII")?;
     let url_beneficiaries = format!("{}/v1/beneficiaries", base_url_beneficiaries);
     let beneficiaries =
         send_request_text::<GetRequestType>(&client, Method::GET, &url_beneficiaries, None, None)
             .await?
             .into_inner();
+    debug!("get_data_request_for_zion_logic::beneficiaries: {}", beneficiaries);
 
     // Response
-    let proto_proof = proto_proofpoint_from(sdk_proof);
-
     let response = GetDataRequestForZionResponse {
         salt,
         proof: Some(proto_proof),
         ephemeral_key_pair,
         beneficiaries: serde_json::from_str(&beneficiaries)?,
     };
+    debug!("get_data_request_for_zion_logic::response: {:#?}", response);
 
     Ok((response, parsed_token))
 }

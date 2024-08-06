@@ -78,7 +78,6 @@ mod tests {
         rpc-client:
             ethereum-rpc: https://devnet-rpc.zionx.network
             chain-id: 176923
-            deployer-keystore: openapi-server/dist/deployer-develop.keystore
         tls:
             cert: openapi-server/dist/tls/server.pem
             key: openapi-server/dist/tls/server.key

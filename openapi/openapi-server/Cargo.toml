@@ -39,6 +39,7 @@ reqwest.workspace = true
 jsonwebtoken.workspace = true
 zion-aa.workspace = true
 
+# Override dependencies to sync with sdk dependencies
 [patch]
 [patch.crates-io]
 ethers = "=2.0.14"

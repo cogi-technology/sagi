@@ -13,10 +13,7 @@ use {
     ethers_contract::{ContractError, ContractFactory},
     grammers_client::{types::LoginToken, Client, Config, SignInError},
     grammers_session::Session,
-    openapi_ethers::{
-        client::Client as EthereumClient,
-        erc20::{self as erc20_etherman, ERC20 as ERC20Contract, ERC20_ABI},
-    },
+    openapi_ethers::erc20::{self as erc20_etherman, ERC20 as ERC20Contract, ERC20_ABI},
     openapi_logger::debug,
     openapi_proto::authtelegram_service::{auth_telegram_server::AuthTelegram, *},
     serde_json::json,
@@ -26,13 +23,11 @@ use {
 };
 
 #[derive(Debug, Clone)]
-pub struct AuthTelegramService {
-    client: Arc<EthereumClient>,
-}
+pub struct AuthTelegramService {}
 
 impl AuthTelegramService {
-    pub fn new(client: Arc<EthereumClient>) -> Self {
-        Self { client }
+    pub fn new() -> Self {
+        Self {}
     }
 }
 
@@ -197,9 +192,7 @@ impl AuthTelegram for AuthTelegramService {
         &self,
         req: Request<LogOutTelegramRequest>,
     ) -> Result<Response<LogOutTelegramResponse>> {
-        let LogOutTelegramRequest {
-            session_uuid,
-        } = req.into_inner();
+        let LogOutTelegramRequest { session_uuid } = req.into_inner();
         //
         let api_id = env::var("TELEGRAM_API_ID").map_err(|e| into_anyhow(e.into()))?;
         let api_hash = env::var("TELEGRAM_API_HASH").map_err(|e| into_anyhow(e.into()))?;
