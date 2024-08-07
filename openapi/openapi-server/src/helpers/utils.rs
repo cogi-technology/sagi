@@ -99,6 +99,7 @@ pub async fn init_contract_wallet(
     header_metadata: &tonic::metadata::MetadataMap,
     rpc_endpoint: &str,
 ) -> AnyhowResult<ContractWallet<ZionClient, LocalWallet>> {
+    //
     // let (
     //     GetDataRequestForZionResponse {
     //         salt,

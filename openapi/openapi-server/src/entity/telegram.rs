@@ -15,8 +15,8 @@ pub struct LoginWidgetData {
 
     pub auth_date: u32,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub hash: Option<String>,
-    pub hash: Option<String>,
+
+    pub hash: Option<String>
 }
 
 #[derive(Serialize)]

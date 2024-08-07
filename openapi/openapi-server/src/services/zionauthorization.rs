@@ -1,6 +1,7 @@
 use {
     super::utils::{into_anyhow, Result as TonicResult},
     crate::{
+        config::TelegramAuthConfig,
         entity::telegram::{GetProofRequest, GetRequestType, GetSaltRequest},
         helpers::{into::proto_proofpoint_from, utils::send_request_text},
     },
@@ -11,7 +12,6 @@ use {
     openapi_logger::debug,
     openapi_proto::zionauthorization_service::{zion_authorization_server::ZionAuthorization, *},
     reqwest::{Client as ClientReqwest, Method},
-    std::{env, sync::Arc},
     tonic::{metadata::MetadataMap, Request, Response},
     zion_aa::{
         address_to_string,
@@ -21,20 +21,12 @@ use {
 
 #[derive(Debug, Clone)]
 pub struct ZionAuthorizationService {
-    client: Arc<EthereumClient>,
+    pub cfg: TelegramAuthConfig,
 }
 
 impl ZionAuthorizationService {
-    pub fn new() -> Self {
-        let args = Cli::parse();
-        let cfg = fs::read_to_string(args.cfg.clone())
-            .map_err(|x| anyhow!("Failed {} {}", args.cfg, x.to_string()))
-            .unwrap();
-        let c = ConfigPro::from_cfg(cfg.as_str())
-            .map_err(|x| anyhow!("Failed {} {}", args.cfg, x.to_string()))
-            .unwrap();
-
-        Self { cfg: c.telegram_auth }
+    pub fn new(telegram_auth: TelegramAuthConfig) -> Self {
+        Self { cfg: telegram_auth }
     }
 }
 
@@ -45,7 +37,8 @@ impl ZionAuthorization for ZionAuthorizationService {
         req: Request<GetDataRequestForZionRequest>,
     ) -> TonicResult<Response<GetDataRequestForZionResponse>> {
         let metadata = req.metadata();
-        let (response, _) = get_data_request_for_zion_logic(metadata)
+        let config = self.cfg.clone();
+        let (response, _) = get_data_request_for_zion_logic(config, metadata)
             .await
             .map_err(into_anyhow)?;
 
@@ -54,6 +47,7 @@ impl ZionAuthorization for ZionAuthorizationService {
 }
 
 pub async fn get_data_request_for_zion_logic(
+    config: TelegramAuthConfig,
     metadata: &MetadataMap,
 ) -> Result<(GetDataRequestForZionResponse, TokenData<JWTPayload>)> {
     // Wallet
@@ -86,11 +80,11 @@ pub async fn get_data_request_for_zion_logic(
 
     // Get Login data
     let client = ClientReqwest::new();
-    let base_url = env::var("NEXT_PUBLIC_SERVER_LOGIN_WITH_TELEGRAM")?;
+    let base_url = config.next_public_server_login_with_telegram.clone();
     debug!("get_data_request_for_zion_logic::base_url: {:?}", base_url);
 
     // get salt
-    let base_url_salt = env::var("NEXT_PUBLIC_SERVER_LOGIN_WITH_TELEGRAM")?;
+    let base_url_salt = config.next_public_server_login_with_telegram.clone();
     let url_salt = format!("{}/v1/salt", base_url_salt);
     let body = GetSaltRequest {
         jwt: token.to_string(),
@@ -123,17 +117,23 @@ pub async fn get_data_request_for_zion_logic(
     );
     // Proof for Response
     let proto_proof = proto_proofpoint_from(sdk_proof);
-    debug!("get_data_request_for_zion_logic::proto_proof: {:#?}", proto_proof);
+    debug!(
+        "get_data_request_for_zion_logic::proto_proof: {:#?}",
+        proto_proof
+    );
 
     // Get beneficiaries
 
-    let base_url_beneficiaries = env::var("NEXT_PUBLIC_TORII")?;
+    let base_url_beneficiaries = config.next_public_torii.clone();
     let url_beneficiaries = format!("{}/v1/beneficiaries", base_url_beneficiaries);
     let beneficiaries =
         send_request_text::<GetRequestType>(&client, Method::GET, &url_beneficiaries, None, None)
             .await?
             .into_inner();
-    debug!("get_data_request_for_zion_logic::beneficiaries: {}", beneficiaries);
+    debug!(
+        "get_data_request_for_zion_logic::beneficiaries: {}",
+        beneficiaries
+    );
 
     // Response
     let response = GetDataRequestForZionResponse {

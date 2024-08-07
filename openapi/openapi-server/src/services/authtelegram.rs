@@ -1,13 +1,11 @@
 use {
     super::utils::{into_anyhow, Result},
     crate::{
-        config::{Cli, Config as ConfigPro, TelegramAuthConfig},
+        config::TelegramAuthConfig,
         entity::telegram::LoginWidgetData,
         helpers::telegram::{authorize, get_init_data_integrity_web},
     },
-    anyhow::anyhow,
     chrono::Utc,
-    clap::Parser,
     grammers_client::{Client, Config, SignInError},
     grammers_session::Session,
     openapi_logger::debug,
@@ -23,16 +21,8 @@ pub struct AuthTelegramService {
 }
 
 impl AuthTelegramService {
-    pub fn new() -> Self {
-        let args = Cli::parse();
-        let cfg = fs::read_to_string(args.cfg.clone())
-            .map_err(|x| anyhow!("Failed {} {}", args.cfg, x.to_string()))
-            .unwrap();
-        let c = ConfigPro::from_cfg(cfg.as_str())
-            .map_err(|x| anyhow!("Failed {} {}", args.cfg, x.to_string()))
-            .unwrap();
-
-        Self { cfg: c.telegram_auth }
+    pub fn new(telegram_auth: TelegramAuthConfig) -> Self {
+        Self { cfg: telegram_auth }
     }
 }
 
@@ -200,7 +190,6 @@ impl AuthTelegram for AuthTelegramService {
         &self,
         req: Request<LogOutTelegramRequest>,
     ) -> Result<Response<LogOutTelegramResponse>> {
-        let LogOutTelegramRequest { session_uuid } = req.into_inner();
         let LogOutTelegramRequest { session_uuid } = req.into_inner();
         //
         let telegram_api_id = self.cfg.telegram_api_id.clone();

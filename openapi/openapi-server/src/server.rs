@@ -1,10 +1,9 @@
 use {
     crate::{
-        helpers::{http_auth::validator_token, utils::into_anyhow},
-        services::{
+        config::TelegramAuthConfig, helpers::{http_auth::validator_token, utils::into_anyhow}, services::{
             authtelegram::AuthTelegramService, erc20::Erc20Service, erc404::Erc404Service,
             erc721::Erc721Service, zionauthorization::ZionAuthorizationService,
-        },
+        }
     },
     actix_files::Files,
     actix_web::{dev::ServiceRequest, web},
@@ -94,8 +93,9 @@ impl launcher::HttpRouter for Router {
                 web::scope("")
                     .wrap(HttpAuthentication::bearer(
                         move |req: ServiceRequest, credentials: BearerAuth| {
-                            let secret = _auth_secret.clone();
-                            async move { validator_token(req, credentials, secret).await }
+                            // let secret = _auth_secret.clone();
+                            let value = _telegram_auth_config.clone();
+                            async move { validator_token(req, credentials, value).await }
                             // async move { validator(req, credentials, secret.into()).await }
                         },
                     ))
@@ -127,8 +127,8 @@ pub async fn run(
         Arc::clone(&zion_provider),
         Arc::clone(&torii_provider),
     ));
-    let authtelegram = Arc::new(AuthTelegramService::new());
-    let zionauthorization = Arc::new(ZionAuthorizationService::new());
+    let authtelegram = Arc::new(AuthTelegramService::new(telegram_auth_config.clone()));
+    let zionauthorization = Arc::new(ZionAuthorizationService::new(telegram_auth_config.clone()));
 
     let router = Router {
         authtelegram,
