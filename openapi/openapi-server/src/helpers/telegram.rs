@@ -51,7 +51,7 @@ pub async fn authorize(
     let auth_request = AuthRequest {
         client_id: client_id.to_string(),
         init_data,
-        session_uuid: session_uuid.to_string(),
+        // session_uuid: session_uuid.to_string(),
     };
 
     let response = client
