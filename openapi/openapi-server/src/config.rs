@@ -28,7 +28,6 @@ pub struct Config {
 
     #[serde(rename = "doc-path")]
     pub doc_path: String,
-    
     // #[serde(rename = "tori-rpc")]
     // pub tori_rpc: String,
 }
@@ -78,6 +77,8 @@ pub struct TelegramAuthConfig {
     pub next_public_server_login_author: String,
     pub next_public_server_login_with_telegram: String,
     pub next_public_torii: String,
+    #[serde(rename = "session-path")]
+    pub session_path: String,
 }
 
 // impl TelegramAuthConfig {

@@ -1,9 +1,11 @@
 use {
     crate::{
-        config::TelegramAuthConfig, helpers::{http_auth::validator_token, utils::into_anyhow}, services::{
+        config::TelegramAuthConfig,
+        helpers::http_auth::validator_token,
+        services::{
             authtelegram::AuthTelegramService, erc20::Erc20Service, erc404::Erc404Service,
             erc721::Erc721Service, zionauthorization::ZionAuthorizationService,
-        }
+        },
     },
     actix_files::Files,
     actix_web::{dev::ServiceRequest, web},
@@ -21,7 +23,7 @@ use {
         erc721_service::{erc721_actix::route_erc721, erc721_server::Erc721Server},
         zionauthorization_service::{
             zion_authorization_actix::route_zion_authorization,
-            zion_authorization_server::{ZionAuthorization, ZionAuthorizationServer},
+            zion_authorization_server::ZionAuthorizationServer,
         },
     },
     std::{net::SocketAddr, sync::Arc},
@@ -118,14 +120,17 @@ pub async fn run(
     let erc20 = Arc::new(Erc20Service::new(
         Arc::clone(&zion_provider),
         Arc::clone(&torii_provider),
+        telegram_auth_config.clone(),
     ));
     let erc721 = Arc::new(Erc721Service::new(
         Arc::clone(&zion_provider),
         Arc::clone(&torii_provider),
+        telegram_auth_config.clone(),
     ));
     let erc404 = Arc::new(Erc404Service::new(
         Arc::clone(&zion_provider),
         Arc::clone(&torii_provider),
+        telegram_auth_config.clone(),
     ));
     let authtelegram = Arc::new(AuthTelegramService::new(telegram_auth_config.clone()));
     let zionauthorization = Arc::new(ZionAuthorizationService::new(telegram_auth_config.clone()));

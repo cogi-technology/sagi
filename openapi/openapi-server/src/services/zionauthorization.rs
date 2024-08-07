@@ -1,8 +1,9 @@
 use {
-    super::utils::{into_anyhow, Result as TonicResult},
     crate::{
+        cache::JWT_CACHE,
         config::TelegramAuthConfig,
         entity::telegram::{GetProofRequest, GetRequestType, GetSaltRequest},
+        error::{into_anyhow, Result as TonicResult},
         helpers::{into::proto_proofpoint_from, utils::send_request_text},
     },
     anyhow::{anyhow, Result},
@@ -15,7 +16,10 @@ use {
     tonic::{metadata::MetadataMap, Request, Response},
     zion_aa::{
         address_to_string,
-        types::jwt::{JWTPayload, ProofPoints as SdkProofPoints},
+        types::{
+            jwt::{JWTPayload, ProofPoints as SdkProofPoints},
+            request::AuthorizationData,
+        },
     },
 };
 
@@ -37,26 +41,34 @@ impl ZionAuthorization for ZionAuthorizationService {
         req: Request<GetDataRequestForZionRequest>,
     ) -> TonicResult<Response<GetDataRequestForZionResponse>> {
         let metadata = req.metadata();
-        let config = self.cfg.clone();
-        let (response, _) = get_data_request_for_zion_logic(config, metadata)
+        let (
+            AuthorizationData {
+                salt,
+                proof,
+                ephemeral_key_pair,
+                beneficiaries,
+            },
+            _,
+        ) = get_data_request_for_zion_logic(metadata, &self.cfg)
             .await
             .map_err(into_anyhow)?;
+
+        let proof = proto_proofpoint_from(proof);
+        let response = GetDataRequestForZionResponse {
+            salt,
+            proof: Some(proof),
+            ephemeral_key_pair,
+            beneficiaries,
+        };
 
         Ok(Response::new(response))
     }
 }
 
 pub async fn get_data_request_for_zion_logic(
-    config: TelegramAuthConfig,
     metadata: &MetadataMap,
-) -> Result<(GetDataRequestForZionResponse, TokenData<JWTPayload>)> {
-    // Wallet
-    // Generate a random ephemeral_key_pair
-    let signing_key = SigningKey::random(&mut OsRng).to_bytes();
-    let signer = LocalWallet::from_bytes(&signing_key).map_err(|e| into_anyhow(e.into()))?;
-    let ephemeral_key_pair = hex::encode(signing_key);
-    let signer_public_key = address_to_string!(signer.address());
-
+    config: &TelegramAuthConfig,
+) -> Result<(AuthorizationData, TokenData<JWTPayload>)> {
     // Access a specific header, e.g., "authorization"
     let authorization_header = metadata
         .get("authorization")
@@ -65,23 +77,27 @@ pub async fn get_data_request_for_zion_logic(
     if !authorization_header.starts_with("Bearer ") {
         return Err(anyhow!("Invalid authorization header"));
     }
-    debug!(
-        "get_data_request_for_zion_logic::authorization_header: {}",
-        authorization_header
-    );
 
     // Extract the JWT token by removing the "Bearer " prefix
     let token = &authorization_header["Bearer ".len()..];
     let parsed_token = zion_aa::utils::decode_jwt(token)?;
-    debug!(
-        "get_data_request_for_zion_logic::parsed_token: {:?}",
-        parsed_token
-    );
+
+    if let Some((data, _)) = JWT_CACHE.read().get(token) {
+        debug!("token already in cache");
+        return Ok((data.clone(), parsed_token));
+    }
+
+    debug!("token not in cache");
+    // Wallet
+    // Generate a random ephemeral_key_pair
+    let signing_key = SigningKey::random(&mut OsRng).to_bytes();
+    let signer = LocalWallet::from_bytes(&signing_key).map_err(|e| into_anyhow(e.into()))?;
+    let ephemeral_key_pair = hex::encode(signing_key);
+    let signer_public_key = address_to_string!(signer.address());
 
     // Get Login data
     let client = ClientReqwest::new();
     let base_url = config.next_public_server_login_with_telegram.clone();
-    debug!("get_data_request_for_zion_logic::base_url: {:?}", base_url);
 
     // get salt
     let base_url_salt = config.next_public_server_login_with_telegram.clone();
@@ -93,7 +109,6 @@ pub async fn get_data_request_for_zion_logic(
     let salt = send_request_text(&client, Method::POST, &url_salt, Some(&body), None)
         .await?
         .into_inner();
-    debug!("get_data_request_for_zion_logic::salt: {}", salt);
 
     // get proof
     let url_proof = format!("{}/v1/prove", base_url);
@@ -104,45 +119,34 @@ pub async fn get_data_request_for_zion_logic(
         key_claim_name: "sub".to_string(),
         exp: parsed_token.claims.exp,
     };
-    let sdk_proof = client
+    let proof = client
         .post(&url_proof)
         .json(&body)
         .send()
         .await?
         .json::<SdkProofPoints>()
         .await?;
-    debug!(
-        "get_data_request_for_zion_logic::sdk_proof: {:#?}",
-        sdk_proof
-    );
-    // Proof for Response
-    let proto_proof = proto_proofpoint_from(sdk_proof);
-    debug!(
-        "get_data_request_for_zion_logic::proto_proof: {:#?}",
-        proto_proof
-    );
 
     // Get beneficiaries
-
     let base_url_beneficiaries = config.next_public_torii.clone();
     let url_beneficiaries = format!("{}/v1/beneficiaries", base_url_beneficiaries);
     let beneficiaries =
         send_request_text::<GetRequestType>(&client, Method::GET, &url_beneficiaries, None, None)
             .await?
             .into_inner();
-    debug!(
-        "get_data_request_for_zion_logic::beneficiaries: {}",
-        beneficiaries
-    );
 
+    let salt = salt.trim_start_matches("0x").to_string();
     // Response
-    let response = GetDataRequestForZionResponse {
+    let data = AuthorizationData {
         salt,
-        proof: Some(proto_proof),
+        proof,
         ephemeral_key_pair,
         beneficiaries: serde_json::from_str(&beneficiaries)?,
     };
-    debug!("get_data_request_for_zion_logic::response: {:#?}", response);
 
-    Ok((response, parsed_token))
+    JWT_CACHE
+        .write()
+        .insert(token.to_string(), (data.clone(), parsed_token.claims.exp));
+
+    Ok((data, parsed_token))
 }

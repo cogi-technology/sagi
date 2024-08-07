@@ -1,5 +1,5 @@
 use {
-    super::utils::{into_anyhow, Result},
+    crate::error::{into_anyhow, Result},
     crate::{
         config::TelegramAuthConfig,
         entity::telegram::LoginWidgetData,
@@ -35,11 +35,15 @@ impl AuthTelegram for AuthTelegramService {
         debug!("{req:?}");
         let SendCodeTelegramRequest { phone_number } = req.into_inner();
         //
-        let telegram_api_id = self.cfg.telegram_api_id.clone();
-        let telegram_api_hash = self.cfg.telegram_api_hash.clone();
+        let telegram_api_id = self.cfg.telegram_api_id;
+        let telegram_api_hash = &self.cfg.telegram_api_hash;
         //
         let session_uuid = Uuid::new_v4();
-        let session_file: String = format!("sessions/session_{}", session_uuid.to_string());
+        let session_file: String = format!(
+            "{}/session_{}",
+            self.cfg.session_path,
+            session_uuid.to_string()
+        );
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
             api_id: telegram_api_id.clone(),
@@ -64,7 +68,6 @@ impl AuthTelegram for AuthTelegramService {
                     return Err(into_anyhow(e.into()));
                 }
             }
-            //
         }
 
         Ok(Response::new(SendCodeTelegramResponse {
@@ -89,7 +92,11 @@ impl AuthTelegram for AuthTelegramService {
         let telegram_api_id = self.cfg.telegram_api_id.clone();
         let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
-        let session_file: String = format!("sessions/session_{}", session_uuid.to_string());
+        let session_file: String = format!(
+            "{}/session_{}",
+            self.cfg.session_path,
+            session_uuid.to_string()
+        );
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
             api_id: telegram_api_id.clone(),
@@ -163,7 +170,14 @@ impl AuthTelegram for AuthTelegramService {
                 get_init_data_integrity_web(&data_user, &token_auth_bot);
             let base_url = self.cfg.next_public_server_login_author.clone();
             let client_id = self.cfg.client_id.clone();
-            match authorize(&base_url, &client_id, data_user_get_info.clone(), &session_uuid).await {
+            match authorize(
+                &base_url,
+                &client_id,
+                data_user_get_info.clone(),
+                &session_uuid,
+            )
+            .await
+            {
                 Ok(response) => {
                     if let Some(data) = response.id_token {
                         jwt = data
@@ -195,7 +209,11 @@ impl AuthTelegram for AuthTelegramService {
         let telegram_api_id = self.cfg.telegram_api_id.clone();
         let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
-        let session_file: String = format!("sessions/session_{}", session_uuid.to_string());
+        let session_file: String = format!(
+            "{}/session_{}",
+            self.cfg.session_path,
+            session_uuid.to_string()
+        );
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
             api_id: telegram_api_id.clone(),
@@ -238,7 +256,11 @@ impl AuthTelegram for AuthTelegramService {
         let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
         let session_uuid = Uuid::new_v4();
-        let session_file: String = format!("sessions/session_{}", session_uuid.to_string());
+        let session_file: String = format!(
+            "{}/session_{}",
+            self.cfg.session_path,
+            session_uuid.to_string()
+        );
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
             api_id: telegram_api_id.clone(),
@@ -286,7 +308,14 @@ impl AuthTelegram for AuthTelegramService {
                 get_init_data_integrity_web(&data_user, &token_auth_bot);
             let base_url = self.cfg.next_public_server_login_author.clone();
             let client_id = self.cfg.client_id.clone();
-            match authorize(&base_url, &client_id, data_user_get_info.clone(), &session_uuid.to_string()).await {
+            match authorize(
+                &base_url,
+                &client_id,
+                data_user_get_info.clone(),
+                &session_uuid.to_string(),
+            )
+            .await
+            {
                 Ok(response) => {
                     if let Some(data) = response.id_token {
                         jwt = data
@@ -317,7 +346,11 @@ impl AuthTelegram for AuthTelegramService {
         let telegram_api_id = self.cfg.telegram_api_id.clone();
         let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
-        let session_file: String = format!("sessions/session_{}", session_uuid.to_string());
+        let session_file: String = format!(
+            "{}/session_{}",
+            self.cfg.session_path,
+            session_uuid.to_string()
+        );
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
             api_id: telegram_api_id.clone(),

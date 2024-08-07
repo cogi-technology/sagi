@@ -1,5 +1,9 @@
 use {
-    super::utils::{init_contract_wallet, into_anyhow, Result},
+    super::utils::init_contract_wallet,
+    crate::{
+        config::TelegramAuthConfig,
+        error::{into_anyhow, Result},
+    },
     anyhow::anyhow,
     ethers::{
         types::{
@@ -25,13 +29,19 @@ use {
 pub struct Erc20Service {
     zion_provider: Arc<Provider<Http>>,
     torii_provider: Arc<Provider<Http>>,
+    tele_auth_config: TelegramAuthConfig,
 }
 
 impl Erc20Service {
-    pub fn new(zion_provider: Arc<Provider<Http>>, torii_provider: Arc<Provider<Http>>) -> Self {
+    pub fn new(
+        zion_provider: Arc<Provider<Http>>,
+        torii_provider: Arc<Provider<Http>>,
+        tele_auth_config: TelegramAuthConfig,
+    ) -> Self {
         Self {
             zion_provider,
             torii_provider,
+            tele_auth_config,
         }
     }
 }
@@ -62,9 +72,10 @@ impl Erc20 for Erc20Service {
                 .map_err(|e| into_anyhow(e.into()))?,
         );
 
-        let mut contract_wallet = init_contract_wallet(&header_metadata, torii_rpc_endpoint)
-            .await
-            .map_err(into_anyhow)?;
+        let mut contract_wallet =
+            init_contract_wallet(&header_metadata, torii_rpc_endpoint, &self.tele_auth_config)
+                .await
+                .map_err(into_anyhow)?;
         debug!("contract wallet address: {:#x}", contract_wallet.address());
 
         // This session for contract wallet fund to deploy the contract
@@ -100,7 +111,9 @@ impl Erc20 for Erc20Service {
                 .map_err(into_anyhow)?;
 
             if receipt.status.unwrap().is_zero() {
-                return Err(into_anyhow(anyhow!("Transaction failed")));
+                return Err(into_anyhow(anyhow!(
+                    "Transaction fund for deployment failed"
+                )));
             }
 
             debug!(
@@ -261,9 +274,10 @@ impl Erc20 for Erc20Service {
     async fn approve(&self, request: Request<ApproveRequest>) -> Result<Response<ApproveResponse>> {
         let rpc_endpoint = self.torii_provider.url().as_str();
         let header_metadata = request.metadata();
-        let mut contract_wallet = init_contract_wallet(header_metadata, rpc_endpoint)
-            .await
-            .map_err(into_anyhow)?;
+        let mut contract_wallet =
+            init_contract_wallet(header_metadata, rpc_endpoint, &self.tele_auth_config)
+                .await
+                .map_err(into_anyhow)?;
 
         let ApproveRequest {
             contract,
@@ -378,9 +392,10 @@ impl Erc20 for Erc20Service {
     ) -> Result<Response<TransferResponse>> {
         let rpc_endpoint = self.torii_provider.url().as_str();
         let header_metadata = request.metadata();
-        let mut contract_wallet = init_contract_wallet(header_metadata, rpc_endpoint)
-            .await
-            .map_err(into_anyhow)?;
+        let mut contract_wallet =
+            init_contract_wallet(header_metadata, rpc_endpoint, &self.tele_auth_config)
+                .await
+                .map_err(into_anyhow)?;
 
         let TransferRequest {
             contract,
@@ -433,9 +448,10 @@ impl Erc20 for Erc20Service {
     ) -> Result<Response<TransferFromResponse>> {
         let rpc_endpoint = self.torii_provider.url().as_str();
         let header_metadata = request.metadata();
-        let mut contract_wallet = init_contract_wallet(header_metadata, rpc_endpoint)
-            .await
-            .map_err(into_anyhow)?;
+        let mut contract_wallet =
+            init_contract_wallet(header_metadata, rpc_endpoint, &self.tele_auth_config)
+                .await
+                .map_err(into_anyhow)?;
 
         let TransferFromRequest {
             contract,

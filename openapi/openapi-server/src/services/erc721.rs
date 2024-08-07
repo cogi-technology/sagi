@@ -1,6 +1,9 @@
 use {
-    super::utils::{init_contract_wallet, Result},
-    crate::helpers::utils::into_anyhow,
+    super::utils::init_contract_wallet,
+    crate::{
+        config::TelegramAuthConfig,
+        error::{into_anyhow, Result},
+    },
     anyhow::anyhow,
     ethers::types::{
         transaction::eip2718::TypedTransaction, Address, BlockNumber, Eip1559TransactionRequest,
@@ -23,13 +26,19 @@ use {
 pub struct Erc721Service {
     zion_provider: Arc<Provider<Http>>,
     torii_provider: Arc<Provider<Http>>,
+    tele_auth_config: TelegramAuthConfig,
 }
 
 impl Erc721Service {
-    pub fn new(zion_provider: Arc<Provider<Http>>, torii_provider: Arc<Provider<Http>>) -> Self {
+    pub fn new(
+        zion_provider: Arc<Provider<Http>>,
+        torii_provider: Arc<Provider<Http>>,
+        tele_auth_config: TelegramAuthConfig,
+    ) -> Self {
         Self {
             zion_provider,
             torii_provider,
+            tele_auth_config,
         }
     }
 }
@@ -60,9 +69,10 @@ impl Erc721 for Erc721Service {
                 .map_err(|e| into_anyhow(e.into()))?,
         );
 
-        let mut contract_wallet = init_contract_wallet(&header_metadata, torii_rpc_endpoint)
-            .await
-            .map_err(into_anyhow)?;
+        let mut contract_wallet =
+            init_contract_wallet(&header_metadata, torii_rpc_endpoint, &self.tele_auth_config)
+                .await
+                .map_err(into_anyhow)?;
         debug!("contract wallet address: {:#x}", contract_wallet.address());
 
         // This session for contract wallet fund to deploy the contract
@@ -165,6 +175,12 @@ impl Erc721 for Erc721Service {
                 .from(random_client.address())
                 .value(remaining_fund);
 
+            let before_contract_wallet_balance = self
+                .zion_provider
+                .get_balance(contract_wallet.address(), Some(BlockNumber::Latest.into()))
+                .await
+                .map_err(|e| into_anyhow(e.into()))?;
+
             let gas_price = self
                 .zion_provider
                 .get_gas_price()
@@ -180,6 +196,10 @@ impl Erc721 for Erc721Service {
             let gas_fee = gas_price * gas_limit;
             debug!("gas_fee: {}", gas_fee);
             debug!("refund amount: {}", remaining_fund - gas_fee);
+            debug!(
+                "estimated contract wallet balance after refund: {}",
+                before_contract_wallet_balance + (remaining_fund - gas_fee)
+            );
 
             if remaining_fund <= gas_fee {
                 return Err(into_anyhow(anyhow!(
@@ -201,7 +221,7 @@ impl Erc721 for Erc721Service {
                 .map_err(|e| into_anyhow(e.into()))?
                 .await
                 .map_err(|e| into_anyhow(e.into()))?
-                .ok_or(into_anyhow(anyhow!("refund failed")))?;
+                .ok_or_else(|| into_anyhow(anyhow!("refund failed")))?;
 
             if refund_receipt.status.unwrap().is_zero() {
                 return Err(into_anyhow(anyhow!("refund failed")));
@@ -214,7 +234,7 @@ impl Erc721 for Erc721Service {
                 .await
                 .map_err(|e| into_anyhow(e.into()))?;
             debug!(
-                "Balance of contract wallet after refund: {}",
+                "Actual balance of contract wallet after refund: {}",
                 after_refund_balance_of_contract_wallet
             );
             let after_refund_balance_of_random_wallet = self
@@ -291,10 +311,13 @@ impl Erc721 for Erc721Service {
         request: Request<SafeTransferFromRequest>,
     ) -> Result<Response<SafeTransferFromResponse>> {
         let header_metadata = request.metadata();
-        let mut contract_wallet =
-            init_contract_wallet(header_metadata, self.torii_provider.url().as_str())
-                .await
-                .map_err(into_anyhow)?;
+        let mut contract_wallet = init_contract_wallet(
+            header_metadata,
+            self.torii_provider.url().as_str(),
+            &self.tele_auth_config,
+        )
+        .await
+        .map_err(into_anyhow)?;
 
         let SafeTransferFromRequest {
             contract,
@@ -316,8 +339,10 @@ impl Erc721 for Erc721Service {
         let calldata = contract
             .safe_transfer_from(from_address, to_address, token_id)
             .calldata()
-            .ok_or(into_anyhow(anyhow!("Calldata is None")))?;
-        let transaction = Eip1559TransactionRequest::new().data(calldata);
+            .ok_or_else(|| into_anyhow(anyhow!("Calldata is None")))?;
+        let transaction = Eip1559TransactionRequest::new()
+            .to(contract.address())
+            .data(calldata);
 
         // This session is used to validate the pin code
         {
@@ -333,8 +358,10 @@ impl Erc721 for Erc721Service {
             .send_transaction(transaction, None)
             .await
             .map_err(into_anyhow)?
-            .transaction_hash
-            .to_string();
+            .transaction_hash;
+
+        let txhash = format!("{:#x}", txhash);
+        debug!("safe_transfer_from txhash: {txhash}");
 
         Ok(Response::new(SafeTransferFromResponse { txhash }))
     }
@@ -344,10 +371,13 @@ impl Erc721 for Erc721Service {
         request: Request<TransferFromRequest>,
     ) -> Result<Response<TransferFromResponse>> {
         let header_metadata = request.metadata();
-        let mut contract_wallet =
-            init_contract_wallet(header_metadata, self.torii_provider.url().as_str())
-                .await
-                .map_err(into_anyhow)?;
+        let mut contract_wallet = init_contract_wallet(
+            header_metadata,
+            self.torii_provider.url().as_str(),
+            &self.tele_auth_config,
+        )
+        .await
+        .map_err(into_anyhow)?;
 
         let TransferFromRequest {
             contract,
@@ -369,8 +399,10 @@ impl Erc721 for Erc721Service {
         let calldata = contract
             .transfer_from(from_address, to_address, token_id)
             .calldata()
-            .ok_or(into_anyhow(anyhow!("Calldata is None")))?;
-        let transaction = Eip1559TransactionRequest::new().data(calldata);
+            .ok_or_else(|| into_anyhow(anyhow!("Calldata is None")))?;
+        let transaction = Eip1559TransactionRequest::new()
+            .to(contract.address())
+            .data(calldata);
 
         // This session is used to validate the pin code
         {
@@ -386,18 +418,23 @@ impl Erc721 for Erc721Service {
             .send_transaction(transaction, None)
             .await
             .map_err(into_anyhow)?
-            .transaction_hash
-            .to_string();
+            .transaction_hash;
+
+        let txhash = format!("{:#x}", txhash);
+        debug!("transfer_from txhash: {txhash}");
 
         Ok(Response::new(TransferFromResponse { txhash }))
     }
 
     async fn approve(&self, request: Request<ApproveRequest>) -> Result<Response<ApproveResponse>> {
         let header_metadata = request.metadata();
-        let mut contract_wallet =
-            init_contract_wallet(header_metadata, self.torii_provider.url().as_str())
-                .await
-                .map_err(into_anyhow)?;
+        let mut contract_wallet = init_contract_wallet(
+            header_metadata,
+            self.torii_provider.url().as_str(),
+            &self.tele_auth_config,
+        )
+        .await
+        .map_err(into_anyhow)?;
 
         let ApproveRequest {
             contract,
@@ -417,8 +454,10 @@ impl Erc721 for Erc721Service {
         let calldata = contract
             .approve(to_address, token_id)
             .calldata()
-            .ok_or(into_anyhow(anyhow!("Calldata is None")))?;
-        let transaction = Eip1559TransactionRequest::new().data(calldata);
+            .ok_or_else(|| into_anyhow(anyhow!("Calldata is None")))?;
+        let transaction = Eip1559TransactionRequest::new()
+            .to(contract.address())
+            .data(calldata);
 
         // This session is used to validate the pin code
         {
@@ -434,10 +473,67 @@ impl Erc721 for Erc721Service {
             .send_transaction(transaction, None)
             .await
             .map_err(into_anyhow)?
-            .transaction_hash
-            .to_string();
+            .transaction_hash;
+
+        let txhash = format!("{:#x}", txhash);
+        debug!("approve txhash: {txhash}");
 
         Ok(Response::new(ApproveResponse { txhash }))
+    }
+
+    async fn mint(&self, request: Request<MintRequest>) -> Result<Response<MintResponse>> {
+        let header_metadata = request.metadata();
+        let mut contract_wallet = init_contract_wallet(
+            header_metadata,
+            self.torii_provider.url().as_str(),
+            &self.tele_auth_config,
+        )
+        .await
+        .map_err(into_anyhow)?;
+
+        let MintRequest {
+            contract,
+            account,
+            pin_code,
+        } = request.into_inner();
+        let contract_address = contract
+            .parse::<Address>()
+            .map_err(|e| into_anyhow(e.into()))?;
+        let account_address = account
+            .parse::<Address>()
+            .map_err(|e| into_anyhow(e.into()))?;
+
+        debug!("contract: {contract_address:?}, account: {account_address:?}");
+
+        let contract = ERC721Contract::new(contract_address, Arc::clone(&self.zion_provider));
+        let calldata = contract
+            .mint(account_address)
+            .calldata()
+            .ok_or_else(|| into_anyhow(anyhow!("Calldata is None")))?;
+        let transaction = Eip1559TransactionRequest::new()
+            .to(contract.address())
+            .data(calldata);
+
+        // This session is used to validate the pin code
+        {
+            let has_pin_code = contract_wallet.has_pin_code().await.map_err(into_anyhow)?;
+            contract_wallet
+                .validate_and_set_pin_code(pin_code, !has_pin_code, None)
+                .await
+                .map_err(into_anyhow)?;
+            debug!("Validated pin code");
+        }
+
+        let txhash = contract_wallet
+            .send_transaction(transaction, None)
+            .await
+            .map_err(into_anyhow)?
+            .transaction_hash;
+
+        let txhash = format!("{:#x}", txhash);
+        debug!("mint txhash: {txhash}");
+
+        Ok(Response::new(MintResponse { txhash }))
     }
 
     async fn get_approved(
@@ -470,10 +566,13 @@ impl Erc721 for Erc721Service {
         request: Request<SetApprovalForAllRequest>,
     ) -> Result<Response<SetApprovalForAllResponse>> {
         let header_metadata = request.metadata();
-        let mut contract_wallet =
-            init_contract_wallet(header_metadata, self.torii_provider.url().as_str())
-                .await
-                .map_err(into_anyhow)?;
+        let mut contract_wallet = init_contract_wallet(
+            header_metadata,
+            self.torii_provider.url().as_str(),
+            &self.tele_auth_config,
+        )
+        .await
+        .map_err(into_anyhow)?;
 
         let SetApprovalForAllRequest {
             contract,
@@ -494,8 +593,10 @@ impl Erc721 for Erc721Service {
         let calldata = contract
             .set_approval_for_all(operator_address, approved)
             .calldata()
-            .ok_or(into_anyhow(anyhow!("Calldata is None")))?;
-        let transaction = Eip1559TransactionRequest::new().data(calldata);
+            .ok_or_else(|| into_anyhow(anyhow!("Calldata is None")))?;
+        let transaction = Eip1559TransactionRequest::new()
+            .to(contract.address())
+            .data(calldata);
 
         // This session is used to validate the pin code
         {
@@ -511,8 +612,10 @@ impl Erc721 for Erc721Service {
             .send_transaction(transaction, None)
             .await
             .map_err(into_anyhow)?
-            .transaction_hash
-            .to_string();
+            .transaction_hash;
+
+        let txhash = format!("{:#x}", txhash);
+        debug!("set_approval_for_all txhash: {txhash}");
 
         Ok(Response::new(SetApprovalForAllResponse { txhash }))
     }

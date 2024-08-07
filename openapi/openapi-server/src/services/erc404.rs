@@ -1,6 +1,9 @@
 use {
-    super::utils::{init_contract_wallet, Result},
-    crate::helpers::utils::into_anyhow,
+    super::utils::init_contract_wallet,
+    crate::{
+        config::TelegramAuthConfig,
+        error::{into_anyhow, Result},
+    },
     anyhow::anyhow,
     ethers::{
         types::{Address, BlockNumber, Eip1559TransactionRequest, U256},
@@ -23,13 +26,19 @@ use {
 pub struct Erc404Service {
     zion_provider: Arc<Provider<Http>>,
     torii_provider: Arc<Provider<Http>>,
+    tele_auth_config: TelegramAuthConfig,
 }
 
 impl Erc404Service {
-    pub fn new(zion_provider: Arc<Provider<Http>>, torii_provider: Arc<Provider<Http>>) -> Self {
+    pub fn new(
+        zion_provider: Arc<Provider<Http>>,
+        torii_provider: Arc<Provider<Http>>,
+        tele_auth_config: TelegramAuthConfig,
+    ) -> Self {
         Self {
             zion_provider,
             torii_provider,
+            tele_auth_config,
         }
     }
 }
@@ -63,9 +72,10 @@ impl Erc404 for Erc404Service {
                 .map_err(|e| into_anyhow(e.into()))?,
         );
 
-        let mut contract_wallet = init_contract_wallet(&header_metadata, torii_rpc_endpoint)
-            .await
-            .map_err(into_anyhow)?;
+        let mut contract_wallet =
+            init_contract_wallet(&header_metadata, torii_rpc_endpoint, &self.tele_auth_config)
+                .await
+                .map_err(into_anyhow)?;
         debug!("contract wallet address: {:#x}", contract_wallet.address());
 
         // This session for contract wallet fund to deploy the contract
@@ -190,10 +200,13 @@ impl Erc404 for Erc404Service {
 
     async fn approve(&self, request: Request<ApproveRequest>) -> Result<Response<ApproveResponse>> {
         let header_metadata = request.metadata();
-        let mut contract_wallet =
-            init_contract_wallet(header_metadata, self.torii_provider.url().as_str())
-                .await
-                .map_err(into_anyhow)?;
+        let mut contract_wallet = init_contract_wallet(
+            header_metadata,
+            self.torii_provider.url().as_str(),
+            &self.tele_auth_config,
+        )
+        .await
+        .map_err(into_anyhow)?;
 
         let ApproveRequest {
             contract,
@@ -333,10 +346,13 @@ impl Erc404 for Erc404Service {
         &self,
         request: Request<TransferRequest>,
     ) -> Result<Response<TransferResponse>> {
-        let mut contract_wallet =
-            init_contract_wallet(request.metadata(), self.torii_provider.url().as_str())
-                .await
-                .map_err(into_anyhow)?;
+        let mut contract_wallet = init_contract_wallet(
+            request.metadata(),
+            self.torii_provider.url().as_str(),
+            &self.tele_auth_config,
+        )
+        .await
+        .map_err(into_anyhow)?;
 
         let TransferRequest {
             contract,
@@ -382,10 +398,13 @@ impl Erc404 for Erc404Service {
         &self,
         request: Request<TransferFromRequest>,
     ) -> Result<Response<TransferFromResponse>> {
-        let mut contract_wallet =
-            init_contract_wallet(request.metadata(), self.torii_provider.url().as_str())
-                .await
-                .map_err(into_anyhow)?;
+        let mut contract_wallet = init_contract_wallet(
+            request.metadata(),
+            self.torii_provider.url().as_str(),
+            &self.tele_auth_config,
+        )
+        .await
+        .map_err(into_anyhow)?;
 
         let TransferFromRequest {
             contract,
@@ -432,10 +451,13 @@ impl Erc404 for Erc404Service {
         request: Request<SetApprovalForAllRequest>,
     ) -> Result<Response<SetApprovalForAllResponse>> {
         let header_metadata = request.metadata();
-        let mut contract_wallet =
-            init_contract_wallet(header_metadata, self.torii_provider.url().as_str())
-                .await
-                .map_err(into_anyhow)?;
+        let mut contract_wallet = init_contract_wallet(
+            header_metadata,
+            self.torii_provider.url().as_str(),
+            &self.tele_auth_config,
+        )
+        .await
+        .map_err(into_anyhow)?;
 
         let SetApprovalForAllRequest {
             contract,
@@ -514,10 +536,13 @@ impl Erc404 for Erc404Service {
         request: Request<SafeTransferFromRequest>,
     ) -> Result<Response<SafeTransferFromResponse>> {
         let header_metadata = request.metadata();
-        let mut contract_wallet =
-            init_contract_wallet(header_metadata, self.torii_provider.url().as_str())
-                .await
-                .map_err(into_anyhow)?;
+        let mut contract_wallet = init_contract_wallet(
+            header_metadata,
+            self.torii_provider.url().as_str(),
+            &self.tele_auth_config,
+        )
+        .await
+        .map_err(into_anyhow)?;
 
         let SafeTransferFromRequest {
             contract,
@@ -572,10 +597,13 @@ impl Erc404 for Erc404Service {
         request: Request<SafeBatchTransferFromRequest>,
     ) -> Result<Response<SafeBatchTransferFromResponse>> {
         let header_metadata = request.metadata();
-        let mut contract_wallet =
-            init_contract_wallet(header_metadata, self.torii_provider.url().as_str())
-                .await
-                .map_err(into_anyhow)?;
+        let mut contract_wallet = init_contract_wallet(
+            header_metadata,
+            self.torii_provider.url().as_str(),
+            &self.tele_auth_config,
+        )
+        .await
+        .map_err(into_anyhow)?;
 
         let SafeBatchTransferFromRequest {
             contract,
