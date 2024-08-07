@@ -61,48 +61,6 @@ contract TokenERC404 is
         super._erc20Update(from, to, value);
     }
 
-    function _mint(address account, uint256 amount) internal {
-        uint256 b = balanceOf(account);
-        _erc20Mint(account, amount);
-        uint256 a = balanceOf(account);
-        if (!erc1155TransferExempt(account)) {
-            uint256 need = (a / _units) - (b / _units);
-            if (need > 0) {
-                _erc1155Mints(account, _ids, need);
-            }
-        }
-    }
-
-    function _burn(address account, uint256 amount) internal {
-        uint256 b = balanceOf(account);
-        _erc20Burn(account, amount);
-        uint256 a = balanceOf(account);
-        if (!erc1155TransferExempt(account)) {
-            uint256 need = (b / _units) - (a / _units);
-            if (need > 0) {
-                _erc1155Burns(account, _ids, need);
-            }
-        }
-    }
-
-    function mint(address account, uint256 amount) external {
-        if (!hasRole(MINTER_ROLE, _msgSender())) {
-            revert ERC404UnauthorizedMinter();
-        }
-        _mint(account, amount);
-    }
-
-    function burnFrom(address account, uint256 amount) external {
-        if (!hasRole(MINTER_ROLE, _msgSender())) {
-            revert ERC404UnauthorizedMinter();
-        }
-        _burn(account, amount);
-    }
-
-    function burn(uint256 amount) external {
-        _burn(_msgSender(), amount);
-    }
-
     function addTransferExempt(
         address target_
     ) external onlyOwner returns (bool) {

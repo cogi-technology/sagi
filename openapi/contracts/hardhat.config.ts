@@ -17,15 +17,15 @@ const config: HardhatUserConfig = {
   solidity: "0.8.24",
   networks: {
     hardhat: {},
-    ganache: {
-      url: "http://127.0.0.1:8545/",
-      accounts: local_accounts,
-    },
-    zionx: {
-      url: "https://devnet-rpc.zionx.network",
-      chainId: 176923,
-      accounts
-    },
+    // ganache: {
+    //   url: "http://127.0.0.1:8545/",
+    //   accounts: local_accounts,
+    // },
+    // zionx: {
+    //   url: "https://devnet-rpc.zionx.network",
+    //   chainId: 176923,
+    //   accounts
+    // },
   },
   sourcify: {
     enabled: true,
