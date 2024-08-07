@@ -717,6 +717,26 @@ paths:
           type: string
       tags:
         - ERC721
+  /api/erc721/mint:
+    post:
+      operationId: ERC721_Mint
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721MintResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc721MintRequest'
+      tags:
+        - ERC721
   /api/erc721/ownerOf:
     get:
       operationId: ERC721_OwnerOf
@@ -1194,6 +1214,20 @@ definitions:
     properties:
       result:
         type: boolean
+  erc721MintRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      account:
+        type: string
+      pin_code:
+        type: string
+  erc721MintResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
   erc721OwnerOfResponse:
     type: object
     properties:

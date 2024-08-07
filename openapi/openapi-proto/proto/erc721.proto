@@ -69,6 +69,16 @@ message ApproveResponse {
   string txhash = 1;
 }
 
+message MintRequest {
+  string contract = 1;
+  string account = 2;
+  string pin_code = 3;
+}
+
+message MintResponse {
+  string txhash = 1;
+}
+
 message GetApprovedRequest {
   string contract = 1;
   string token_id = 2;
@@ -107,6 +117,7 @@ service ERC721 {
   rpc SafeTransferFrom (SafeTransferFromRequest) returns (SafeTransferFromResponse);
   rpc TransferFrom (TransferFromRequest) returns (TransferFromResponse);
   rpc Approve (ApproveRequest) returns (ApproveResponse);
+  rpc Mint (MintRequest) returns (MintResponse);
   rpc GetApproved (GetApprovedRequest) returns (GetApprovedResponse);
   rpc SetApprovalForAll (SetApprovalForAllRequest) returns (SetApprovalForAllResponse);
   rpc IsApprovedForAll (IsApprovedForAllRequest) returns (IsApprovedForAllResponse);

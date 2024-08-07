@@ -61,6 +61,9 @@ http:
     - selector: erc721.ERC721.Approve
       post: /api/erc721/approve
       body: "*"
+    - selector: erc721.ERC721.Mint
+      post: /api/erc721/mint
+      body: "*"
     - selector: erc721.ERC721.GetApproved
       get: /api/erc721/getApproved
       param: "contract&token_id"

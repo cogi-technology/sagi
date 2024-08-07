@@ -118,6 +118,24 @@ pub struct ApproveResponse {
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct MintRequest {
+    #[prost(string, tag = "1")]
+    pub contract: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
+    pub account: ::prost::alloc::string::String,
+    #[prost(string, tag = "3")]
+    pub pin_code: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct MintResponse {
+    #[prost(string, tag = "1")]
+    pub txhash: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetApprovedRequest {
     #[prost(string, tag = "1")]
     pub contract: ::prost::alloc::string::String,
@@ -247,6 +265,17 @@ pub mod erc721_actix {
         #[prost(string, tag = "3")]
         pub token_id: ::prost::alloc::string::String,
         #[prost(string, tag = "4")]
+        pub pin_code: ::prost::alloc::string::String,
+    }
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct MintJson {
+        #[prost(string, tag = "1")]
+        pub contract: ::prost::alloc::string::String,
+        #[prost(string, tag = "2")]
+        pub account: ::prost::alloc::string::String,
+        #[prost(string, tag = "3")]
         pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -432,6 +461,31 @@ pub mod erc721_actix {
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
+    async fn call_mint(
+        service: ::actix_web::web::Data<dyn Erc721 + Sync + Send + 'static>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
+    ) -> Result<::actix_web::web::Json<MintResponse>, ::actix_prost::Error> {
+        let mut payload = payload.into_inner();
+        let json = <::actix_web::web::Json<
+            MintJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
+            .into_inner();
+        let request = MintRequest {
+            contract: json.contract,
+            account: json.account,
+            pin_code: json.pin_code,
+        };
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service.mint(request).await?;
+        let response = response.into_inner();
+        Ok(::actix_web::web::Json(response))
+    }
     async fn call_get_approved(
         service: ::actix_web::web::Data<dyn Erc721 + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
@@ -526,6 +580,7 @@ pub mod erc721_actix {
                 ::actix_web::web::post().to(call_transfer_from),
             );
         config.route("/api/erc721/approve", ::actix_web::web::post().to(call_approve));
+        config.route("/api/erc721/mint", ::actix_web::web::post().to(call_mint));
         config
             .route(
                 "/api/erc721/getApproved",
@@ -719,6 +774,23 @@ pub mod erc721_client {
             let path = http::uri::PathAndQuery::from_static("/erc721.ERC721/Approve");
             self.inner.unary(request.into_request(), path, codec).await
         }
+        pub async fn mint(
+            &mut self,
+            request: impl tonic::IntoRequest<super::MintRequest>,
+        ) -> Result<tonic::Response<super::MintResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/erc721.ERC721/Mint");
+            self.inner.unary(request.into_request(), path, codec).await
+        }
         pub async fn get_approved(
             &mut self,
             request: impl tonic::IntoRequest<super::GetApprovedRequest>,
@@ -809,6 +881,10 @@ pub mod erc721_server {
             &self,
             request: tonic::Request<super::ApproveRequest>,
         ) -> Result<tonic::Response<super::ApproveResponse>, tonic::Status>;
+        async fn mint(
+            &self,
+            request: tonic::Request<super::MintRequest>,
+        ) -> Result<tonic::Response<super::MintResponse>, tonic::Status>;
         async fn get_approved(
             &self,
             request: tonic::Request<super::GetApprovedRequest>,
@@ -1095,6 +1171,42 @@ pub mod erc721_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = ApproveSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/erc721.ERC721/Mint" => {
+                    #[allow(non_camel_case_types)]
+                    struct MintSvc<T: Erc721>(pub Arc<T>);
+                    impl<T: Erc721> tonic::server::UnaryService<super::MintRequest>
+                    for MintSvc<T> {
+                        type Response = super::MintResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::MintRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move { (*inner).mint(request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = MintSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
