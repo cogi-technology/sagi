@@ -41,3 +41,10 @@ zion-aa.workspace = true
 jwt-simple.workspace = true
 base64.workspace = true
 
+# Override dependencies to sync with sdk dependencies
+[patch]
+[patch.crates-io]
+ethers = "=2.0.14"
+ethers-contract = "=2.0.14"
+ethers-providers = "=2.0.14"
+ethers-core = "=2.0.14"

@@ -6,15 +6,16 @@ pub mod request;
 use std::ops::Deref;
 
 use crate::contracts::entry_point::UserOperation;
+use anyhow::Result;
 use ethers::{
-    abi::AbiEncode,
+    abi::{AbiEncode, Token},
     types::{Address, Bytes, H256, U256},
     utils::keccak256,
 };
 use ethers_contract::{EthAbiCodec, EthAbiType};
 use hash::UserOperationHash;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct UserOperationSigned(pub UserOperation);
 
 impl Default for UserOperationSigned {
@@ -83,7 +84,21 @@ impl From<UserOperationSigned> for UserOperationNoSignature {
 impl UserOperationSigned {
     /// Packs the user operation into bytes
     pub fn pack(&self) -> Bytes {
-        self.0.clone().encode().into()
+        let encoded = ethers::abi::encode(&[
+            Token::Address(self.0.sender),
+            Token::Uint(self.0.nonce),
+            Token::Bytes(self.0.init_code.to_vec()),
+            Token::Bytes(self.0.call_data.to_vec()),
+            Token::Uint(self.0.call_gas_limit),
+            Token::Uint(self.0.verification_gas_limit),
+            Token::Uint(self.0.pre_verification_gas),
+            Token::Uint(self.0.max_fee_per_gas),
+            Token::Uint(self.0.max_priority_fee_per_gas),
+            Token::Bytes(self.0.paymaster_and_data.to_vec()),
+            Token::Bytes(self.0.signature.to_vec()),
+        ]);
+
+        Bytes::from(encoded[0..encoded.len() - 32].to_vec())
     }
 
     /// Packs the user operation without signature to bytes (used for calculating the hash)
@@ -93,15 +108,12 @@ impl UserOperationSigned {
     }
 
     /// Calculates the hash of the user operation
-    pub fn hash(&self, entry_point: Address, chain_id: U256) -> UserOperationHash {
-        H256::from(keccak256(
-            [
-                keccak256(self.pack_without_signature().deref()).to_vec(),
-                entry_point.encode(),
-                chain_id.encode(),
-            ]
-            .concat(),
-        ))
-        .into()
+    pub fn hash(&self, entry_point: Address, chain_id: U256) -> Result<UserOperationHash> {
+        Ok(H256::from(keccak256(ethers::abi::encode(&[
+            Token::FixedBytes(keccak256(self.pack()).to_vec()),
+            Token::Address(entry_point),
+            Token::Uint(chain_id),
+        ])))
+        .into())
     }
 }

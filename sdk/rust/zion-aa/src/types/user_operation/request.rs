@@ -7,12 +7,12 @@ use crate::contracts::entry_point::UserOperation;
 
 use super::UserOperationSigned;
 
-#[derive(Clone, Debug, Ord, PartialOrd, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Ord, PartialOrd, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct UserOperationRequest {
     pub sender: Address,
     pub nonce: U256,
-    pub init_code: Bytes,
+    pub init_code: Option<Bytes>,
     pub call_data: Bytes,
     pub call_gas_limit: Option<U256>,           //
     pub verification_gas_limit: Option<U256>,   //
@@ -28,7 +28,13 @@ impl From<UserOperationRequest> for UserOperationSigned {
         UserOperationSigned(UserOperation {
             sender: uo_request.sender,
             nonce: uo_request.nonce,
-            init_code: uo_request.init_code,
+            init_code: {
+                if let Some(init_code) = uo_request.init_code {
+                    init_code
+                } else {
+                    Bytes::default()
+                }
+            },
             call_data: uo_request.call_data,
             call_gas_limit: {
                 if let Some(call_gas_limit) = uo_request.call_gas_limit {
@@ -82,7 +88,7 @@ impl From<UserOperationSigned> for UserOperationRequest {
         Self {
             sender: uo_signed.0.sender,
             nonce: uo_signed.0.nonce,
-            init_code: uo_signed.0.init_code,
+            init_code: Some(uo_signed.0.init_code),
             call_data: uo_signed.0.call_data,
             call_gas_limit: Some(uo_signed.0.call_gas_limit),
             verification_gas_limit: Some(uo_signed.0.verification_gas_limit),

@@ -201,6 +201,7 @@ impl AuthTelegram for AuthTelegramService {
         req: Request<LogOutTelegramRequest>,
     ) -> Result<Response<LogOutTelegramResponse>> {
         let LogOutTelegramRequest { session_uuid } = req.into_inner();
+        let LogOutTelegramRequest { session_uuid } = req.into_inner();
         //
         let telegram_api_id = self.cfg.telegram_api_id.clone();
         let telegram_api_hash = self.cfg.telegram_api_hash.clone();

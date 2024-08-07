@@ -4,19 +4,19 @@
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeployRequest {
     #[prost(string, tag = "1")]
-    pub owner: ::prost::alloc::string::String,
-    #[prost(string, tag = "2")]
     pub name: ::prost::alloc::string::String,
-    #[prost(string, tag = "3")]
+    #[prost(string, tag = "2")]
     pub symbol: ::prost::alloc::string::String,
-    #[prost(string, tag = "4")]
+    #[prost(string, tag = "3")]
     pub initial_supply: ::prost::alloc::string::String,
-    #[prost(string, tag = "5")]
+    #[prost(string, tag = "4")]
     pub units: ::prost::alloc::string::String,
-    #[prost(string, repeated, tag = "6")]
+    #[prost(string, repeated, tag = "5")]
     pub ids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-    #[prost(string, tag = "7")]
+    #[prost(string, tag = "6")]
     pub uri: ::prost::alloc::string::String,
+    #[prost(string, tag = "7")]
+    pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -83,6 +83,8 @@ pub struct ApproveRequest {
     pub spender: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
     pub amount: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
+    pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -101,6 +103,8 @@ pub struct TransferRequest {
     pub recipient: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
     pub amount: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
+    pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -121,6 +125,8 @@ pub struct TransferFromRequest {
     pub to: ::prost::alloc::string::String,
     #[prost(string, tag = "4")]
     pub value: ::prost::alloc::string::String,
+    #[prost(string, tag = "5")]
+    pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -135,8 +141,8 @@ pub struct TransferFromResponse {
 pub struct BalanceOfBatchRequest {
     #[prost(string, tag = "1")]
     pub contract: ::prost::alloc::string::String,
-    #[prost(string, tag = "2")]
-    pub owner: ::prost::alloc::string::String,
+    #[prost(string, repeated, tag = "2")]
+    pub accounts: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     #[prost(string, repeated, tag = "3")]
     pub token_ids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
@@ -145,7 +151,7 @@ pub struct BalanceOfBatchRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BalanceOfBatchResponse {
     #[prost(string, repeated, tag = "1")]
-    pub amounts: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    pub batch_balances: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -157,6 +163,8 @@ pub struct SetApprovalForAllRequest {
     pub operator: ::prost::alloc::string::String,
     #[prost(bool, tag = "3")]
     pub approved: bool,
+    #[prost(string, tag = "4")]
+    pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -188,15 +196,19 @@ pub struct IsApprovedForAllResponse {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SafeTransferFromRequest {
     #[prost(string, tag = "1")]
-    pub from: ::prost::alloc::string::String,
+    pub contract: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]
-    pub to: ::prost::alloc::string::String,
+    pub from: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
-    pub token_id: ::prost::alloc::string::String,
+    pub to: ::prost::alloc::string::String,
     #[prost(string, tag = "4")]
-    pub value: ::prost::alloc::string::String,
+    pub token_id: ::prost::alloc::string::String,
     #[prost(string, tag = "5")]
+    pub value: ::prost::alloc::string::String,
+    #[prost(string, tag = "6")]
     pub data: ::prost::alloc::string::String,
+    #[prost(string, tag = "7")]
+    pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -210,15 +222,19 @@ pub struct SafeTransferFromResponse {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SafeBatchTransferFromRequest {
     #[prost(string, tag = "1")]
-    pub from: ::prost::alloc::string::String,
+    pub contract: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]
+    pub from: ::prost::alloc::string::String,
+    #[prost(string, tag = "3")]
     pub to: ::prost::alloc::string::String,
-    #[prost(string, repeated, tag = "3")]
-    pub token_ids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     #[prost(string, repeated, tag = "4")]
+    pub token_ids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    #[prost(string, repeated, tag = "5")]
     pub values: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-    #[prost(string, tag = "5")]
-    pub data: ::prost::alloc::string::String,
+    #[prost(bytes = "bytes", tag = "6")]
+    pub data: ::prost::bytes::Bytes,
+    #[prost(string, tag = "7")]
+    pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -266,6 +282,8 @@ pub struct Erc20BalanceOfResponse {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Erc1155TransferExemptRequest {
     #[prost(string, tag = "1")]
+    pub contract: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
     pub target: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -286,19 +304,19 @@ pub mod erc404_actix {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct DeployJson {
         #[prost(string, tag = "1")]
-        pub owner: ::prost::alloc::string::String,
-        #[prost(string, tag = "2")]
         pub name: ::prost::alloc::string::String,
-        #[prost(string, tag = "3")]
+        #[prost(string, tag = "2")]
         pub symbol: ::prost::alloc::string::String,
-        #[prost(string, tag = "4")]
+        #[prost(string, tag = "3")]
         pub initial_supply: ::prost::alloc::string::String,
-        #[prost(string, tag = "5")]
+        #[prost(string, tag = "4")]
         pub units: ::prost::alloc::string::String,
-        #[prost(string, repeated, tag = "6")]
+        #[prost(string, repeated, tag = "5")]
         pub ids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-        #[prost(string, tag = "7")]
+        #[prost(string, tag = "6")]
         pub uri: ::prost::alloc::string::String,
+        #[prost(string, tag = "7")]
+        pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -337,6 +355,8 @@ pub mod erc404_actix {
         pub spender: ::prost::alloc::string::String,
         #[prost(string, tag = "3")]
         pub amount: ::prost::alloc::string::String,
+        #[prost(string, tag = "4")]
+        pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -348,6 +368,8 @@ pub mod erc404_actix {
         pub recipient: ::prost::alloc::string::String,
         #[prost(string, tag = "3")]
         pub amount: ::prost::alloc::string::String,
+        #[prost(string, tag = "4")]
+        pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -361,6 +383,8 @@ pub mod erc404_actix {
         pub to: ::prost::alloc::string::String,
         #[prost(string, tag = "4")]
         pub value: ::prost::alloc::string::String,
+        #[prost(string, tag = "5")]
+        pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -368,8 +392,8 @@ pub mod erc404_actix {
     pub struct BalanceOfBatchQuery {
         #[prost(string, tag = "1")]
         pub contract: ::prost::alloc::string::String,
-        #[prost(string, tag = "2")]
-        pub owner: ::prost::alloc::string::String,
+        #[prost(string, repeated, tag = "2")]
+        pub accounts: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
         #[prost(string, repeated, tag = "3")]
         pub token_ids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     }
@@ -383,6 +407,8 @@ pub mod erc404_actix {
         pub operator: ::prost::alloc::string::String,
         #[prost(bool, tag = "3")]
         pub approved: bool,
+        #[prost(string, tag = "4")]
+        pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -400,30 +426,38 @@ pub mod erc404_actix {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct SafeTransferFromJson {
         #[prost(string, tag = "1")]
-        pub from: ::prost::alloc::string::String,
+        pub contract: ::prost::alloc::string::String,
         #[prost(string, tag = "2")]
-        pub to: ::prost::alloc::string::String,
+        pub from: ::prost::alloc::string::String,
         #[prost(string, tag = "3")]
-        pub token_id: ::prost::alloc::string::String,
+        pub to: ::prost::alloc::string::String,
         #[prost(string, tag = "4")]
-        pub value: ::prost::alloc::string::String,
+        pub token_id: ::prost::alloc::string::String,
         #[prost(string, tag = "5")]
+        pub value: ::prost::alloc::string::String,
+        #[prost(string, tag = "6")]
         pub data: ::prost::alloc::string::String,
+        #[prost(string, tag = "7")]
+        pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct SafeBatchTransferFromJson {
         #[prost(string, tag = "1")]
-        pub from: ::prost::alloc::string::String,
+        pub contract: ::prost::alloc::string::String,
         #[prost(string, tag = "2")]
+        pub from: ::prost::alloc::string::String,
+        #[prost(string, tag = "3")]
         pub to: ::prost::alloc::string::String,
-        #[prost(string, repeated, tag = "3")]
-        pub token_ids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
         #[prost(string, repeated, tag = "4")]
+        pub token_ids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+        #[prost(string, repeated, tag = "5")]
         pub values: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-        #[prost(string, tag = "5")]
-        pub data: ::prost::alloc::string::String,
+        #[prost(bytes = "bytes", tag = "6")]
+        pub data: ::prost::bytes::Bytes,
+        #[prost(string, tag = "7")]
+        pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -450,6 +484,8 @@ pub mod erc404_actix {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct ERC1155TransferExemptQuery {
         #[prost(string, tag = "1")]
+        pub contract: ::prost::alloc::string::String,
+        #[prost(string, tag = "2")]
         pub target: ::prost::alloc::string::String,
     }
     async fn call_deploy(
@@ -468,13 +504,13 @@ pub mod erc404_actix {
             ))?
             .into_inner();
         let request = DeployRequest {
-            owner: json.owner,
             name: json.name,
             symbol: json.symbol,
             initial_supply: json.initial_supply,
             units: json.units,
             ids: json.ids,
             uri: json.uri,
+            pin_code: json.pin_code,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.deploy(request).await?;
@@ -566,6 +602,7 @@ pub mod erc404_actix {
             contract: json.contract,
             spender: json.spender,
             amount: json.amount,
+            pin_code: json.pin_code,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.approve(request).await?;
@@ -591,6 +628,7 @@ pub mod erc404_actix {
             contract: json.contract,
             recipient: json.recipient,
             amount: json.amount,
+            pin_code: json.pin_code,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.transfer(request).await?;
@@ -617,6 +655,7 @@ pub mod erc404_actix {
             from: json.from,
             to: json.to,
             value: json.value,
+            pin_code: json.pin_code,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.transfer_from(request).await?;
@@ -638,7 +677,7 @@ pub mod erc404_actix {
             .into_inner();
         let request = BalanceOfBatchRequest {
             contract: query.contract,
-            owner: query.owner,
+            accounts: query.accounts,
             token_ids: query.token_ids,
         };
         let request = ::actix_prost::new_request(request, &http_request);
@@ -668,6 +707,7 @@ pub mod erc404_actix {
             contract: json.contract,
             operator: json.operator,
             approved: json.approved,
+            pin_code: json.pin_code,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.set_approval_for_all(request).await?;
@@ -713,11 +753,13 @@ pub mod erc404_actix {
             ))?
             .into_inner();
         let request = SafeTransferFromRequest {
+            contract: json.contract,
             from: json.from,
             to: json.to,
             token_id: json.token_id,
             value: json.value,
             data: json.data,
+            pin_code: json.pin_code,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.safe_transfer_from(request).await?;
@@ -743,11 +785,13 @@ pub mod erc404_actix {
             ))?
             .into_inner();
         let request = SafeBatchTransferFromRequest {
+            contract: json.contract,
             from: json.from,
             to: json.to,
             token_ids: json.token_ids,
             values: json.values,
             data: json.data,
+            pin_code: json.pin_code,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.safe_batch_transfer_from(request).await?;
@@ -816,6 +860,7 @@ pub mod erc404_actix {
             ))?
             .into_inner();
         let request = Erc1155TransferExemptRequest {
+            contract: query.contract,
             target: query.target,
         };
         let request = ::actix_prost::new_request(request, &http_request);

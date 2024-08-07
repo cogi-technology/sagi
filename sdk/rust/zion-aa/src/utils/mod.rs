@@ -1,29 +1,25 @@
 // mod zero_knowledge;
 mod jwt;
 
-use crate::{
-    contracts::Account,
-    types::{
-        jwt::ProofPoints,
-        key::RoleWeight,
-        user_operation::{request::UserOperationRequest, UserOperationSigned},
-    },
+use crate::types::{
+    jwt::ProofPoints,
+    key::RoleWeight,
+    user_operation::{request::UserOperationRequest, UserOperationSigned},
 };
 use anyhow::{anyhow, Result};
 use ethers::{
     abi::{encode, Token},
     signers::LocalWallet,
     types::{
-        transaction::eip2718::TypedTransaction, Address, BlockNumber, Bytes,
-        Eip1559TransactionRequest, Eip2930TransactionRequest, TransactionRequest, U256,
+        transaction::eip2718::TypedTransaction, Address, BlockNumber, Bytes, TransactionRequest,
+        U256,
     },
-    utils::{keccak256, rlp},
+    utils::keccak256,
 };
 use ethers_providers::Middleware;
+pub use jwt::decode_jwt;
 use std::fmt::Write;
 use std::sync::Arc;
-
-pub use jwt::decode_jwt;
 
 #[macro_export]
 macro_rules! tokio_sleep_ms {
@@ -54,46 +50,29 @@ pub fn get_address(buf: &[u8]) -> Option<Address> {
     }
 }
 
-fn bytes_to_typed_transaction(tx_bytes: &Bytes) -> Result<TypedTransaction> {
-    // Try decoding the bytes using RLP
-    let rlp_stream = rlp::Rlp::new(tx_bytes);
-
-    // Detect the transaction type and decode accordingly
-    if tx_bytes[0] <= 0x7f {
-        // Legacy transaction
-        let tx: TransactionRequest = rlp_stream.as_val()?;
-        Ok(TypedTransaction::Legacy(tx))
-    } else if tx_bytes[0] == 0x01 {
-        // EIP-2930 transaction
-        let tx: Eip2930TransactionRequest = rlp_stream.as_val()?;
-        Ok(TypedTransaction::Eip2930(tx))
-    } else if tx_bytes[0] == 0x02 {
-        // EIP-1559 transaction
-        let tx: Eip1559TransactionRequest = rlp_stream.as_val()?;
-        Ok(TypedTransaction::Eip1559(tx))
-    } else {
-        Err(anyhow!("Unknown transaction type"))
-    }
-}
-
 fn call_data_cost(data: Bytes) -> U256 {
     let cost: usize = data.iter().map(|&x| if x == 0 { 4 } else { 16 }).sum();
-
     U256::from(cost)
 }
 
 pub async fn fill_user_op<M: Middleware + 'static>(
-    op: UserOperationRequest,
+    request_op: UserOperationRequest,
     provider: Arc<M>,
+    entry_point_address: Address,
 ) -> Result<UserOperationSigned> {
-    let mut op1 = op;
+    let mut op1 = request_op;
     // let account = Account::new(op1.sender, Arc::clone(&provider));
     // op1.nonce = account.nonce().await?;
+    // println!("{:#?}", op1.call_data);
 
     if op1.call_gas_limit.is_none() {
+        let tx = TransactionRequest::new()
+            .from(entry_point_address)
+            .to(op1.sender)
+            .data(op1.call_data.clone());
         let gas_estimated = provider
             .estimate_gas(
-                &bytes_to_typed_transaction(&op1.call_data)?,
+                &TypedTransaction::Legacy(tx),
                 Some(BlockNumber::Latest.into()),
             )
             .await?;
@@ -146,10 +125,9 @@ pub fn get_provider_hashed(iss: String, aud: String) -> [u8; 32] {
     let iss_in_hex = iss.into_bytes();
     let aud_in_hex = aud.into_bytes();
 
-    keccak256(encode(&[
-        Token::Bytes(iss_in_hex),
-        Token::Bytes(aud_in_hex),
-    ]))
+    keccak256(
+        ethers::abi::encode_packed(&[Token::Bytes(iss_in_hex), Token::Bytes(aud_in_hex)]).unwrap(),
+    )
 }
 
 // Function to convert U256 to 256-bit hex string with padding
@@ -204,12 +182,13 @@ pub async fn groth16_export_solidity_call_data(
     s
 }
 
-pub fn make_pin_code_holder(code: &Bytes, salt: &Bytes) -> Result<LocalWallet> {
-    let prv = hex::encode(keccak256(ethers::abi::encode(&[
-        Token::Bytes(code.to_vec()),
-        Token::FixedBytes(salt.to_vec()),
-    ])));
+pub fn make_pin_code_holder(code: String, salt: String) -> Result<LocalWallet> {
+    let salt = hex::decode(salt)?.to_vec();
+
+    let prv = hex::encode(keccak256(ethers::abi::encode_packed(&[
+        Token::Bytes(code.into_bytes()),
+        Token::FixedBytes(salt),
+    ])?));
 
     prv.parse::<LocalWallet>().map_err(|e| e.into())
 }
-

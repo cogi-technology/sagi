@@ -1,5 +1,46 @@
 [
     {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "owner_",
+                "type": "address"
+            },
+            {
+                "internalType": "string",
+                "name": "name_",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "symbol_",
+                "type": "string"
+            },
+            {
+                "internalType": "uint256",
+                "name": "initialSupply_",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "units_",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256[]",
+                "name": "ids_",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "string",
+                "name": "uri_",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
         "inputs": [],
         "name": "AccessControlBadConfirmation",
         "type": "error"
@@ -1042,49 +1083,6 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "owner",
-                "type": "address"
-            },
-            {
-                "internalType": "string",
-                "name": "name_",
-                "type": "string"
-            },
-            {
-                "internalType": "string",
-                "name": "symbol_",
-                "type": "string"
-            },
-            {
-                "internalType": "uint8",
-                "name": "decimals_",
-                "type": "uint8"
-            },
-            {
-                "internalType": "uint256",
-                "name": "units_",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256[]",
-                "name": "ids_",
-                "type": "uint256[]"
-            },
-            {
-                "internalType": "string",
-                "name": "uri_",
-                "type": "string"
-            }
-        ],
-        "name": "initialize",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
                 "name": "account",
                 "type": "address"
             },
@@ -1361,7 +1359,7 @@
                         "type": "uint256"
                     }
                 ],
-                "internalType": "struct ERC404Upgradeable.ERC1155Data[]",
+                "internalType": "struct ERC404.ERC1155Data[]",
                 "name": "ret",
                 "type": "tuple[]"
             }

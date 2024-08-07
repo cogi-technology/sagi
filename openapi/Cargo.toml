@@ -57,13 +57,10 @@ jwt-simple = { version = "0.12.6", default-features = false, features = [
 jsonwebtoken = "9.3.0"
 
 # ethers
-ethers = { git = "https://github.com/gakonst/ethers-rs", rev = "5394d899adca736a602e316e6f0c06fdb5aa64b9" }
-ethers-contract = { git = "https://github.com/gakonst/ethers-rs", rev = "5394d899adca736a602e316e6f0c06fdb5aa64b9" }
-ethers-providers = { git = "https://github.com/gakonst/ethers-rs", rev = "5394d899adca736a602e316e6f0c06fdb5aa64b9" }
-ethers-core = { git = "https://github.com/gakonst/ethers-rs", rev = "5394d899adca736a602e316e6f0c06fdb5aa64b9" }
-ethers-solc = { git = "https://github.com/gakonst/ethers-rs", rev = "5394d899adca736a602e316e6f0c06fdb5aa64b9" }
-
-silius = { git = "https://github.com/silius-rs/silius.git", branch = "main" }
+ethers = "2.0.14"
+ethers-contract = "2.0.14"
+ethers-providers = "2.0.14"
+ethers-core = "2.0.14"
 
 # web-service
 actix-web = { version = "4.8.0" }

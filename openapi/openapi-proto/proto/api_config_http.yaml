@@ -94,7 +94,7 @@ http:
       body: "*"
     - selector: erc404.ERC404.BalanceOfBatch
       get: /api/erc404/balanceOfBatch
-      param: "contract&owner&token_ids[]"
+      param: "contract&accounts[]&token_ids[]"
     - selector: erc404.ERC404.SetApprovalForAll
       post: /api/erc404/setApprovalForAll
       body: "*"

@@ -1,14 +1,14 @@
 mod config;
+mod entity;
+mod helpers;
 mod server;
 mod services;
-mod helpers;
-mod entity;
 
 use {
     anyhow::{anyhow, Result},
     clap::Parser,
     config::{Cli, Config},
-    openapi_ethers::client,
+    openapi_ethers::provider,
     openapi_logger::{info, init as logger_init},
     server::{run as run_server, ServerConfig},
     std::{env, fs},
@@ -31,7 +31,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
     let key_password = env::var("KEY_PASSWORD")?;
 
-    let rpc_client = client::init_client(c.rpc_client, key_password).await?;
+    let (zion_provider, torii_provider) = provider::init_provider(c.rpc_client).await?;
     // let identity = c.tls.get_tls_identity();
 
     // sessions user
@@ -49,7 +49,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("Started at {}", c.grpc_listen);
     tokio::select! {
         _ = async move {
-            run_server(rpc_client, server_config, c.telegram_auth).await
+            run_server(zion_provider, torii_provider, server_config, c.telegram_auth).await
         } => {},
     }
 

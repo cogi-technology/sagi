@@ -6,13 +6,13 @@ option go_package = "example.com/project/protos/fizz";
 
 // Define messages for the requests and responses for ERC404
 message DeployRequest {
-  string owner = 1;
-  string name = 2;
-  string symbol = 3;
-  string initial_supply = 4;
-  string units = 5;
-  repeated string ids = 6;
-  string uri = 7;
+  string name = 1;
+  string symbol = 2;
+  string initial_supply = 3;
+  string units = 4;
+  repeated string ids = 5;
+  string uri = 6;
+  string pin_code = 7;
 }
 
 message DeployResponse {
@@ -50,6 +50,7 @@ message ApproveRequest {
   string contract = 1;
   string spender = 2;
   string amount = 3;
+  string pin_code = 4;
 }
 
 message ApproveResponse {
@@ -60,6 +61,7 @@ message TransferRequest {
   string contract = 1;
   string recipient = 2;
   string amount = 3;
+  string pin_code = 4;
 }
 
 message TransferResponse {
@@ -71,6 +73,7 @@ message TransferFromRequest {
   string from = 2;
   string to = 3;
   string value = 4;
+  string pin_code = 5;
 }
 
 message TransferFromResponse {
@@ -79,18 +82,19 @@ message TransferFromResponse {
 
 message BalanceOfBatchRequest {
   string contract = 1;
-  string owner = 2;
+  repeated string accounts = 2;
   repeated string token_ids = 3;
 }
 
 message BalanceOfBatchResponse {
-  repeated string amounts = 1;
+  repeated string batch_balances = 1;
 }
 
 message SetApprovalForAllRequest {
   string contract = 1;
   string operator = 2;
   bool approved = 3;
+  string pin_code = 4;
 }
 
 message SetApprovalForAllResponse {
@@ -108,11 +112,13 @@ message IsApprovedForAllResponse {
 }
 
 message SafeTransferFromRequest {
-  string from = 1;
-  string to = 2;
-  string token_id = 3;
-  string value = 4;
-  string data = 5;
+  string contract = 1;
+  string from = 2;
+  string to = 3;
+  string token_id = 4;
+  string value = 5;
+  string data = 6;
+  string pin_code = 7;
 }
 
 message SafeTransferFromResponse {
@@ -120,11 +126,13 @@ message SafeTransferFromResponse {
 }
 
 message SafeBatchTransferFromRequest {
-  string from = 1;
-  string to = 2;
-  repeated string token_ids = 3;
-  repeated string values = 4;
-  string data = 5;
+  string contract = 1;
+  string from = 2;
+  string to = 3;
+  repeated string token_ids = 4;
+  repeated string values = 5;
+  bytes data = 6;
+  string pin_code = 7;
 }
 
 message SafeBatchTransferFromResponse {
@@ -151,7 +159,8 @@ message ERC20BalanceOfResponse {
 }
 
 message ERC1155TransferExemptRequest {
-  string target = 1;
+  string contract = 1;
+  string target = 2;
 }
 
 message ERC1155TransferExemptResponse {

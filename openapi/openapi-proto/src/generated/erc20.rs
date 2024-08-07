@@ -4,14 +4,14 @@
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeployRequest {
     #[prost(string, tag = "1")]
-    pub owner: ::prost::alloc::string::String,
-    #[prost(string, tag = "2")]
     pub name: ::prost::alloc::string::String,
-    #[prost(string, tag = "3")]
+    #[prost(string, tag = "2")]
     pub symbol: ::prost::alloc::string::String,
-    #[prost(string, tag = "4")]
+    #[prost(string, tag = "3")]
     #[serde(rename = "initial_supply")]
     pub initial_supply: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
+    pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -78,6 +78,8 @@ pub struct ApproveRequest {
     pub spender: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
     pub amount: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
+    pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -96,6 +98,8 @@ pub struct TransferRequest {
     pub recipient: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
     pub amount: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
+    pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -116,6 +120,8 @@ pub struct TransferFromRequest {
     pub recipient: ::prost::alloc::string::String,
     #[prost(string, tag = "4")]
     pub amount: ::prost::alloc::string::String,
+    #[prost(string, tag = "5")]
+    pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -135,14 +141,14 @@ pub mod erc20_actix {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct DeployJson {
         #[prost(string, tag = "1")]
-        pub owner: ::prost::alloc::string::String,
-        #[prost(string, tag = "2")]
         pub name: ::prost::alloc::string::String,
-        #[prost(string, tag = "3")]
+        #[prost(string, tag = "2")]
         pub symbol: ::prost::alloc::string::String,
-        #[prost(string, tag = "4")]
+        #[prost(string, tag = "3")]
         #[serde(rename = "initial_supply")]
         pub initial_supply: ::prost::alloc::string::String,
+        #[prost(string, tag = "4")]
+        pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -181,6 +187,8 @@ pub mod erc20_actix {
         pub spender: ::prost::alloc::string::String,
         #[prost(string, tag = "3")]
         pub amount: ::prost::alloc::string::String,
+        #[prost(string, tag = "4")]
+        pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -192,6 +200,8 @@ pub mod erc20_actix {
         pub recipient: ::prost::alloc::string::String,
         #[prost(string, tag = "3")]
         pub amount: ::prost::alloc::string::String,
+        #[prost(string, tag = "4")]
+        pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -205,6 +215,8 @@ pub mod erc20_actix {
         pub recipient: ::prost::alloc::string::String,
         #[prost(string, tag = "4")]
         pub amount: ::prost::alloc::string::String,
+        #[prost(string, tag = "5")]
+        pub pin_code: ::prost::alloc::string::String,
     }
     async fn call_deploy(
         service: ::actix_web::web::Data<dyn Erc20 + Sync + Send + 'static>,
@@ -222,10 +234,10 @@ pub mod erc20_actix {
             ))?
             .into_inner();
         let request = DeployRequest {
-            owner: json.owner,
             name: json.name,
             symbol: json.symbol,
             initial_supply: json.initial_supply,
+            pin_code: json.pin_code,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.deploy(request).await?;
@@ -317,6 +329,7 @@ pub mod erc20_actix {
             contract: json.contract,
             spender: json.spender,
             amount: json.amount,
+            pin_code: json.pin_code,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.approve(request).await?;
@@ -342,6 +355,7 @@ pub mod erc20_actix {
             contract: json.contract,
             recipient: json.recipient,
             amount: json.amount,
+            pin_code: json.pin_code,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.transfer(request).await?;
@@ -368,6 +382,7 @@ pub mod erc20_actix {
             sender: json.sender,
             recipient: json.recipient,
             amount: json.amount,
+            pin_code: json.pin_code,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.transfer_from(request).await?;

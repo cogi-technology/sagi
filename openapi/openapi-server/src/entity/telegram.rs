@@ -16,6 +16,7 @@ pub struct LoginWidgetData {
     pub auth_date: u32,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub hash: Option<String>,
+    pub hash: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -43,9 +44,11 @@ pub struct GetSaltRequest {
 pub struct GetProofRequest {
     pub jwt: String,
     pub salt: String,
-    pub signerPublicKey: String,
+    #[serde(rename = "signerPublicKey")]
+    pub signer_public_key: String,
     pub exp: u64,
-    pub keyClaimName: String,
+    #[serde(rename = "keyClaimName")]
+    pub key_claim_name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
