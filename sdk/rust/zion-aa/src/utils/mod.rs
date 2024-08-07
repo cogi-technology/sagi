@@ -125,10 +125,9 @@ pub fn get_provider_hashed(iss: String, aud: String) -> [u8; 32] {
     let iss_in_hex = iss.into_bytes();
     let aud_in_hex = aud.into_bytes();
 
-    keccak256(encode(&[
-        Token::Bytes(iss_in_hex),
-        Token::Bytes(aud_in_hex),
-    ]))
+    keccak256(
+        ethers::abi::encode_packed(&[Token::Bytes(iss_in_hex), Token::Bytes(aud_in_hex)]).unwrap(),
+    )
 }
 
 // Function to convert U256 to 256-bit hex string with padding

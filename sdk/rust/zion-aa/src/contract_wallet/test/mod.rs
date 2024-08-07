@@ -64,9 +64,11 @@ async fn test_contract_wallet_address_correct() -> Result<()> {
         .await?;
     let contract_wallet_address = format!("{:#x}", contract_wallet_address);
 
+    println!("Contract Wallet Address: {}", contract_wallet_address);
+
     assert_eq!(
         contract_wallet_address,
-        "0x4819abcfe42c07e8957a4f42e1100c8473e27159"
+        "0x31158C661D5a1266c7A7324EE9beBc84293a67B1" // 0x4819abcfe42c07e8957a4f42e1100c8473e27159
     );
 
     Ok(())
