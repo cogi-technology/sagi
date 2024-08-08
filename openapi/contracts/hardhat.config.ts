@@ -11,16 +11,17 @@ const accounts = [
 
 const local_accounts = [
   process.env.LOCAL_DEPLOYER_PRV as string,
+  process.env.LOCAL_USER_PRV as string,
 ]
 
 const config: HardhatUserConfig = {
   solidity: "0.8.24",
   networks: {
     hardhat: {},
-    // ganache: {
-    //   url: "http://127.0.0.1:8545/",
-    //   accounts: local_accounts,
-    // },
+    ganache: {
+      url: "http://127.0.0.1:8545/",
+      accounts: local_accounts,
+    },
     // zionx: {
     //   url: "https://devnet-rpc.zionx.network",
     //   chainId: 176923,
