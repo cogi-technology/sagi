@@ -221,7 +221,7 @@ impl Erc721 for Erc721Service {
                 .map_err(|e| into_anyhow(e.into()))?
                 .await
                 .map_err(|e| into_anyhow(e.into()))?
-                .ok_or_else(|| into_anyhow(anyhow!("refund failed")))?;
+                .ok_or_else(|| into_anyhow(anyhow!("refund receipt is none")))?;
 
             if refund_receipt.status.unwrap().is_zero() {
                 return Err(into_anyhow(anyhow!("refund failed")));
