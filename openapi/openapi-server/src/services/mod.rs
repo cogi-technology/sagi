@@ -1,6 +1,7 @@
 pub mod authtelegram;
 pub mod erc20;
-pub mod zionauthorization;
-use crate::helpers::*;
 pub mod erc404;
 pub mod erc721;
+pub mod zionauthorization;
+
+pub use crate::helpers::*;

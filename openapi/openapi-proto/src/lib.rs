@@ -1,4 +1,5 @@
-use prost::Message;
+#[allow(clippy::clone_on_ref_ptr)]
+mod generated;
 
 pub mod erc20_service {
     include!("./generated/erc20.rs");
@@ -24,4 +25,3 @@ pub mod zionauthorization_service {
     include!("./generated/zionauthorization.rs");
     // tonic::include_proto!("authtelegram");
 }
-

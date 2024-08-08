@@ -1,9 +1,11 @@
 //Apache-2.0 License
 
-use ethers::types::H256;
-use rustc_hex::FromHexError;
-use serde::{Deserialize, Serialize};
-use std::str::FromStr;
+use {
+    ethers::types::H256,
+    rustc_hex::FromHexError,
+    serde::{Deserialize, Serialize},
+    std::str::FromStr,
+};
 
 #[derive(
     Eq, Hash, PartialEq, Debug, Serialize, Deserialize, Clone, Copy, Default, PartialOrd, Ord,

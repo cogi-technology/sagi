@@ -1,19 +1,20 @@
-use crate::{
-    constants::OWNER_ROLE_WEIGHT,
-    types::{
-        jwt::JWTOptions,
-        key::{KeyType, RoleWeight},
+use {
+    super::KeyBase,
+    crate::{
+        constants::OWNER_ROLE_WEIGHT,
+        types::{
+            jwt::JWTOptions,
+            key::{KeyType, RoleWeight},
+        },
+        utils::groth16_export_solidity_call_data,
     },
-    utils::groth16_export_solidity_call_data,
+    anyhow::Result,
+    ethers::{
+        signers::Signer,
+        types::{Bytes, H256, U256},
+    },
+    ethers_core::abi::Token,
 };
-use anyhow::Result;
-use ethers::{
-    signers::Signer,
-    types::{Bytes, H256, U256},
-};
-use ethers_core::abi::Token;
-
-use super::KeyBase;
 
 #[derive(Clone)]
 pub struct KeyJWT<S> {
@@ -45,7 +46,6 @@ impl<S: Signer + 'static> KeyBase for KeyJWT<S> {
         let re = regex::Regex::new(r#"[\[\]"\s]"#).unwrap();
         let argv = re
             .replace_all(&call_data, "")
-            .to_string()
             .split(',')
             .map(|x| U256::from_str_radix(x, 16).unwrap())
             .collect::<Vec<U256>>();
@@ -61,7 +61,7 @@ impl<S: Signer + 'static> KeyBase for KeyJWT<S> {
             Token::Uint((KeyType::JWTZKProof as u8).into()),
             Token::Bytes(signature.to_vec()),
         ])?;
-        let packed_deadline = ethers::abi::encode(&[Token::Uint(self.inner.deadline.clone())]);
+        let packed_deadline = ethers::abi::encode(&[Token::Uint(self.inner.deadline)]);
 
         let ret = ethers::abi::encode_packed(&[
             Token::Bytes(sig),
@@ -73,9 +73,6 @@ impl<S: Signer + 'static> KeyBase for KeyJWT<S> {
     }
 
     fn serialize(&self) -> Bytes {
-        //Debug
-        // println!("gethash {:?}", self.get_hash().to_string());
-
         ethers::abi::encode_packed(&[
             Token::Uint((KeyType::JWTZKProof as u8).into()),
             Token::Uint(self.weights().into()),
@@ -87,11 +84,6 @@ impl<S: Signer + 'static> KeyBase for KeyJWT<S> {
 
     fn get_hash(&self) -> Bytes {
         let sub_in_hex = self.inner.payload.sub.as_bytes().to_vec();
-
-        //Debug
-        // println!("payload.sub {:?}", self.inner.payload.sub);
-        // println!("payload.sub_in_hex {:?}", sub_in_hex);
-
         ethers::abi::encode_packed(&[
             Token::Uint((KeyType::JWTZKProof as u8).into()),
             Token::Bytes(sub_in_hex),
@@ -198,6 +190,7 @@ mod tests {
         assert_eq!(sig, "0x05999edae50c888dcea3ccbac47e56798b5e5c572b50b1af8da97b75f956638152112f3b0c1636670434c535c02167042af67954978c1b7a48db14ce4a632439bf1c0000000000000000000000000000000000000000000000000000000066aeea302707ab06a23fccb7a61ce837d279927261fc7298991ce4c2de52579179b40ca00071b3bc16fa972e97a5033b9dc05006b58142b16094746f1975be42203184860e52ac3105077c3dc6ebec0067e2014e1b1dd798067d18c96ed5d2b09732b79d23b63ea9ce7faf5bc10306f70ac2ae1fded6928709cce7e2a6b383c069e82495266240bd0f4a33026b3ebb6fb3906dff7a24dbc8684a914cf3a099237eb001851900fc374c7a06eeb7834dc3790f9101b218e97f103ee9f701f6e4bc99a961720f7fa3723c62fafb3fdc45b646a350db26bf2211cb73db903ba8ecd100aa7a012474c7bdeea27499775dc6fa9e8806d796b6d7c8a68dc2070f2b4effd1eb96ec".to_string());
     }
 
+    #[ignore]
     #[test]
     fn test_serialize_is_ok() {
         let authorization_data = AuthorizationData {

@@ -10,7 +10,7 @@ pub async fn init_provider(config: Config) -> Result<(Arc<Provider<Http>>, Arc<P
     let Config {
         zion_rpc,
         torii_rpc,
-        chain_id,
+        chain_id: _,
     } = config;
     let zion_provider = Arc::new(Provider::<Http>::connect(zion_rpc.as_str()).await);
     let torii_provider = Arc::new(Provider::<Http>::connect(torii_rpc.as_str()).await);

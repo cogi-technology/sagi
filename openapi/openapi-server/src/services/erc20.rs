@@ -69,7 +69,7 @@ impl Erc20 for Erc20Service {
         let random_client = Arc::new(
             EthereumClient::random_wallet(zion_rpc_endpoint, chain_id.as_u64())
                 .await
-                .map_err(|e| into_anyhow(e.into()))?,
+                .map_err(into_anyhow)?,
         );
 
         let mut contract_wallet =
@@ -431,7 +431,7 @@ impl Erc20 for Erc20Service {
                 None,
             )
             .await
-            .map_err(|e| into_anyhow(e.into()))?
+            .map_err(into_anyhow)?
             .transaction_hash;
         let txhash_string = format!("{:#x}", txhash);
 
@@ -491,7 +491,7 @@ impl Erc20 for Erc20Service {
                 None,
             )
             .await
-            .map_err(|e| into_anyhow(e.into()))?
+            .map_err(into_anyhow)?
             .transaction_hash;
         let txhash_string = format!("{:#x}", txhash);
         debug!("transfer_from txhash: {}", txhash_string);

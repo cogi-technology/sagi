@@ -1,14 +1,18 @@
-use std::collections::BTreeMap;
-
-use crate::contracts::entry_point::UserOperation;
-use crate::types::{
-    contract_wallet::ContractWalletOperator, key::RoleWeight, user_operation::UserOperationSigned,
+use {
+    crate::{
+        contracts::entry_point::UserOperation,
+        types::{
+            contract_wallet::ContractWalletOperator, key::RoleWeight,
+            user_operation::UserOperationSigned,
+        },
+    },
+    ethers::{
+        abi::Address,
+        types::{Bytes, U256},
+    },
+    once_cell::sync::Lazy,
+    std::collections::BTreeMap,
 };
-use ethers::{
-    abi::Address,
-    types::{Bytes, U256},
-};
-use once_cell::sync::Lazy;
 
 pub const OWNER_ROLE_WEIGHT: RoleWeight = RoleWeight {
     owner_weight: 100,

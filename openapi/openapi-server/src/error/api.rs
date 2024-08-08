@@ -1,5 +1,4 @@
-use openapi_logger::warn;
-use tonic::Status;
+use {openapi_logger::warn, tonic::Status};
 
 pub type Result<T> = std::result::Result<T, tonic::Status>;
 

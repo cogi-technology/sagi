@@ -1,8 +1,10 @@
-use anyhow::Result;
-use ethers::types::U256;
-use jsonwebtoken::{Header, TokenData};
-use serde::{Deserialize, Serialize};
-use std::{str::FromStr, sync::Arc, vec::Vec};
+use {
+    anyhow::Result,
+    ethers::types::U256,
+    jsonwebtoken::{Header, TokenData},
+    serde::{Deserialize, Serialize},
+    std::{str::FromStr, sync::Arc, vec::Vec},
+};
 
 // Structs corresponding to TypeScript interfaces
 

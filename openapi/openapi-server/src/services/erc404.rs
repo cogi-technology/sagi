@@ -69,7 +69,7 @@ impl Erc404 for Erc404Service {
         let random_client = Arc::new(
             EthereumClient::random_wallet(zion_rpc_endpoint, chain_id.as_u64())
                 .await
-                .map_err(|e| into_anyhow(e.into()))?,
+                .map_err(into_anyhow)?,
         );
 
         let mut contract_wallet =
@@ -387,7 +387,7 @@ impl Erc404 for Erc404Service {
         let txhash = contract_wallet
             .send_transaction(Eip1559TransactionRequest::new().data(calldata), None)
             .await
-            .map_err(|e| into_anyhow(e.into()))?
+            .map_err(into_anyhow)?
             .transaction_hash
             .to_string();
 
@@ -439,7 +439,7 @@ impl Erc404 for Erc404Service {
         let txhash = contract_wallet
             .send_transaction(Eip1559TransactionRequest::new().data(calldata), None)
             .await
-            .map_err(|e| into_anyhow(e.into()))?
+            .map_err(into_anyhow)?
             .transaction_hash
             .to_string();
 

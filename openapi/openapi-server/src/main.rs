@@ -35,11 +35,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // sessions user
     let dir_sessions = c.telegram_auth.session_path.as_str();
-    if let Ok(_) = std::fs::remove_dir_all(dir_sessions) {
-        std::fs::create_dir_all(dir_sessions).unwrap();
-    } else {
-        std::fs::create_dir_all(dir_sessions).unwrap();
-    }
+    let _ = std::fs::remove_dir_all(dir_sessions).is_ok();
+    std::fs::create_dir_all(dir_sessions).unwrap();
+
     //
     let server_config = ServerConfig {
         auth_secret: c.auth_secret,

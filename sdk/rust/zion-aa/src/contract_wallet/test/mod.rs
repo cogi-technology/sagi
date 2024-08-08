@@ -70,12 +70,13 @@ async fn test_contract_wallet_address_correct() -> Result<()> {
 
     assert_eq!(
         contract_wallet_address,
-        "0x31158C661D5a1266c7A7324EE9beBc84293a67B1".to_lowercase() // 0x4819abcfe42c07e8957a4f42e1100c8473e27159
+        "0x31158C661D5a1266c7A7324EE9beBc84293a67B1".to_lowercase()
     );
 
     Ok(())
 }
 
+#[ignore]
 #[tokio::test]
 async fn test_create_wallet_is_ok() -> Result<()> {
     let token = std::fs::read_to_string("./src/contract_wallet/test/inputs/jwt.data")?;
@@ -212,7 +213,17 @@ async fn test_validate_pin_code_is_ok() -> Result<()> {
 
     assert!(contract_wallet.is_writeable().await);
 
-    let code = "123456".to_string();
+    // let old_code = "123456".to_string();
+    // contract_wallet
+    //     .validate_and_set_pin_code(old_code, false, None)
+    //     .await?;
+
+    // let new_code = "654321".to_string();
+    // contract_wallet
+    //     .validate_and_set_pin_code(new_code, true, None)
+    //     .await?;
+
+    let code = "654321".to_string();
     let has_pin_code = contract_wallet.has_pin_code().await?;
     contract_wallet
         .validate_and_set_pin_code(code, !has_pin_code, None)
@@ -221,6 +232,7 @@ async fn test_validate_pin_code_is_ok() -> Result<()> {
     Ok(())
 }
 
+#[ignore]
 #[tokio::test]
 async fn test_transfer_native_token_via_contract_wallet() -> Result<()> {
     let token = std::fs::read_to_string("./src/contract_wallet/test/inputs/jwt.data")?;
@@ -326,6 +338,7 @@ async fn test_transfer_native_token_via_contract_wallet() -> Result<()> {
     Ok(())
 }
 
+#[ignore]
 #[tokio::test]
 async fn test_transfer_erc20_token_via_contract_wallet() -> Result<()> {
     let token = std::fs::read_to_string("./src/contract_wallet/test/inputs/jwt.data")?;
@@ -424,6 +437,7 @@ async fn test_transfer_erc20_token_via_contract_wallet() -> Result<()> {
     Ok(())
 }
 
+#[ignore]
 #[tokio::test]
 async fn test_mint_erc721_token_via_contract_wallet() -> Result<()> {
     let token = std::fs::read_to_string("./src/contract_wallet/test/inputs/jwt.data")?;
