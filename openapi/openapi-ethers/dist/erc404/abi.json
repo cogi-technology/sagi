@@ -17,6 +17,11 @@
                 "type": "string"
             },
             {
+                "internalType": "uint8",
+                "name": "decimals_",
+                "type": "uint8"
+            },
+            {
                 "internalType": "uint256",
                 "name": "initialSupply_",
                 "type": "uint256"

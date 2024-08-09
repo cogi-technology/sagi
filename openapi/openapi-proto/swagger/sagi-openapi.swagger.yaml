@@ -624,6 +624,46 @@ paths:
             $ref: '#/definitions/erc721ApproveRequest'
       tags:
         - ERC721
+  /api/erc721/awardItem:
+    post:
+      operationId: ERC721_AwardItem
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721AwardItemResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc721AwardItemRequest'
+      tags:
+        - ERC721
+  /api/erc721/awardItems:
+    post:
+      operationId: ERC721_AwardItems
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721AwardItemsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc721AwardItemsRequest'
+      tags:
+        - ERC721
   /api/erc721/balanceOf:
     get:
       operationId: ERC721_BalanceOf
@@ -645,6 +685,26 @@ paths:
           in: query
           required: false
           type: string
+      tags:
+        - ERC721
+  /api/erc721/burn:
+    post:
+      operationId: ERC721_Burn
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721BurnResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc721BurnRequest'
       tags:
         - ERC721
   /api/erc721/deploy:
@@ -717,26 +777,6 @@ paths:
           type: string
       tags:
         - ERC721
-  /api/erc721/mint:
-    post:
-      operationId: ERC721_Mint
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/erc721MintResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/erc721MintRequest'
-      tags:
-        - ERC721
   /api/erc721/ownerOf:
     get:
       operationId: ERC721_OwnerOf
@@ -798,6 +838,29 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/erc721SetApprovalForAllRequest'
+      tags:
+        - ERC721
+  /api/erc721/token_uri:
+    get:
+      operationId: ERC721_TokenURI
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721TokenURIResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
+        - name: token_id
+          in: query
+          required: false
+          type: string
       tags:
         - ERC721
   /api/erc721/transferFrom:
@@ -984,6 +1047,11 @@ definitions:
     properties:
       txhash:
         type: string
+  erc404AddTransferExemptResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
   erc404AllowanceResponse:
     type: object
     properties:
@@ -1024,6 +1092,9 @@ definitions:
         type: string
       symbol:
         type: string
+      decimals:
+        type: integer
+        format: int64
       initial_supply:
         type: string
       units:
@@ -1055,13 +1126,18 @@ definitions:
   erc404ERC1155TransferExemptResponse:
     type: object
     properties:
-      result:
+      is_exempt:
         type: boolean
   erc404IsApprovedForAllResponse:
     type: object
     properties:
       result:
         type: boolean
+  erc404RemoveTransferExemptResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
   erc404SafeBatchTransferFromRequest:
     type: object
     properties:
@@ -1182,10 +1258,62 @@ definitions:
     properties:
       txhash:
         type: string
+  erc721AwardItemRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      account:
+        type: string
+      cid:
+        type: string
+      pin_code:
+        type: string
+  erc721AwardItemResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc721AwardItemsRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      accounts:
+        type: array
+        items:
+          type: string
+      cids:
+        type: array
+        items:
+          type: string
+      pin_code:
+        type: string
+  erc721AwardItemsResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
   erc721BalanceOfResponse:
     type: object
     properties:
       amount:
+        type: string
+  erc721BurnRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      token_ids:
+        type: array
+        items:
+          type: string
+      pin_code:
+        type: string
+  erc721BurnResponse:
+    type: object
+    properties:
+      txhash:
         type: string
   erc721DeployRequest:
     type: object
@@ -1214,20 +1342,6 @@ definitions:
     properties:
       result:
         type: boolean
-  erc721MintRequest:
-    type: object
-    properties:
-      contract:
-        type: string
-      account:
-        type: string
-      pin_code:
-        type: string
-  erc721MintResponse:
-    type: object
-    properties:
-      txhash:
-        type: string
   erc721OwnerOfResponse:
     type: object
     properties:
@@ -1266,6 +1380,11 @@ definitions:
     type: object
     properties:
       txhash:
+        type: string
+  erc721TokenURIResponse:
+    type: object
+    properties:
+      token_uri:
         type: string
   erc721TransferFromRequest:
     type: object

@@ -22,6 +22,7 @@ describe("TokenERC404", () => {
             owner.address,
             "TestTokenERC404",
             "TTE404",
+            6,
             toWei(initialSupply),
             toWei(units),
             ids,

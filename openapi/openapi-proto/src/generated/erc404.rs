@@ -7,15 +7,17 @@ pub struct DeployRequest {
     pub name: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]
     pub symbol: ::prost::alloc::string::String,
-    #[prost(string, tag = "3")]
-    pub initial_supply: ::prost::alloc::string::String,
+    #[prost(uint32, tag = "3")]
+    pub decimals: u32,
     #[prost(string, tag = "4")]
+    pub initial_supply: ::prost::alloc::string::String,
+    #[prost(string, tag = "5")]
     pub units: ::prost::alloc::string::String,
-    #[prost(string, repeated, tag = "5")]
+    #[prost(string, repeated, tag = "6")]
     pub ids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-    #[prost(string, tag = "6")]
-    pub uri: ::prost::alloc::string::String,
     #[prost(string, tag = "7")]
+    pub uri: ::prost::alloc::string::String,
+    #[prost(string, tag = "8")]
     pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -291,12 +293,48 @@ pub struct Erc1155TransferExemptRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Erc1155TransferExemptResponse {
     #[prost(bool, tag = "1")]
-    pub result: bool,
+    pub is_exempt: bool,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AddTransferExemptRequest {
+    #[prost(string, tag = "1")]
+    pub contract: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
+    pub target: ::prost::alloc::string::String,
+    #[prost(string, tag = "3")]
+    pub pin_code: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AddTransferExemptResponse {
+    #[prost(string, tag = "1")]
+    pub txhash: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct RemoveTransferExemptRequest {
+    #[prost(string, tag = "1")]
+    pub contract: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
+    pub target: ::prost::alloc::string::String,
+    #[prost(string, tag = "3")]
+    pub pin_code: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct RemoveTransferExemptResponse {
+    #[prost(string, tag = "1")]
+    pub txhash: ::prost::alloc::string::String,
 }
 pub mod erc404_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
-    use super::erc404_server::Erc404;
     use super::*;
+    use super::erc404_server::Erc404;
     use std::sync::Arc;
     /// Define messages for the requests and responses for ERC404
     #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -307,15 +345,17 @@ pub mod erc404_actix {
         pub name: ::prost::alloc::string::String,
         #[prost(string, tag = "2")]
         pub symbol: ::prost::alloc::string::String,
-        #[prost(string, tag = "3")]
-        pub initial_supply: ::prost::alloc::string::String,
+        #[prost(uint32, tag = "3")]
+        pub decimals: u32,
         #[prost(string, tag = "4")]
+        pub initial_supply: ::prost::alloc::string::String,
+        #[prost(string, tag = "5")]
         pub units: ::prost::alloc::string::String,
-        #[prost(string, repeated, tag = "5")]
+        #[prost(string, repeated, tag = "6")]
         pub ids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-        #[prost(string, tag = "6")]
-        pub uri: ::prost::alloc::string::String,
         #[prost(string, tag = "7")]
+        pub uri: ::prost::alloc::string::String,
+        #[prost(string, tag = "8")]
         pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -494,16 +534,19 @@ pub mod erc404_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<DeployResponse>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json = <::actix_web::web::Json<DeployJson> as ::actix_web::FromRequest>::from_request(
-            &http_request,
-            &mut payload,
-        )
-        .await
-        .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
-        .into_inner();
+        let json = <::actix_web::web::Json<
+            DeployJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
+            .into_inner();
         let request = DeployRequest {
             name: json.name,
             symbol: json.symbol,
+            decimals: json.decimals,
             initial_supply: json.initial_supply,
             units: json.units,
             ids: json.ids,
@@ -519,12 +562,14 @@ pub mod erc404_actix {
         service: ::actix_web::web::Data<dyn Erc404 + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
     ) -> Result<::actix_web::web::Json<TotalSupplyResponse>, ::actix_prost::Error> {
-        let query =
-            <::actix_web::web::Query<TotalSupplyQuery> as ::actix_web::FromRequest>::extract(
-                &http_request,
-            )
+        let query = <::actix_web::web::Query<
+            TotalSupplyQuery,
+        > as ::actix_web::FromRequest>::extract(&http_request)
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = TotalSupplyRequest {
             contract: query.contract,
@@ -538,12 +583,15 @@ pub mod erc404_actix {
         service: ::actix_web::web::Data<dyn Erc404 + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
     ) -> Result<::actix_web::web::Json<BalanceOfResponse>, ::actix_prost::Error> {
-        let query = <::actix_web::web::Query<BalanceOfQuery> as ::actix_web::FromRequest>::extract(
-            &http_request,
-        )
-        .await
-        .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
-        .into_inner();
+        let query = <::actix_web::web::Query<
+            BalanceOfQuery,
+        > as ::actix_web::FromRequest>::extract(&http_request)
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
+            .into_inner();
         let request = BalanceOfRequest {
             contract: query.contract,
             account: query.account,
@@ -557,12 +605,15 @@ pub mod erc404_actix {
         service: ::actix_web::web::Data<dyn Erc404 + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
     ) -> Result<::actix_web::web::Json<AllowanceResponse>, ::actix_prost::Error> {
-        let query = <::actix_web::web::Query<AllowanceQuery> as ::actix_web::FromRequest>::extract(
-            &http_request,
-        )
-        .await
-        .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
-        .into_inner();
+        let query = <::actix_web::web::Query<
+            AllowanceQuery,
+        > as ::actix_web::FromRequest>::extract(&http_request)
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
+            .into_inner();
         let request = AllowanceRequest {
             contract: query.contract,
             owner: query.owner,
@@ -579,13 +630,15 @@ pub mod erc404_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<ApproveResponse>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json = <::actix_web::web::Json<ApproveJson> as ::actix_web::FromRequest>::from_request(
-            &http_request,
-            &mut payload,
-        )
-        .await
-        .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
-        .into_inner();
+        let json = <::actix_web::web::Json<
+            ApproveJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
+            .into_inner();
         let request = ApproveRequest {
             contract: json.contract,
             spender: json.spender,
@@ -603,13 +656,14 @@ pub mod erc404_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<TransferResponse>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json =
-            <::actix_web::web::Json<TransferJson> as ::actix_web::FromRequest>::from_request(
-                &http_request,
-                &mut payload,
-            )
+        let json = <::actix_web::web::Json<
+            TransferJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = TransferRequest {
             contract: json.contract,
@@ -628,13 +682,14 @@ pub mod erc404_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<TransferFromResponse>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json =
-            <::actix_web::web::Json<TransferFromJson> as ::actix_web::FromRequest>::from_request(
-                &http_request,
-                &mut payload,
-            )
+        let json = <::actix_web::web::Json<
+            TransferFromJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = TransferFromRequest {
             contract: json.contract,
@@ -652,12 +707,14 @@ pub mod erc404_actix {
         service: ::actix_web::web::Data<dyn Erc404 + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
     ) -> Result<::actix_web::web::Json<BalanceOfBatchResponse>, ::actix_prost::Error> {
-        let query =
-            <::actix_web::web::Query<BalanceOfBatchQuery> as ::actix_web::FromRequest>::extract(
-                &http_request,
-            )
+        let query = <::actix_web::web::Query<
+            BalanceOfBatchQuery,
+        > as ::actix_web::FromRequest>::extract(&http_request)
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = BalanceOfBatchRequest {
             contract: query.contract,
@@ -673,7 +730,10 @@ pub mod erc404_actix {
         service: ::actix_web::web::Data<dyn Erc404 + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<SetApprovalForAllResponse>, ::actix_prost::Error> {
+    ) -> Result<
+        ::actix_web::web::Json<SetApprovalForAllResponse>,
+        ::actix_prost::Error,
+    > {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             SetApprovalForAllJson,
@@ -699,12 +759,14 @@ pub mod erc404_actix {
         service: ::actix_web::web::Data<dyn Erc404 + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
     ) -> Result<::actix_web::web::Json<IsApprovedForAllResponse>, ::actix_prost::Error> {
-        let query =
-            <::actix_web::web::Query<IsApprovedForAllQuery> as ::actix_web::FromRequest>::extract(
-                &http_request,
-            )
+        let query = <::actix_web::web::Query<
+            IsApprovedForAllQuery,
+        > as ::actix_web::FromRequest>::extract(&http_request)
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = IsApprovedForAllRequest {
             contract: query.contract,
@@ -749,7 +811,10 @@ pub mod erc404_actix {
         service: ::actix_web::web::Data<dyn Erc404 + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<SafeBatchTransferFromResponse>, ::actix_prost::Error> {
+    ) -> Result<
+        ::actix_web::web::Json<SafeBatchTransferFromResponse>,
+        ::actix_prost::Error,
+    > {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             SafeBatchTransferFromJson,
@@ -778,12 +843,14 @@ pub mod erc404_actix {
         service: ::actix_web::web::Data<dyn Erc404 + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
     ) -> Result<::actix_web::web::Json<Erc1155BalanceOfResponse>, ::actix_prost::Error> {
-        let query =
-            <::actix_web::web::Query<ERC1155BalanceOfQuery> as ::actix_web::FromRequest>::extract(
-                &http_request,
-            )
+        let query = <::actix_web::web::Query<
+            ERC1155BalanceOfQuery,
+        > as ::actix_web::FromRequest>::extract(&http_request)
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = Erc1155BalanceOfRequest {
             contract: query.contract,
@@ -799,12 +866,14 @@ pub mod erc404_actix {
         service: ::actix_web::web::Data<dyn Erc404 + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
     ) -> Result<::actix_web::web::Json<Erc20BalanceOfResponse>, ::actix_prost::Error> {
-        let query =
-            <::actix_web::web::Query<ERC20BalanceOfQuery> as ::actix_web::FromRequest>::extract(
-                &http_request,
-            )
+        let query = <::actix_web::web::Query<
+            ERC20BalanceOfQuery,
+        > as ::actix_web::FromRequest>::extract(&http_request)
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
             .into_inner();
         let request = Erc20BalanceOfRequest {
             contract: query.contract,
@@ -818,7 +887,10 @@ pub mod erc404_actix {
     async fn call_erc1155_transfer_exempt(
         service: ::actix_web::web::Data<dyn Erc404 + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
-    ) -> Result<::actix_web::web::Json<Erc1155TransferExemptResponse>, ::actix_prost::Error> {
+    ) -> Result<
+        ::actix_web::web::Json<Erc1155TransferExemptResponse>,
+        ::actix_prost::Error,
+    > {
         let query = <::actix_web::web::Query<
             ERC1155TransferExemptQuery,
         > as ::actix_web::FromRequest>::extract(&http_request)
@@ -842,73 +914,70 @@ pub mod erc404_actix {
         service: Arc<dyn Erc404 + Send + Sync + 'static>,
     ) {
         config.app_data(::actix_web::web::Data::from(service));
-        config.route(
-            "/api/erc404/deploy",
-            ::actix_web::web::post().to(call_deploy),
-        );
-        config.route(
-            "/api/erc404/totalSupply",
-            ::actix_web::web::get().to(call_total_supply),
-        );
-        config.route(
-            "/api/erc404/balanceOf",
-            ::actix_web::web::get().to(call_balance_of),
-        );
-        config.route(
-            "/api/erc404/allowance",
-            ::actix_web::web::get().to(call_allowance),
-        );
-        config.route(
-            "/api/erc404/approve",
-            ::actix_web::web::post().to(call_approve),
-        );
-        config.route(
-            "/api/erc404/transfer",
-            ::actix_web::web::post().to(call_transfer),
-        );
-        config.route(
-            "/api/erc404/transferFrom",
-            ::actix_web::web::post().to(call_transfer_from),
-        );
-        config.route(
-            "/api/erc404/balanceOfBatch",
-            ::actix_web::web::get().to(call_balance_of_batch),
-        );
-        config.route(
-            "/api/erc404/setApprovalForAll",
-            ::actix_web::web::post().to(call_set_approval_for_all),
-        );
-        config.route(
-            "/api/erc404/isApprovedForAll",
-            ::actix_web::web::get().to(call_is_approved_for_all),
-        );
-        config.route(
-            "/api/erc404/safeTransferFrom",
-            ::actix_web::web::post().to(call_safe_transfer_from),
-        );
-        config.route(
-            "/api/erc404/safeBatchTransferFrom",
-            ::actix_web::web::post().to(call_safe_batch_transfer_from),
-        );
-        config.route(
-            "/api/erc404/erc1155BalanceOf",
-            ::actix_web::web::get().to(call_erc1155_balance_of),
-        );
-        config.route(
-            "/api/erc404/erc20BalanceOf",
-            ::actix_web::web::get().to(call_erc20_balance_of),
-        );
-        config.route(
-            "/api/erc404/erc1155TransferExempt",
-            ::actix_web::web::get().to(call_erc1155_transfer_exempt),
-        );
+        config.route("/api/erc404/deploy", ::actix_web::web::post().to(call_deploy));
+        config
+            .route(
+                "/api/erc404/totalSupply",
+                ::actix_web::web::get().to(call_total_supply),
+            );
+        config
+            .route("/api/erc404/balanceOf", ::actix_web::web::get().to(call_balance_of));
+        config
+            .route("/api/erc404/allowance", ::actix_web::web::get().to(call_allowance));
+        config.route("/api/erc404/approve", ::actix_web::web::post().to(call_approve));
+        config.route("/api/erc404/transfer", ::actix_web::web::post().to(call_transfer));
+        config
+            .route(
+                "/api/erc404/transferFrom",
+                ::actix_web::web::post().to(call_transfer_from),
+            );
+        config
+            .route(
+                "/api/erc404/balanceOfBatch",
+                ::actix_web::web::get().to(call_balance_of_batch),
+            );
+        config
+            .route(
+                "/api/erc404/setApprovalForAll",
+                ::actix_web::web::post().to(call_set_approval_for_all),
+            );
+        config
+            .route(
+                "/api/erc404/isApprovedForAll",
+                ::actix_web::web::get().to(call_is_approved_for_all),
+            );
+        config
+            .route(
+                "/api/erc404/safeTransferFrom",
+                ::actix_web::web::post().to(call_safe_transfer_from),
+            );
+        config
+            .route(
+                "/api/erc404/safeBatchTransferFrom",
+                ::actix_web::web::post().to(call_safe_batch_transfer_from),
+            );
+        config
+            .route(
+                "/api/erc404/erc1155BalanceOf",
+                ::actix_web::web::get().to(call_erc1155_balance_of),
+            );
+        config
+            .route(
+                "/api/erc404/erc20BalanceOf",
+                ::actix_web::web::get().to(call_erc20_balance_of),
+            );
+        config
+            .route(
+                "/api/erc404/erc1155TransferExempt",
+                ::actix_web::web::get().to(call_erc1155_transfer_exempt),
+            );
     }
 }
 /// Generated client implementations.
 pub mod erc404_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::http::Uri;
     use tonic::codegen::*;
+    use tonic::codegen::http::Uri;
     /// Define the service for
     #[derive(Debug, Clone)]
     pub struct Erc404Client<T> {
@@ -953,8 +1022,9 @@ pub mod erc404_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
-                Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<
+                http::Request<tonic::body::BoxBody>,
+            >>::Error: Into<StdError> + Send + Sync,
         {
             Erc404Client::new(InterceptedService::new(inner, interceptor))
         }
@@ -977,12 +1047,15 @@ pub mod erc404_client {
             &mut self,
             request: impl tonic::IntoRequest<super::DeployRequest>,
         ) -> Result<tonic::Response<super::DeployResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/erc404.ERC404/Deploy");
             self.inner.unary(request.into_request(), path, codec).await
@@ -991,26 +1064,34 @@ pub mod erc404_client {
             &mut self,
             request: impl tonic::IntoRequest<super::TotalSupplyRequest>,
         ) -> Result<tonic::Response<super::TotalSupplyResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/erc404.ERC404/TotalSupply");
+            let path = http::uri::PathAndQuery::from_static(
+                "/erc404.ERC404/TotalSupply",
+            );
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn balance_of(
             &mut self,
             request: impl tonic::IntoRequest<super::BalanceOfRequest>,
         ) -> Result<tonic::Response<super::BalanceOfResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/erc404.ERC404/BalanceOf");
             self.inner.unary(request.into_request(), path, codec).await
@@ -1019,12 +1100,15 @@ pub mod erc404_client {
             &mut self,
             request: impl tonic::IntoRequest<super::AllowanceRequest>,
         ) -> Result<tonic::Response<super::AllowanceResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/erc404.ERC404/Allowance");
             self.inner.unary(request.into_request(), path, codec).await
@@ -1033,12 +1117,15 @@ pub mod erc404_client {
             &mut self,
             request: impl tonic::IntoRequest<super::ApproveRequest>,
         ) -> Result<tonic::Response<super::ApproveResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/erc404.ERC404/Approve");
             self.inner.unary(request.into_request(), path, codec).await
@@ -1047,12 +1134,15 @@ pub mod erc404_client {
             &mut self,
             request: impl tonic::IntoRequest<super::TransferRequest>,
         ) -> Result<tonic::Response<super::TransferResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/erc404.ERC404/Transfer");
             self.inner.unary(request.into_request(), path, codec).await
@@ -1061,126 +1151,218 @@ pub mod erc404_client {
             &mut self,
             request: impl tonic::IntoRequest<super::TransferFromRequest>,
         ) -> Result<tonic::Response<super::TransferFromResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/erc404.ERC404/TransferFrom");
+            let path = http::uri::PathAndQuery::from_static(
+                "/erc404.ERC404/TransferFrom",
+            );
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn balance_of_batch(
             &mut self,
             request: impl tonic::IntoRequest<super::BalanceOfBatchRequest>,
         ) -> Result<tonic::Response<super::BalanceOfBatchResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/erc404.ERC404/BalanceOfBatch");
+            let path = http::uri::PathAndQuery::from_static(
+                "/erc404.ERC404/BalanceOfBatch",
+            );
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn set_approval_for_all(
             &mut self,
             request: impl tonic::IntoRequest<super::SetApprovalForAllRequest>,
         ) -> Result<tonic::Response<super::SetApprovalForAllResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/erc404.ERC404/SetApprovalForAll");
+            let path = http::uri::PathAndQuery::from_static(
+                "/erc404.ERC404/SetApprovalForAll",
+            );
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn is_approved_for_all(
             &mut self,
             request: impl tonic::IntoRequest<super::IsApprovedForAllRequest>,
         ) -> Result<tonic::Response<super::IsApprovedForAllResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/erc404.ERC404/IsApprovedForAll");
+            let path = http::uri::PathAndQuery::from_static(
+                "/erc404.ERC404/IsApprovedForAll",
+            );
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn safe_transfer_from(
             &mut self,
             request: impl tonic::IntoRequest<super::SafeTransferFromRequest>,
         ) -> Result<tonic::Response<super::SafeTransferFromResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/erc404.ERC404/SafeTransferFrom");
+            let path = http::uri::PathAndQuery::from_static(
+                "/erc404.ERC404/SafeTransferFrom",
+            );
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn safe_batch_transfer_from(
             &mut self,
             request: impl tonic::IntoRequest<super::SafeBatchTransferFromRequest>,
-        ) -> Result<tonic::Response<super::SafeBatchTransferFromResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> Result<
+            tonic::Response<super::SafeBatchTransferFromResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/erc404.ERC404/SafeBatchTransferFrom");
+            let path = http::uri::PathAndQuery::from_static(
+                "/erc404.ERC404/SafeBatchTransferFrom",
+            );
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn erc1155_balance_of(
             &mut self,
             request: impl tonic::IntoRequest<super::Erc1155BalanceOfRequest>,
         ) -> Result<tonic::Response<super::Erc1155BalanceOfResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/erc404.ERC404/ERC1155BalanceOf");
+            let path = http::uri::PathAndQuery::from_static(
+                "/erc404.ERC404/ERC1155BalanceOf",
+            );
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn erc20_balance_of(
             &mut self,
             request: impl tonic::IntoRequest<super::Erc20BalanceOfRequest>,
         ) -> Result<tonic::Response<super::Erc20BalanceOfResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/erc404.ERC404/ERC20BalanceOf");
+            let path = http::uri::PathAndQuery::from_static(
+                "/erc404.ERC404/ERC20BalanceOf",
+            );
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn erc1155_transfer_exempt(
             &mut self,
             request: impl tonic::IntoRequest<super::Erc1155TransferExemptRequest>,
-        ) -> Result<tonic::Response<super::Erc1155TransferExemptResponse>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
+        ) -> Result<
+            tonic::Response<super::Erc1155TransferExemptResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/erc404.ERC404/ERC1155TransferExempt");
+            let path = http::uri::PathAndQuery::from_static(
+                "/erc404.ERC404/ERC1155TransferExempt",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        pub async fn add_transfer_exempt(
+            &mut self,
+            request: impl tonic::IntoRequest<super::AddTransferExemptRequest>,
+        ) -> Result<tonic::Response<super::AddTransferExemptResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/erc404.ERC404/AddTransferExempt",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        pub async fn remove_transfer_exempt(
+            &mut self,
+            request: impl tonic::IntoRequest<super::RemoveTransferExemptRequest>,
+        ) -> Result<
+            tonic::Response<super::RemoveTransferExemptResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/erc404.ERC404/RemoveTransferExempt",
+            );
             self.inner.unary(request.into_request(), path, codec).await
         }
     }
@@ -1239,7 +1421,10 @@ pub mod erc404_server {
         async fn safe_batch_transfer_from(
             &self,
             request: tonic::Request<super::SafeBatchTransferFromRequest>,
-        ) -> Result<tonic::Response<super::SafeBatchTransferFromResponse>, tonic::Status>;
+        ) -> Result<
+            tonic::Response<super::SafeBatchTransferFromResponse>,
+            tonic::Status,
+        >;
         async fn erc1155_balance_of(
             &self,
             request: tonic::Request<super::Erc1155BalanceOfRequest>,
@@ -1251,7 +1436,18 @@ pub mod erc404_server {
         async fn erc1155_transfer_exempt(
             &self,
             request: tonic::Request<super::Erc1155TransferExemptRequest>,
-        ) -> Result<tonic::Response<super::Erc1155TransferExemptResponse>, tonic::Status>;
+        ) -> Result<
+            tonic::Response<super::Erc1155TransferExemptResponse>,
+            tonic::Status,
+        >;
+        async fn add_transfer_exempt(
+            &self,
+            request: tonic::Request<super::AddTransferExemptRequest>,
+        ) -> Result<tonic::Response<super::AddTransferExemptResponse>, tonic::Status>;
+        async fn remove_transfer_exempt(
+            &self,
+            request: tonic::Request<super::RemoveTransferExemptRequest>,
+        ) -> Result<tonic::Response<super::RemoveTransferExemptResponse>, tonic::Status>;
     }
     /// Define the service for
     #[derive(Debug)]
@@ -1273,7 +1469,10 @@ pub mod erc404_server {
                 send_compression_encodings: Default::default(),
             }
         }
-        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -1301,7 +1500,10 @@ pub mod erc404_server {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
-        fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+        fn poll_ready(
+            &mut self,
+            _cx: &mut Context<'_>,
+        ) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
@@ -1310,9 +1512,13 @@ pub mod erc404_server {
                 "/erc404.ERC404/Deploy" => {
                     #[allow(non_camel_case_types)]
                     struct DeploySvc<T: Erc404>(pub Arc<T>);
-                    impl<T: Erc404> tonic::server::UnaryService<super::DeployRequest> for DeploySvc<T> {
+                    impl<T: Erc404> tonic::server::UnaryService<super::DeployRequest>
+                    for DeploySvc<T> {
                         type Response = super::DeployResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeployRequest>,
@@ -1329,10 +1535,11 @@ pub mod erc404_server {
                         let inner = inner.0;
                         let method = DeploySvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1341,15 +1548,23 @@ pub mod erc404_server {
                 "/erc404.ERC404/TotalSupply" => {
                     #[allow(non_camel_case_types)]
                     struct TotalSupplySvc<T: Erc404>(pub Arc<T>);
-                    impl<T: Erc404> tonic::server::UnaryService<super::TotalSupplyRequest> for TotalSupplySvc<T> {
+                    impl<
+                        T: Erc404,
+                    > tonic::server::UnaryService<super::TotalSupplyRequest>
+                    for TotalSupplySvc<T> {
                         type Response = super::TotalSupplyResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::TotalSupplyRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { (*inner).total_supply(request).await };
+                            let fut = async move {
+                                (*inner).total_supply(request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -1360,10 +1575,11 @@ pub mod erc404_server {
                         let inner = inner.0;
                         let method = TotalSupplySvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1372,9 +1588,13 @@ pub mod erc404_server {
                 "/erc404.ERC404/BalanceOf" => {
                     #[allow(non_camel_case_types)]
                     struct BalanceOfSvc<T: Erc404>(pub Arc<T>);
-                    impl<T: Erc404> tonic::server::UnaryService<super::BalanceOfRequest> for BalanceOfSvc<T> {
+                    impl<T: Erc404> tonic::server::UnaryService<super::BalanceOfRequest>
+                    for BalanceOfSvc<T> {
                         type Response = super::BalanceOfResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::BalanceOfRequest>,
@@ -1391,10 +1611,11 @@ pub mod erc404_server {
                         let inner = inner.0;
                         let method = BalanceOfSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1403,9 +1624,13 @@ pub mod erc404_server {
                 "/erc404.ERC404/Allowance" => {
                     #[allow(non_camel_case_types)]
                     struct AllowanceSvc<T: Erc404>(pub Arc<T>);
-                    impl<T: Erc404> tonic::server::UnaryService<super::AllowanceRequest> for AllowanceSvc<T> {
+                    impl<T: Erc404> tonic::server::UnaryService<super::AllowanceRequest>
+                    for AllowanceSvc<T> {
                         type Response = super::AllowanceResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::AllowanceRequest>,
@@ -1422,10 +1647,11 @@ pub mod erc404_server {
                         let inner = inner.0;
                         let method = AllowanceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1434,9 +1660,13 @@ pub mod erc404_server {
                 "/erc404.ERC404/Approve" => {
                     #[allow(non_camel_case_types)]
                     struct ApproveSvc<T: Erc404>(pub Arc<T>);
-                    impl<T: Erc404> tonic::server::UnaryService<super::ApproveRequest> for ApproveSvc<T> {
+                    impl<T: Erc404> tonic::server::UnaryService<super::ApproveRequest>
+                    for ApproveSvc<T> {
                         type Response = super::ApproveResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ApproveRequest>,
@@ -1453,10 +1683,11 @@ pub mod erc404_server {
                         let inner = inner.0;
                         let method = ApproveSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1465,9 +1696,13 @@ pub mod erc404_server {
                 "/erc404.ERC404/Transfer" => {
                     #[allow(non_camel_case_types)]
                     struct TransferSvc<T: Erc404>(pub Arc<T>);
-                    impl<T: Erc404> tonic::server::UnaryService<super::TransferRequest> for TransferSvc<T> {
+                    impl<T: Erc404> tonic::server::UnaryService<super::TransferRequest>
+                    for TransferSvc<T> {
                         type Response = super::TransferResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::TransferRequest>,
@@ -1484,10 +1719,11 @@ pub mod erc404_server {
                         let inner = inner.0;
                         let method = TransferSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1496,15 +1732,23 @@ pub mod erc404_server {
                 "/erc404.ERC404/TransferFrom" => {
                     #[allow(non_camel_case_types)]
                     struct TransferFromSvc<T: Erc404>(pub Arc<T>);
-                    impl<T: Erc404> tonic::server::UnaryService<super::TransferFromRequest> for TransferFromSvc<T> {
+                    impl<
+                        T: Erc404,
+                    > tonic::server::UnaryService<super::TransferFromRequest>
+                    for TransferFromSvc<T> {
                         type Response = super::TransferFromResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::TransferFromRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { (*inner).transfer_from(request).await };
+                            let fut = async move {
+                                (*inner).transfer_from(request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -1515,10 +1759,11 @@ pub mod erc404_server {
                         let inner = inner.0;
                         let method = TransferFromSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1527,15 +1772,23 @@ pub mod erc404_server {
                 "/erc404.ERC404/BalanceOfBatch" => {
                     #[allow(non_camel_case_types)]
                     struct BalanceOfBatchSvc<T: Erc404>(pub Arc<T>);
-                    impl<T: Erc404> tonic::server::UnaryService<super::BalanceOfBatchRequest> for BalanceOfBatchSvc<T> {
+                    impl<
+                        T: Erc404,
+                    > tonic::server::UnaryService<super::BalanceOfBatchRequest>
+                    for BalanceOfBatchSvc<T> {
                         type Response = super::BalanceOfBatchResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::BalanceOfBatchRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { (*inner).balance_of_batch(request).await };
+                            let fut = async move {
+                                (*inner).balance_of_batch(request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -1546,10 +1799,11 @@ pub mod erc404_server {
                         let inner = inner.0;
                         let method = BalanceOfBatchSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1558,17 +1812,23 @@ pub mod erc404_server {
                 "/erc404.ERC404/SetApprovalForAll" => {
                     #[allow(non_camel_case_types)]
                     struct SetApprovalForAllSvc<T: Erc404>(pub Arc<T>);
-                    impl<T: Erc404> tonic::server::UnaryService<super::SetApprovalForAllRequest>
-                        for SetApprovalForAllSvc<T>
-                    {
+                    impl<
+                        T: Erc404,
+                    > tonic::server::UnaryService<super::SetApprovalForAllRequest>
+                    for SetApprovalForAllSvc<T> {
                         type Response = super::SetApprovalForAllResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::SetApprovalForAllRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { (*inner).set_approval_for_all(request).await };
+                            let fut = async move {
+                                (*inner).set_approval_for_all(request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -1579,10 +1839,11 @@ pub mod erc404_server {
                         let inner = inner.0;
                         let method = SetApprovalForAllSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1591,17 +1852,23 @@ pub mod erc404_server {
                 "/erc404.ERC404/IsApprovedForAll" => {
                     #[allow(non_camel_case_types)]
                     struct IsApprovedForAllSvc<T: Erc404>(pub Arc<T>);
-                    impl<T: Erc404> tonic::server::UnaryService<super::IsApprovedForAllRequest>
-                        for IsApprovedForAllSvc<T>
-                    {
+                    impl<
+                        T: Erc404,
+                    > tonic::server::UnaryService<super::IsApprovedForAllRequest>
+                    for IsApprovedForAllSvc<T> {
                         type Response = super::IsApprovedForAllResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::IsApprovedForAllRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { (*inner).is_approved_for_all(request).await };
+                            let fut = async move {
+                                (*inner).is_approved_for_all(request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -1612,10 +1879,11 @@ pub mod erc404_server {
                         let inner = inner.0;
                         let method = IsApprovedForAllSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1624,17 +1892,23 @@ pub mod erc404_server {
                 "/erc404.ERC404/SafeTransferFrom" => {
                     #[allow(non_camel_case_types)]
                     struct SafeTransferFromSvc<T: Erc404>(pub Arc<T>);
-                    impl<T: Erc404> tonic::server::UnaryService<super::SafeTransferFromRequest>
-                        for SafeTransferFromSvc<T>
-                    {
+                    impl<
+                        T: Erc404,
+                    > tonic::server::UnaryService<super::SafeTransferFromRequest>
+                    for SafeTransferFromSvc<T> {
                         type Response = super::SafeTransferFromResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::SafeTransferFromRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { (*inner).safe_transfer_from(request).await };
+                            let fut = async move {
+                                (*inner).safe_transfer_from(request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -1645,10 +1919,11 @@ pub mod erc404_server {
                         let inner = inner.0;
                         let method = SafeTransferFromSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1657,18 +1932,23 @@ pub mod erc404_server {
                 "/erc404.ERC404/SafeBatchTransferFrom" => {
                     #[allow(non_camel_case_types)]
                     struct SafeBatchTransferFromSvc<T: Erc404>(pub Arc<T>);
-                    impl<T: Erc404> tonic::server::UnaryService<super::SafeBatchTransferFromRequest>
-                        for SafeBatchTransferFromSvc<T>
-                    {
+                    impl<
+                        T: Erc404,
+                    > tonic::server::UnaryService<super::SafeBatchTransferFromRequest>
+                    for SafeBatchTransferFromSvc<T> {
                         type Response = super::SafeBatchTransferFromResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::SafeBatchTransferFromRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut =
-                                async move { (*inner).safe_batch_transfer_from(request).await };
+                            let fut = async move {
+                                (*inner).safe_batch_transfer_from(request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -1679,10 +1959,11 @@ pub mod erc404_server {
                         let inner = inner.0;
                         let method = SafeBatchTransferFromSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1691,17 +1972,23 @@ pub mod erc404_server {
                 "/erc404.ERC404/ERC1155BalanceOf" => {
                     #[allow(non_camel_case_types)]
                     struct ERC1155BalanceOfSvc<T: Erc404>(pub Arc<T>);
-                    impl<T: Erc404> tonic::server::UnaryService<super::Erc1155BalanceOfRequest>
-                        for ERC1155BalanceOfSvc<T>
-                    {
+                    impl<
+                        T: Erc404,
+                    > tonic::server::UnaryService<super::Erc1155BalanceOfRequest>
+                    for ERC1155BalanceOfSvc<T> {
                         type Response = super::Erc1155BalanceOfResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::Erc1155BalanceOfRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { (*inner).erc1155_balance_of(request).await };
+                            let fut = async move {
+                                (*inner).erc1155_balance_of(request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -1712,10 +1999,11 @@ pub mod erc404_server {
                         let inner = inner.0;
                         let method = ERC1155BalanceOfSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1724,15 +2012,23 @@ pub mod erc404_server {
                 "/erc404.ERC404/ERC20BalanceOf" => {
                     #[allow(non_camel_case_types)]
                     struct ERC20BalanceOfSvc<T: Erc404>(pub Arc<T>);
-                    impl<T: Erc404> tonic::server::UnaryService<super::Erc20BalanceOfRequest> for ERC20BalanceOfSvc<T> {
+                    impl<
+                        T: Erc404,
+                    > tonic::server::UnaryService<super::Erc20BalanceOfRequest>
+                    for ERC20BalanceOfSvc<T> {
                         type Response = super::Erc20BalanceOfResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::Erc20BalanceOfRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { (*inner).erc20_balance_of(request).await };
+                            let fut = async move {
+                                (*inner).erc20_balance_of(request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -1743,10 +2039,11 @@ pub mod erc404_server {
                         let inner = inner.0;
                         let method = ERC20BalanceOfSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -1755,18 +2052,23 @@ pub mod erc404_server {
                 "/erc404.ERC404/ERC1155TransferExempt" => {
                     #[allow(non_camel_case_types)]
                     struct ERC1155TransferExemptSvc<T: Erc404>(pub Arc<T>);
-                    impl<T: Erc404> tonic::server::UnaryService<super::Erc1155TransferExemptRequest>
-                        for ERC1155TransferExemptSvc<T>
-                    {
+                    impl<
+                        T: Erc404,
+                    > tonic::server::UnaryService<super::Erc1155TransferExemptRequest>
+                    for ERC1155TransferExemptSvc<T> {
                         type Response = super::Erc1155TransferExemptResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::Erc1155TransferExemptRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut =
-                                async move { (*inner).erc1155_transfer_exempt(request).await };
+                            let fut = async move {
+                                (*inner).erc1155_transfer_exempt(request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -1777,23 +2079,108 @@ pub mod erc404_server {
                         let inner = inner.0;
                         let method = ERC1155TransferExemptSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
-                            accept_compression_encodings,
-                            send_compression_encodings,
-                        );
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
                 }
-                _ => Box::pin(async move {
-                    Ok(http::Response::builder()
-                        .status(200)
-                        .header("grpc-status", "12")
-                        .header("content-type", "application/grpc")
-                        .body(empty_body())
-                        .unwrap())
-                }),
+                "/erc404.ERC404/AddTransferExempt" => {
+                    #[allow(non_camel_case_types)]
+                    struct AddTransferExemptSvc<T: Erc404>(pub Arc<T>);
+                    impl<
+                        T: Erc404,
+                    > tonic::server::UnaryService<super::AddTransferExemptRequest>
+                    for AddTransferExemptSvc<T> {
+                        type Response = super::AddTransferExemptResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::AddTransferExemptRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).add_transfer_exempt(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = AddTransferExemptSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/erc404.ERC404/RemoveTransferExempt" => {
+                    #[allow(non_camel_case_types)]
+                    struct RemoveTransferExemptSvc<T: Erc404>(pub Arc<T>);
+                    impl<
+                        T: Erc404,
+                    > tonic::server::UnaryService<super::RemoveTransferExemptRequest>
+                    for RemoveTransferExemptSvc<T> {
+                        type Response = super::RemoveTransferExemptResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::RemoveTransferExemptRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).remove_transfer_exempt(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = RemoveTransferExemptSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                _ => {
+                    Box::pin(async move {
+                        Ok(
+                            http::Response::builder()
+                                .status(200)
+                                .header("grpc-status", "12")
+                                .header("content-type", "application/grpc")
+                                .body(empty_body())
+                                .unwrap(),
+                        )
+                    })
+                }
             }
         }
     }
