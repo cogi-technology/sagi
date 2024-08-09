@@ -8,8 +8,8 @@ use {
     anyhow::{anyhow, Result},
     ethers::{
         signers::LocalWallet,
-        types::{Address, BlockNumber, Eip1559TransactionRequest},
-        utils::parse_ether,
+        types::{Address, BlockNumber, Eip1559TransactionRequest, U256},
+        utils::{parse_ether, parse_units},
     },
     ethers_contract::abigen,
     ethers_providers::Middleware,
@@ -529,6 +529,111 @@ async fn test_mint_erc721_token_via_contract_wallet() -> Result<()> {
     let after_balance = contract.balance_of(recipient).await?;
 
     assert_eq!(after_balance.as_u64(), before_balance.as_u64() + 1);
+
+    Ok(())
+}
+
+// #[ignore]
+#[tokio::test]
+async fn test_transfer_erc404_token_via_contract_wallet() -> Result<()> {
+    let token = std::fs::read_to_string("./src/contract_wallet/test/inputs/jwt.data")?;
+    let file = std::fs::File::open("./src/contract_wallet/test/inputs/login-data.json")?;
+    let reader = BufReader::new(file);
+    let AuthorizationData {
+        salt,
+        proof,
+        ephemeral_key_pair,
+        beneficiaries,
+    } = serde_json::from_reader::<_, AuthorizationData>(reader)?;
+
+    let toke_data = decode_jwt(&token)?;
+
+    let beneficiaries = beneficiaries
+        .iter()
+        .map(|b| b.parse::<Address>().unwrap())
+        .collect::<Vec<_>>();
+
+    let jwt_options = JWTOptions::<LocalWallet>::try_init(
+        toke_data.clone(),
+        ephemeral_key_pair.clone(),
+        proof,
+        salt.clone(),
+    )?;
+
+    let contract_wallet_operator =
+        get_contract_wallet_operator(Some(Networkish::Name("ziontestnet".into())));
+
+    let rpc_endpoint = "https://torii.zionx.network/";
+    let client = Arc::new(
+        Operator::<Client>::get_ephemeral_key_pair(
+            rpc_endpoint,
+            contract_wallet_operator.chain_id,
+            Some(ephemeral_key_pair.as_str()),
+        )
+        .await?,
+    );
+    println!("Client: {:#x}", client.address());
+
+    // Setup other expected calls as necessary
+    let operator = Arc::new(Operator::new(
+        contract_wallet_operator,
+        Arc::clone(&client),
+        beneficiaries,
+    ));
+
+    let TokenData {
+        header: _,
+        claims: payload,
+    } = toke_data.clone();
+    let contract_wallet_address = operator
+        .get_address(payload.sub, salt, payload.iss, payload.aud)
+        .await?;
+
+    println!("contract_wallet_address: {:#x}", contract_wallet_address);
+
+    let mut contract_wallet = ContractWallet::<Client, _>::new(contract_wallet_address, operator);
+    contract_wallet.set_jwt(jwt_options);
+
+    assert!(contract_wallet.is_writeable().await);
+
+    let code = "654321".to_string();
+    let has_pin_code = contract_wallet.has_pin_code().await?;
+    contract_wallet
+        .validate_and_set_pin_code(code, !has_pin_code, None)
+        .await?;
+
+    let recipient = "0x4284912E4Bc9B862Ba0069DDEDcaFEbd6C95658c".parse::<Address>()?;
+
+    abigen!(ERC404, "./src/contract_wallet/test/abi/erc404.json");
+
+    let contract_address = "0xd6c791d0bb69023e7cda1f7a947b04b04a489353".parse::<Address>()?;
+    let contract = ERC404::new(contract_address, Arc::clone(&client));
+
+    let before_balance = contract.balance_of(recipient).await?;
+    eprintln!("aaaaaaaaa");
+    let calldata = contract
+        .transfer(recipient, U256::from_dec_str("600000").unwrap())
+        .calldata()
+        .unwrap();
+
+    // let calldata = hex::decode("a9059cbb0000000000000000000000004284912e4bc9b862ba0069ddedcafebd6c95658c000000000000000000000000000000000000000000000000000000000007a120")?;
+    eprintln!("calldata: {:?}", calldata);
+
+    let transaction = Eip1559TransactionRequest::new()
+        .to(contract_address)
+        .data(calldata);
+
+    let txhash = contract_wallet
+        .send_transaction(transaction, None)
+        .await
+        .unwrap()
+        .transaction_hash;
+    println!("txhash: {:#x}", txhash);
+
+    let after_balance = contract.balance_of(recipient).await?;
+    eprintln!("after_balance: {:?}", after_balance);
+
+    // assert_eq!(after_balance.as_u64(), before_balance.as_u64() + 1);
 
     Ok(())
 }
