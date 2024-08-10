@@ -14,7 +14,9 @@ use {
     openapi_ethers::provider,
     openapi_logger::{info, init as logger_init},
     server::{run as run_server, ServerConfig},
-    std::fs,
+    std::{fs, sync::Arc},
+    zion_service_db::database::Database,
+    zion_service_etherman::etherman::Etherman,
 };
 
 #[tokio::main]
@@ -41,6 +43,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         std::fs::create_dir_all(dir_sessions).unwrap();
     }
     //
+    // etherman
+    let db: Arc<_> = Arc::new(Database::new(c.db_url));
+    let etherman: Arc<Etherman> = Arc::new(Etherman::init(db, "test".into(), c.etherman).await?);
+    //
     let server_config = ServerConfig {
         auth_secret: c.auth_secret,
         doc_path: c.doc_path,
@@ -50,6 +56,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     info!("Started at {}", c.grpc_listen);
     tokio::select! {
+        _ = etherman.heartbeat() => {},
         _ = async move {
             run_server(zion_provider, torii_provider, server_config, c.telegram_auth).await
         } => {},

@@ -1,10 +1,12 @@
 use {
     anyhow::{anyhow, Result},
     clap::Parser,
+    ethers::types::H160,
     openapi_ethers::config::Config as EthereumClientConfig,
     serde::{Deserialize, Serialize},
     std::{fs, net::SocketAddr},
     tonic::transport::Identity,
+    zion_service_etherman::config::Config as EthereumConfig,
 };
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
@@ -28,8 +30,11 @@ pub struct Config {
 
     #[serde(rename = "doc-path")]
     pub doc_path: String,
-    // #[serde(rename = "tori-rpc")]
-    // pub tori_rpc: String,
+
+    #[serde(rename = "db-url")]
+    pub db_url: String,
+
+    pub etherman: EthereumConfig,
 }
 
 impl Config {
@@ -80,17 +85,6 @@ pub struct TelegramAuthConfig {
     #[serde(rename = "session-path")]
     pub session_path: String,
 }
-
-// impl TelegramAuthConfig {
-//     pub fn from_cfg(cfg: &str) -> Result<Self> {
-//         serde_yaml::from_str(cfg).map_err(|x| anyhow!(x))
-//     }
-
-//     #[allow(dead_code)]
-//     pub fn to_cfg(&self) -> Result<String> {
-//         serde_yaml::to_string(self).map_err(|x| anyhow!(x))
-//     }
-// }
 
 #[cfg(test)]
 mod tests {

@@ -113,21 +113,7 @@ paths:
             $ref: '#/definitions/authtelegramSignInTelegramAsBotRequest'
       tags:
         - AuthTelegram
-  /api/zionauthorization/getDataRequestForZION:
-    get:
-      operationId: ZionAuthorization_GetDataRequestForZION
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/zionauthorizationGetDataRequestForZionResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      tags:
-        - ZionAuthorization
-  /auth/api/erc20/allowance:
+  /api/erc20/allowance:
     get:
       operationId: ERC20_Allowance
       responses:
@@ -154,7 +140,7 @@ paths:
           type: string
       tags:
         - ERC20
-  /auth/api/erc20/approve:
+  /api/erc20/approve:
     post:
       operationId: ERC20_Approve
       responses:
@@ -174,7 +160,7 @@ paths:
             $ref: '#/definitions/erc20ApproveRequest'
       tags:
         - ERC20
-  /auth/api/erc20/balanceOf:
+  /api/erc20/balanceOf:
     get:
       operationId: ERC20_BalanceOf
       responses:
@@ -197,7 +183,7 @@ paths:
           type: string
       tags:
         - ERC20
-  /auth/api/erc20/deploy:
+  /api/erc20/deploy:
     post:
       operationId: ERC20_Deploy
       responses:
@@ -217,7 +203,7 @@ paths:
             $ref: '#/definitions/erc20DeployRequest'
       tags:
         - ERC20
-  /auth/api/erc20/totalSupply:
+  /api/erc20/totalSupply:
     get:
       operationId: ERC20_TotalSupply
       responses:
@@ -236,7 +222,7 @@ paths:
           type: string
       tags:
         - ERC20
-  /auth/api/erc20/transfer:
+  /api/erc20/transfer:
     post:
       operationId: ERC20_Transfer
       responses:
@@ -256,7 +242,7 @@ paths:
             $ref: '#/definitions/erc20TransferRequest'
       tags:
         - ERC20
-  /auth/api/erc20/transferFrom:
+  /api/erc20/transferFrom:
     post:
       operationId: ERC20_TransferFrom
       responses:
@@ -276,7 +262,7 @@ paths:
             $ref: '#/definitions/erc20TransferFromRequest'
       tags:
         - ERC20
-  /auth/api/erc404/allowance:
+  /api/erc404/allowance:
     get:
       operationId: ERC404_Allowance
       responses:
@@ -303,7 +289,7 @@ paths:
           type: string
       tags:
         - ERC404
-  /auth/api/erc404/approve:
+  /api/erc404/approve:
     post:
       operationId: ERC404_Approve
       responses:
@@ -323,7 +309,7 @@ paths:
             $ref: '#/definitions/erc404ApproveRequest'
       tags:
         - ERC404
-  /auth/api/erc404/balanceOf:
+  /api/erc404/balanceOf:
     get:
       operationId: ERC404_BalanceOf
       responses:
@@ -346,7 +332,7 @@ paths:
           type: string
       tags:
         - ERC404
-  /auth/api/erc404/balanceOfBatch:
+  /api/erc404/balanceOfBatch:
     get:
       operationId: ERC404_BalanceOfBatch
       responses:
@@ -363,10 +349,13 @@ paths:
           in: query
           required: false
           type: string
-        - name: owner
+        - name: accounts
           in: query
           required: false
-          type: string
+          type: array
+          items:
+            type: string
+          collectionFormat: multi
         - name: token_ids
           in: query
           required: false
@@ -376,7 +365,7 @@ paths:
           collectionFormat: multi
       tags:
         - ERC404
-  /auth/api/erc404/deploy:
+  /api/erc404/deploy:
     post:
       operationId: ERC404_Deploy
       responses:
@@ -396,7 +385,7 @@ paths:
             $ref: '#/definitions/erc404DeployRequest'
       tags:
         - ERC404
-  /auth/api/erc404/erc1155BalanceOf:
+  /api/erc404/erc1155BalanceOf:
     get:
       operationId: ERC404_ERC1155BalanceOf
       responses:
@@ -423,7 +412,7 @@ paths:
           type: string
       tags:
         - ERC404
-  /auth/api/erc404/erc1155TransferExempt:
+  /api/erc404/erc1155TransferExempt:
     get:
       operationId: ERC404_ERC1155TransferExempt
       responses:
@@ -436,13 +425,17 @@ paths:
           schema:
             $ref: '#/definitions/rpcStatus'
       parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
         - name: target
           in: query
           required: false
           type: string
       tags:
         - ERC404
-  /auth/api/erc404/erc20BalanceOf:
+  /api/erc404/erc20BalanceOf:
     get:
       operationId: ERC404_ERC20BalanceOf
       responses:
@@ -465,7 +458,7 @@ paths:
           type: string
       tags:
         - ERC404
-  /auth/api/erc404/isApprovedForAll:
+  /api/erc404/isApprovedForAll:
     get:
       operationId: ERC404_IsApprovedForAll
       responses:
@@ -492,7 +485,7 @@ paths:
           type: string
       tags:
         - ERC404
-  /auth/api/erc404/safeBatchTransferFrom:
+  /api/erc404/safeBatchTransferFrom:
     post:
       operationId: ERC404_SafeBatchTransferFrom
       responses:
@@ -512,7 +505,7 @@ paths:
             $ref: '#/definitions/erc404SafeBatchTransferFromRequest'
       tags:
         - ERC404
-  /auth/api/erc404/safeTransferFrom:
+  /api/erc404/safeTransferFrom:
     post:
       operationId: ERC404_SafeTransferFrom
       responses:
@@ -532,7 +525,7 @@ paths:
             $ref: '#/definitions/erc404SafeTransferFromRequest'
       tags:
         - ERC404
-  /auth/api/erc404/setApprovalForAll:
+  /api/erc404/setApprovalForAll:
     post:
       operationId: ERC404_SetApprovalForAll
       responses:
@@ -552,7 +545,7 @@ paths:
             $ref: '#/definitions/erc404SetApprovalForAllRequest'
       tags:
         - ERC404
-  /auth/api/erc404/totalSupply:
+  /api/erc404/totalSupply:
     get:
       operationId: ERC404_TotalSupply
       responses:
@@ -571,7 +564,7 @@ paths:
           type: string
       tags:
         - ERC404
-  /auth/api/erc404/transfer:
+  /api/erc404/transfer:
     post:
       operationId: ERC404_Transfer
       responses:
@@ -591,7 +584,7 @@ paths:
             $ref: '#/definitions/erc404TransferRequest'
       tags:
         - ERC404
-  /auth/api/erc404/transferFrom:
+  /api/erc404/transferFrom:
     post:
       operationId: ERC404_TransferFrom
       responses:
@@ -611,7 +604,7 @@ paths:
             $ref: '#/definitions/erc404TransferFromRequest'
       tags:
         - ERC404
-  /auth/api/erc721/approve:
+  /api/erc721/approve:
     post:
       operationId: ERC721_Approve
       responses:
@@ -631,7 +624,7 @@ paths:
             $ref: '#/definitions/erc721ApproveRequest'
       tags:
         - ERC721
-  /auth/api/erc721/balanceOf:
+  /api/erc721/balanceOf:
     get:
       operationId: ERC721_BalanceOf
       responses:
@@ -648,13 +641,13 @@ paths:
           in: query
           required: false
           type: string
-        - name: owner
+        - name: account
           in: query
           required: false
           type: string
       tags:
         - ERC721
-  /auth/api/erc721/deploy:
+  /api/erc721/deploy:
     post:
       operationId: ERC721_Deploy
       responses:
@@ -674,7 +667,7 @@ paths:
             $ref: '#/definitions/erc721DeployRequest'
       tags:
         - ERC721
-  /auth/api/erc721/getApproved:
+  /api/erc721/getApproved:
     get:
       operationId: ERC721_GetApproved
       responses:
@@ -694,11 +687,10 @@ paths:
         - name: token_id
           in: query
           required: false
-          type: integer
-          format: int32
+          type: string
       tags:
         - ERC721
-  /auth/api/erc721/isApprovedForAll:
+  /api/erc721/isApprovedForAll:
     get:
       operationId: ERC721_IsApprovedForAll
       responses:
@@ -725,7 +717,27 @@ paths:
           type: string
       tags:
         - ERC721
-  /auth/api/erc721/ownerOf:
+  /api/erc721/mint:
+    post:
+      operationId: ERC721_Mint
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721MintResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc721MintRequest'
+      tags:
+        - ERC721
+  /api/erc721/ownerOf:
     get:
       operationId: ERC721_OwnerOf
       responses:
@@ -745,11 +757,10 @@ paths:
         - name: token_id
           in: query
           required: false
-          type: integer
-          format: int32
+          type: string
       tags:
         - ERC721
-  /auth/api/erc721/safeTransferFrom:
+  /api/erc721/safeTransferFrom:
     post:
       operationId: ERC721_SafeTransferFrom
       responses:
@@ -769,7 +780,7 @@ paths:
             $ref: '#/definitions/erc721SafeTransferFromRequest'
       tags:
         - ERC721
-  /auth/api/erc721/setApprovalForAll:
+  /api/erc721/setApprovalForAll:
     post:
       operationId: ERC721_SetApprovalForAll
       responses:
@@ -789,7 +800,7 @@ paths:
             $ref: '#/definitions/erc721SetApprovalForAllRequest'
       tags:
         - ERC721
-  /auth/api/erc721/transferFrom:
+  /api/erc721/transferFrom:
     post:
       operationId: ERC721_TransferFrom
       responses:
@@ -809,6 +820,20 @@ paths:
             $ref: '#/definitions/erc721TransferFromRequest'
       tags:
         - ERC721
+  /api/zionauthorization/getDataRequestForZION:
+    get:
+      operationId: ZionAuthorization_GetDataRequestForZION
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/zionauthorizationGetDataRequestForZionResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      tags:
+        - ZionAuthorization
 definitions:
   authtelegramLogOutTelegramAsBotResponse:
     type: object
@@ -880,7 +905,7 @@ definitions:
   erc20AllowanceResponse:
     type: object
     properties:
-      remainingAmount:
+      remaining_amount:
         type: string
   erc20ApproveRequest:
     type: object
@@ -890,6 +915,8 @@ definitions:
       spender:
         type: string
       amount:
+        type: string
+      pin_code:
         type: string
   erc20ApproveResponse:
     type: object
@@ -904,13 +931,13 @@ definitions:
   erc20DeployRequest:
     type: object
     properties:
-      owner:
-        type: string
       name:
         type: string
       symbol:
         type: string
       initial_supply:
+        type: string
+      pin_code:
         type: string
     title: Define messages for the requests and responses for ERC20
   erc20DeployResponse:
@@ -934,6 +961,8 @@ definitions:
         type: string
       amount:
         type: string
+      pin_code:
+        type: string
   erc20TransferFromResponse:
     type: object
     properties:
@@ -947,6 +976,8 @@ definitions:
       recipient:
         type: string
       amount:
+        type: string
+      pin_code:
         type: string
   erc20TransferResponse:
     type: object
@@ -967,6 +998,8 @@ definitions:
         type: string
       amount:
         type: string
+      pin_code:
+        type: string
   erc404ApproveResponse:
     type: object
     properties:
@@ -975,7 +1008,7 @@ definitions:
   erc404BalanceOfBatchResponse:
     type: object
     properties:
-      amounts:
+      batch_balances:
         type: array
         items:
           type: string
@@ -987,8 +1020,6 @@ definitions:
   erc404DeployRequest:
     type: object
     properties:
-      owner:
-        type: string
       name:
         type: string
       symbol:
@@ -1002,6 +1033,8 @@ definitions:
         items:
           type: string
       uri:
+        type: string
+      pin_code:
         type: string
     title: Define messages for the requests and responses for ERC404
   erc404DeployResponse:
@@ -1032,6 +1065,8 @@ definitions:
   erc404SafeBatchTransferFromRequest:
     type: object
     properties:
+      contract:
+        type: string
       from:
         type: string
       to:
@@ -1046,6 +1081,9 @@ definitions:
           type: string
       data:
         type: string
+        format: byte
+      pin_code:
+        type: string
   erc404SafeBatchTransferFromResponse:
     type: object
     properties:
@@ -1054,6 +1092,8 @@ definitions:
   erc404SafeTransferFromRequest:
     type: object
     properties:
+      contract:
+        type: string
       from:
         type: string
       to:
@@ -1063,6 +1103,8 @@ definitions:
       value:
         type: string
       data:
+        type: string
+      pin_code:
         type: string
   erc404SafeTransferFromResponse:
     type: object
@@ -1078,6 +1120,8 @@ definitions:
         type: string
       approved:
         type: boolean
+      pin_code:
+        type: string
   erc404SetApprovalForAllResponse:
     type: object
     properties:
@@ -1099,6 +1143,8 @@ definitions:
         type: string
       value:
         type: string
+      pin_code:
+        type: string
   erc404TransferFromResponse:
     type: object
     properties:
@@ -1113,6 +1159,8 @@ definitions:
         type: string
       amount:
         type: string
+      pin_code:
+        type: string
   erc404TransferResponse:
     type: object
     properties:
@@ -1126,6 +1174,8 @@ definitions:
       to:
         type: string
       token_id:
+        type: string
+      pin_code:
         type: string
   erc721ApproveResponse:
     type: object
@@ -1144,7 +1194,9 @@ definitions:
         type: string
       symbol:
         type: string
-      owner:
+      base_uri:
+        type: string
+      pin_code:
         type: string
     title: Define messages for the requests and responses for ERC721
   erc721DeployResponse:
@@ -1162,6 +1214,20 @@ definitions:
     properties:
       result:
         type: boolean
+  erc721MintRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      account:
+        type: string
+      pin_code:
+        type: string
+  erc721MintResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
   erc721OwnerOfResponse:
     type: object
     properties:
@@ -1178,6 +1244,8 @@ definitions:
         type: string
       token_id:
         type: string
+      pin_code:
+        type: string
   erc721SafeTransferFromResponse:
     type: object
     properties:
@@ -1192,6 +1260,8 @@ definitions:
         type: string
       approved:
         type: boolean
+      pin_code:
+        type: string
   erc721SetApprovalForAllResponse:
     type: object
     properties:
@@ -1207,6 +1277,8 @@ definitions:
       to:
         type: string
       token_id:
+        type: string
+      pin_code:
         type: string
   erc721TransferFromResponse:
     type: object

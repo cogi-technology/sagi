@@ -54,7 +54,7 @@ struct Router {
 impl Router {
     pub fn grpc_router(&self) -> tonic::transport::server::Router {
         // let interceptor = AuthInterceptor::new(self.config.auth_secret.clone());
-        // let service = ESimServiceServer::with_interceptor(self.esim.clone(), interceptor);
+        // let service = serviceServiceServer::with_interceptor(self.service.clone(), interceptor);
 
         tonic::transport::Server::builder()
             // .tls_config(ServerTlsConfig::new().identity(tls_identity))
