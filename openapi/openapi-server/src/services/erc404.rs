@@ -351,7 +351,11 @@ impl Erc404 for Erc404Service {
         &self,
         request: Request<BalanceOfRequest>,
     ) -> Result<Response<BalanceOfResponse>> {
-        let BalanceOfRequest { contract, account } = request.into_inner();
+        let BalanceOfRequest {
+            contract,
+            account,
+            token_id,
+        } = request.into_inner();
         let contract_address = contract
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
@@ -360,12 +364,23 @@ impl Erc404 for Erc404Service {
             .map_err(|e| into_anyhow(e.into()))?;
 
         let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
-        let amount = contract
-            .balance_of(account_address)
-            .legacy()
-            .await
-            .map_err(|e| into_anyhow(e.into()))?
-            .to_string();
+
+        let amount = if let Some(token_id) = token_id {
+            let token_id = U256::from_dec_str(&token_id).map_err(|e| into_anyhow(e.into()))?;
+            contract
+                .balance_of_with_id(account_address, token_id)
+                .legacy()
+                .await
+                .map_err(|e| into_anyhow(e.into()))?
+                .to_string()
+        } else {
+            contract
+                .balance_of(account_address)
+                .legacy()
+                .await
+                .map_err(|e| into_anyhow(e.into()))?
+                .to_string()
+        };
 
         Ok(Response::new(BalanceOfResponse { amount }))
     }

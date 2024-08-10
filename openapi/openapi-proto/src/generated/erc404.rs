@@ -49,6 +49,8 @@ pub struct BalanceOfRequest {
     pub contract: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]
     pub account: ::prost::alloc::string::String,
+    #[prost(string, optional, tag = "3")]
+    pub token_id: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -373,6 +375,8 @@ pub mod erc404_actix {
         pub contract: ::prost::alloc::string::String,
         #[prost(string, tag = "2")]
         pub account: ::prost::alloc::string::String,
+        #[prost(string, optional, tag = "3")]
+        pub token_id: ::core::option::Option<::prost::alloc::string::String>,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -595,6 +599,7 @@ pub mod erc404_actix {
         let request = BalanceOfRequest {
             contract: query.contract,
             account: query.account,
+            token_id: query.token_id,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.balance_of(request).await?;
