@@ -61,8 +61,11 @@ http:
     - selector: erc721.ERC721.Approve
       post: /api/erc721/approve
       body: "*"
-    - selector: erc721.ERC721.Mint
-      post: /api/erc721/mint
+    - selector: erc721.ERC721.AwardItem
+      post: /api/erc721/awardItem
+      body: "*"
+    - selector: erc721.ERC721.AwardItems
+      post: /api/erc721/awardItems
       body: "*"
     - selector: erc721.ERC721.GetApproved
       get: /api/erc721/getApproved
@@ -73,6 +76,12 @@ http:
     - selector: erc721.ERC721.IsApprovedForAll
       get: /api/erc721/isApprovedForAll
       param: "contract&owner&operator"
+    - selector: erc721.ERC721.Burn
+      post: /api/erc721/burn
+      body: "*"
+    - selector: erc721.ERC721.TokenURI
+      get: /api/erc721/token_uri
+      param: "contract&token_id"
 
     - selector: erc404.ERC404.Deploy
       post: /api/erc404/deploy

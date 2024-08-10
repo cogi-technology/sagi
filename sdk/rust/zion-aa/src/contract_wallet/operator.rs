@@ -1,18 +1,20 @@
-use super::client::{Client, ClientMethods};
-use crate::{
-    contracts::{Account, EntryPoint, Factory, NemoAccountCreatedFilter},
-    types::contract_wallet::ContractWalletOperator,
-    utils::get_provider_hashed,
+use {
+    super::client::{Client, ClientMethods},
+    crate::{
+        contracts::{Account, EntryPoint, Factory, NemoAccountCreatedFilter},
+        types::contract_wallet::ContractWalletOperator,
+        utils::get_provider_hashed,
+    },
+    anyhow::{anyhow, Error, Result},
+    ethers::{
+        abi::Token,
+        types::{Address, Bytes},
+    },
+    ethers_contract::EthLogDecode,
+    ethers_providers::Middleware,
+    rand::Rng,
+    std::sync::Arc,
 };
-use anyhow::{anyhow, Error, Result};
-use ethers::{
-    abi::Token,
-    types::{Address, Bytes},
-};
-use ethers_contract::EthLogDecode;
-use ethers_providers::Middleware;
-use rand::Rng;
-use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct Operator<M> {
@@ -76,7 +78,7 @@ impl<M: Middleware + 'static> Operator<M> {
             Token::Address(self.factory.address()),
             Token::Bytes(call_data.to_vec()),
         ])
-        .map_err(|e| Error::from(e))?;
+        .map_err(Error::from)?;
 
         Ok(ret.into())
     }
@@ -161,6 +163,6 @@ impl<M: Middleware + 'static> Operator<M> {
     pub fn pick_up_beneficiary(&self) -> Address {
         let mut rng = rand::thread_rng();
         let index = rng.gen_range(0..self.beneficiaries.len());
-        self.beneficiaries[index].clone()
+        self.beneficiaries[index]
     }
 }

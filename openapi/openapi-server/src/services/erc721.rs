@@ -66,7 +66,7 @@ impl Erc721 for Erc721Service {
         let random_client = Arc::new(
             EthereumClient::random_wallet(zion_rpc_endpoint, chain_id.as_u64())
                 .await
-                .map_err(|e| into_anyhow(e.into()))?,
+                .map_err(into_anyhow)?,
         );
 
         let mut contract_wallet =
@@ -221,7 +221,7 @@ impl Erc721 for Erc721Service {
                 .map_err(|e| into_anyhow(e.into()))?
                 .await
                 .map_err(|e| into_anyhow(e.into()))?
-                .ok_or_else(|| into_anyhow(anyhow!("refund failed")))?;
+                .ok_or_else(|| into_anyhow(anyhow!("refund receipt is none")))?;
 
             if refund_receipt.status.unwrap().is_zero() {
                 return Err(into_anyhow(anyhow!("refund failed")));
@@ -481,7 +481,10 @@ impl Erc721 for Erc721Service {
         Ok(Response::new(ApproveResponse { txhash }))
     }
 
-    async fn mint(&self, request: Request<MintRequest>) -> Result<Response<MintResponse>> {
+    async fn award_item(
+        &self,
+        request: Request<AwardItemRequest>,
+    ) -> Result<Response<AwardItemResponse>> {
         let header_metadata = request.metadata();
         let mut contract_wallet = init_contract_wallet(
             header_metadata,
@@ -491,9 +494,10 @@ impl Erc721 for Erc721Service {
         .await
         .map_err(into_anyhow)?;
 
-        let MintRequest {
+        let AwardItemRequest {
             contract,
             account,
+            cid,
             pin_code,
         } = request.into_inner();
         let contract_address = contract
@@ -507,7 +511,7 @@ impl Erc721 for Erc721Service {
 
         let contract = ERC721Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let calldata = contract
-            .mint(account_address)
+            .award_item(account_address, cid)
             .calldata()
             .ok_or_else(|| into_anyhow(anyhow!("Calldata is None")))?;
         let transaction = Eip1559TransactionRequest::new()
@@ -531,9 +535,69 @@ impl Erc721 for Erc721Service {
             .transaction_hash;
 
         let txhash = format!("{:#x}", txhash);
-        debug!("mint txhash: {txhash}");
+        debug!("award_item txhash: {txhash}");
 
-        Ok(Response::new(MintResponse { txhash }))
+        Ok(Response::new(AwardItemResponse { txhash }))
+    }
+
+    async fn award_items(
+        &self,
+        request: Request<AwardItemsRequest>,
+    ) -> Result<Response<AwardItemsResponse>> {
+        let header_metadata = request.metadata();
+        let mut contract_wallet = init_contract_wallet(
+            header_metadata,
+            self.torii_provider.url().as_str(),
+            &self.tele_auth_config,
+        )
+        .await
+        .map_err(into_anyhow)?;
+
+        let AwardItemsRequest {
+            contract,
+            accounts,
+            cids,
+            pin_code,
+        } = request.into_inner();
+        let contract_address = contract
+            .parse::<Address>()
+            .map_err(|e| into_anyhow(e.into()))?;
+        let accounts = accounts
+            .into_iter()
+            .map(|a| a.parse::<Address>().map_err(|e| into_anyhow(e.into())))
+            .collect::<Result<Vec<Address>>>()?;
+
+        debug!("contract: {contract_address:?}, account: {accounts:?}, cids: {cids:?}");
+
+        let contract = ERC721Contract::new(contract_address, Arc::clone(&self.zion_provider));
+        let calldata = contract
+            .award_items(accounts, cids)
+            .calldata()
+            .ok_or_else(|| into_anyhow(anyhow!("Calldata is None")))?;
+        let transaction = Eip1559TransactionRequest::new()
+            .to(contract.address())
+            .data(calldata);
+
+        // This session is used to validate the pin code
+        {
+            let has_pin_code = contract_wallet.has_pin_code().await.map_err(into_anyhow)?;
+            contract_wallet
+                .validate_and_set_pin_code(pin_code, !has_pin_code, None)
+                .await
+                .map_err(into_anyhow)?;
+            debug!("Validated pin code");
+        }
+
+        let txhash = contract_wallet
+            .send_transaction(transaction, None)
+            .await
+            .map_err(into_anyhow)?
+            .transaction_hash;
+
+        let txhash = format!("{:#x}", txhash);
+        debug!("award_items txhash: {txhash}");
+
+        Ok(Response::new(AwardItemsResponse { txhash }))
     }
 
     async fn get_approved(
@@ -648,5 +712,84 @@ impl Erc721 for Erc721Service {
             .map_err(|e| into_anyhow(e.into()))?;
 
         Ok(Response::new(IsApprovedForAllResponse { result: ret }))
+    }
+
+    async fn token_uri(
+        &self,
+        request: Request<TokenUriRequest>,
+    ) -> Result<Response<TokenUriResponse>> {
+        let TokenUriRequest { contract, token_id } = request.into_inner();
+
+        let contract_address = contract
+            .parse::<Address>()
+            .map_err(|e| into_anyhow(e.into()))?;
+        let token_id = U256::from_str(&token_id).map_err(|e| into_anyhow(e.into()))?;
+        debug!("contract: {contract_address:?}, token_id: {token_id:?}");
+
+        let contract = ERC721Contract::new(contract_address, Arc::clone(&self.zion_provider));
+        let token_uri = contract
+            .token_uri(token_id)
+            .legacy()
+            .await
+            .map_err(|e| into_anyhow(e.into()))?;
+        debug!("token_uri: {token_uri}");
+
+        Ok(Response::new(TokenUriResponse { token_uri }))
+    }
+
+    async fn burn(&self, request: Request<BurnRequest>) -> Result<Response<BurnResponse>> {
+        let header_metadata = request.metadata();
+        let mut contract_wallet = init_contract_wallet(
+            header_metadata,
+            self.torii_provider.url().as_str(),
+            &self.tele_auth_config,
+        )
+        .await
+        .map_err(into_anyhow)?;
+
+        let BurnRequest {
+            contract,
+            token_ids,
+            pin_code,
+        } = request.into_inner();
+        let contract_address = contract
+            .parse::<Address>()
+            .map_err(|e| into_anyhow(e.into()))?;
+        let token_ids = token_ids
+            .iter()
+            .map(|id| U256::from_dec_str(id).map_err(|e| into_anyhow(e.into())))
+            .collect::<Result<Vec<U256>>>()?;
+
+        debug!("contract: {contract_address:?}, token_ids: {token_ids:?}");
+
+        let contract = ERC721Contract::new(contract_address, Arc::clone(&self.zion_provider));
+        let calldata = contract
+            .force_burns(token_ids)
+            .calldata()
+            .ok_or_else(|| into_anyhow(anyhow!("Calldata is None")))?;
+        let transaction = Eip1559TransactionRequest::new()
+            .to(contract.address())
+            .data(calldata);
+
+        // This session is used to validate the pin code
+        {
+            let has_pin_code = contract_wallet.has_pin_code().await.map_err(into_anyhow)?;
+            contract_wallet
+                .validate_and_set_pin_code(pin_code, !has_pin_code, None)
+                .await
+                .map_err(into_anyhow)?;
+            debug!("Validated pin code");
+        }
+
+        let txhash = contract_wallet
+            .send_transaction(transaction, None)
+            .await
+            .map_err(into_anyhow)?
+            .transaction_hash;
+
+        let txhash = format!("{:#x}", txhash);
+        debug!("burn txhash: {txhash}");
+
+        Ok(Response::new(BurnResponse { txhash }))
     }
 }

@@ -33,6 +33,7 @@ contract TokenERC404 is
         address owner_,
         string memory name_,
         string memory symbol_,
+        uint8 decimals_,
         uint256 initialSupply_,
         uint256 units_,
         uint256[] memory ids_,
@@ -44,7 +45,7 @@ contract TokenERC404 is
         _grantRole(DEFAULT_ADMIN_ROLE, owner_);
         _grantRole(MINTER_ROLE, owner_);
 
-        _decimals = 18;
+        _decimals = decimals_;
         _ids = ids_;
         _units = units_;
     }

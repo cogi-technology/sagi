@@ -1,6 +1,7 @@
-use serde::{Deserialize, Serialize};
-
-use crate::helpers::jwk::{JwkKeyPairAlg, JwkKeyPairType};
+use {
+    crate::helpers::jwk::{JwkKeyPairAlg, JwkKeyPairType},
+    serde::{Deserialize, Serialize},
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LoginWidgetData {
@@ -15,8 +16,7 @@ pub struct LoginWidgetData {
 
     pub auth_date: u32,
     #[serde(skip_serializing_if = "Option::is_none")]
-
-    pub hash: Option<String>
+    pub hash: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -31,7 +31,9 @@ pub struct AuthResponse {
     // Define the response fields according to your API
     pub id_token: Option<String>,
     pub error: Option<String>,
+    #[allow(dead_code)]
     pub message: Option<String>,
+    #[allow(dead_code)]
     pub timestamp: Option<i64>,
 }
 

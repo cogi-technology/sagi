@@ -69,13 +69,25 @@ message ApproveResponse {
   string txhash = 1;
 }
 
-message MintRequest {
+message AwardItemRequest {
   string contract = 1;
   string account = 2;
-  string pin_code = 3;
+  string cid = 3;
+  string pin_code = 4;
 }
 
-message MintResponse {
+message AwardItemResponse {
+  string txhash = 1;
+}
+
+message AwardItemsRequest {
+  string contract = 1;
+  repeated string accounts = 2;
+  repeated string cids = 3;
+  string pin_code = 4;
+}
+
+message AwardItemsResponse {
   string txhash = 1;
 }
 
@@ -109,6 +121,25 @@ message IsApprovedForAllResponse {
   bool result = 1;
 }
 
+message TokenURIRequest {
+  string contract = 1;
+  string token_id = 2;
+}
+
+message TokenURIResponse {
+  string token_uri = 1;
+}
+
+message BurnRequest {
+  string contract = 1;
+  repeated string token_ids = 2;
+  string pin_code = 3;
+}
+
+message BurnResponse {
+  string txhash = 1;
+}
+
 // Define the service for 
 service ERC721 {
   rpc Deploy (DeployRequest) returns (DeployResponse);
@@ -117,8 +148,11 @@ service ERC721 {
   rpc SafeTransferFrom (SafeTransferFromRequest) returns (SafeTransferFromResponse);
   rpc TransferFrom (TransferFromRequest) returns (TransferFromResponse);
   rpc Approve (ApproveRequest) returns (ApproveResponse);
-  rpc Mint (MintRequest) returns (MintResponse);
+  rpc AwardItem (AwardItemRequest) returns (AwardItemResponse);
+  rpc AwardItems (AwardItemsRequest) returns (AwardItemsResponse);
   rpc GetApproved (GetApprovedRequest) returns (GetApprovedResponse);
   rpc SetApprovalForAll (SetApprovalForAllRequest) returns (SetApprovalForAllResponse);
   rpc IsApprovedForAll (IsApprovedForAllRequest) returns (IsApprovedForAllResponse);
+  rpc TokenURI (TokenURIRequest) returns (TokenURIResponse);
+  rpc Burn (BurnRequest) returns (BurnResponse);
 }

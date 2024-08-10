@@ -1,5 +1,7 @@
-use ethers::{types::Bytes, utils::hex};
-use ethers_contract::abigen;
+use {
+    ethers::{types::Bytes, utils::hex},
+    ethers_contract::abigen,
+};
 
 abigen!(ERC721, "./dist/erc721/abi.json");
 

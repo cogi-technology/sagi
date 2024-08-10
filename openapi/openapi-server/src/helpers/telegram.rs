@@ -14,13 +14,13 @@ pub fn get_init_data_integrity_web(
 ) -> LoginWidgetData {
     // Hash the telegram bot token to create a secret
     let mut hasher = Sha256::new();
-    hasher.update(&telegram_bot_token);
+    hasher.update(telegram_bot_token);
     let secret = hasher.finalize();
     // Convert result to hexadecimal string
     let data_to_hash = format!(
         "auth_date={}\nfirst_name={}\nid={}\nlast_name={}\nphoto_url={}\nusername={}",
         init_data_unsafe.auth_date,
-        init_data_unsafe.first_name.to_string(),
+        init_data_unsafe.first_name,
         init_data_unsafe.id,
         init_data_unsafe.last_name.as_deref().unwrap_or(""),
         init_data_unsafe.photo_url.as_deref().unwrap_or(""),
@@ -36,14 +36,15 @@ pub fn get_init_data_integrity_web(
     let hash_hex: String = hex::encode(hash_bytes);
     let mut result: LoginWidgetData = init_data_unsafe.clone();
     result.hash = Some(hash_hex);
-    return result;
+
+    result
 }
 
 pub async fn authorize(
     base_url: &str,
     client_id: &str,
     init_data: LoginWidgetData,
-    session_uuid: &str
+    _session_uuid: &str,
 ) -> Result<AuthResponse, reqwest::Error> {
     let client = Client::new();
     let url = format!("{}/auth/v1/oidc/authorize", base_url);

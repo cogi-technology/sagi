@@ -1,11 +1,11 @@
 //Apache-2.0 License
 
-use ethers::types::{Address, Bytes, U256};
-use serde::{Deserialize, Serialize};
-
-use crate::contracts::entry_point::UserOperation;
-
-use super::UserOperationSigned;
+use {
+    super::UserOperationSigned,
+    crate::contracts::entry_point::UserOperation,
+    ethers::types::{Address, Bytes, U256},
+    serde::{Deserialize, Serialize},
+};
 
 #[derive(Clone, Debug, Ord, PartialOrd, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
@@ -28,13 +28,7 @@ impl From<UserOperationRequest> for UserOperationSigned {
         UserOperationSigned(UserOperation {
             sender: uo_request.sender,
             nonce: uo_request.nonce,
-            init_code: {
-                if let Some(init_code) = uo_request.init_code {
-                    init_code
-                } else {
-                    Bytes::default()
-                }
-            },
+            init_code: uo_request.init_code.unwrap_or_default(),
             call_data: uo_request.call_data,
             call_gas_limit: {
                 if let Some(call_gas_limit) = uo_request.call_gas_limit {
@@ -72,13 +66,7 @@ impl From<UserOperationRequest> for UserOperationSigned {
                 }
             },
             paymaster_and_data: uo_request.paymaster_and_data,
-            signature: {
-                if let Some(signature) = uo_request.signature {
-                    signature
-                } else {
-                    Bytes::default()
-                }
-            },
+            signature: uo_request.signature.unwrap_or_default(),
         })
     }
 }

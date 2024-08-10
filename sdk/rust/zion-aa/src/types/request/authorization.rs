@@ -1,7 +1,8 @@
-use crate::types::jwt::ProofPoints;
-use serde::Deserialize;
-
-use super::proof::{sdk_proofpoint_from, RequestProofPoints};
+use {
+    super::proof::{sdk_proofpoint_from, RequestProofPoints},
+    crate::types::jwt::ProofPoints,
+    serde::Deserialize,
+};
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct AuthorizationData {

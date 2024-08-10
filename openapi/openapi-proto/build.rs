@@ -43,7 +43,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "proto/auth_telegram.proto",
             "proto/erc20.proto",
             "proto/erc404.proto",
-            "proto/erc721.proto"
+            "proto/erc721.proto",
         ],
         &["."],
         gens,

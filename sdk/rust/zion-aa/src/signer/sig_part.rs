@@ -1,6 +1,7 @@
-use ethers::signers::Signer;
-use ethers::types::Signature;
-use std::sync::Arc;
+use {
+    ethers::{signers::Signer, types::Signature},
+    std::sync::Arc,
+};
 
 pub async fn signer_sign<S>(
     hash: String,

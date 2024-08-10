@@ -1,14 +1,14 @@
 use {
-    crate::error::{into_anyhow, Result},
     crate::{
         config::TelegramAuthConfig,
         entity::telegram::LoginWidgetData,
+        error::{into_anyhow, Result},
         helpers::telegram::{authorize, get_init_data_integrity_web},
     },
     chrono::Utc,
     grammers_client::{Client, Config, SignInError},
     grammers_session::Session,
-    openapi_logger::debug,
+    openapi_logger::{debug, warn},
     openapi_proto::authtelegram_service::{auth_telegram_server::AuthTelegram, *},
     std::fs,
     tonic::{Request, Response, Status},
@@ -39,15 +39,11 @@ impl AuthTelegram for AuthTelegramService {
         let telegram_api_hash = &self.cfg.telegram_api_hash;
         //
         let session_uuid = Uuid::new_v4();
-        let session_file: String = format!(
-            "{}/session_{}",
-            self.cfg.session_path,
-            session_uuid.to_string()
-        );
+        let session_file: String = format!("{}/session_{}", self.cfg.session_path, session_uuid);
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
-            api_id: telegram_api_id.clone(),
-            api_hash: telegram_api_hash.clone(),
+            api_id: telegram_api_id,
+            api_hash: telegram_api_hash.to_string(),
             params: Default::default(),
         })
         .await
@@ -71,7 +67,7 @@ impl AuthTelegram for AuthTelegramService {
         }
 
         Ok(Response::new(SendCodeTelegramResponse {
-            phone_number: phone_number,
+            phone_number,
             session_uuid: session_uuid.to_string(),
         }))
     }
@@ -89,18 +85,14 @@ impl AuthTelegram for AuthTelegramService {
         } = req.into_inner();
 
         //
-        let telegram_api_id = self.cfg.telegram_api_id.clone();
+        let telegram_api_id = self.cfg.telegram_api_id;
         let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
-        let session_file: String = format!(
-            "{}/session_{}",
-            self.cfg.session_path,
-            session_uuid.to_string()
-        );
+        let session_file: String = format!("{}/session_{}", self.cfg.session_path, session_uuid);
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
-            api_id: telegram_api_id.clone(),
-            api_hash: telegram_api_hash.clone(),
+            api_id: telegram_api_id,
+            api_hash: telegram_api_hash.to_string(),
             params: Default::default(),
         })
         .await
@@ -162,7 +154,7 @@ impl AuthTelegram for AuthTelegramService {
                     .or_else(|| Some("".to_string())),
                 username: user.username().map(|name| name.to_string()),
                 photo_url: Some("".to_string()),
-                auth_date: auth_date,
+                auth_date,
                 hash: Some("".to_string()),
             };
             let token_auth_bot = self.cfg.token_auth_bot.clone();
@@ -183,8 +175,8 @@ impl AuthTelegram for AuthTelegramService {
                         jwt = data
                     }
                     if let Some(error) = response.error {
-                        println!("Error: {}", error);
-                        return Err(Status::new(tonic::Code::Aborted, format!("{}", error)));
+                        warn!("Error: {}", error);
+                        return Err(Status::new(tonic::Code::Aborted, error.to_string()));
                     }
                 }
                 Err(e) => {
@@ -197,7 +189,7 @@ impl AuthTelegram for AuthTelegramService {
         // Get JWT
         Ok(Response::new(SignInTelegramResponse {
             jwt: jwt.to_string(),
-            session_uuid: session_uuid,
+            session_uuid,
         }))
     }
     async fn log_out_telegram(
@@ -206,17 +198,13 @@ impl AuthTelegram for AuthTelegramService {
     ) -> Result<Response<LogOutTelegramResponse>> {
         let LogOutTelegramRequest { session_uuid } = req.into_inner();
         //
-        let telegram_api_id = self.cfg.telegram_api_id.clone();
+        let telegram_api_id = self.cfg.telegram_api_id;
         let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
-        let session_file: String = format!(
-            "{}/session_{}",
-            self.cfg.session_path,
-            session_uuid.to_string()
-        );
+        let session_file: String = format!("{}/session_{}", self.cfg.session_path, session_uuid);
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
-            api_id: telegram_api_id.clone(),
+            api_id: telegram_api_id,
             api_hash: telegram_api_hash.clone(),
             params: Default::default(),
         })
@@ -240,7 +228,7 @@ impl AuthTelegram for AuthTelegramService {
         }
 
         Ok(Response::new(LogOutTelegramResponse {
-            session_uuid: session_uuid,
+            session_uuid,
             message: "Logged out".to_string(),
         }))
     }
@@ -252,18 +240,14 @@ impl AuthTelegram for AuthTelegramService {
         let mut jwt: String = "".to_string();
         let SignInTelegramAsBotRequest { token_auth } = req.into_inner();
         //
-        let telegram_api_id = self.cfg.telegram_api_id.clone();
+        let telegram_api_id = self.cfg.telegram_api_id;
         let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
         let session_uuid = Uuid::new_v4();
-        let session_file: String = format!(
-            "{}/session_{}",
-            self.cfg.session_path,
-            session_uuid.to_string()
-        );
+        let session_file: String = format!("{}/session_{}", self.cfg.session_path, session_uuid);
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
-            api_id: telegram_api_id.clone(),
+            api_id: telegram_api_id,
             api_hash: telegram_api_hash.clone(),
             params: Default::default(),
         })
@@ -300,7 +284,7 @@ impl AuthTelegram for AuthTelegramService {
                     .or_else(|| Some("".to_string())),
                 username: user.username().map(|name| name.to_string()),
                 photo_url: Some("".to_string()),
-                auth_date: auth_date,
+                auth_date,
                 hash: Some("".to_string()),
             };
             let token_auth_bot = self.cfg.token_auth_bot.clone();
@@ -321,8 +305,8 @@ impl AuthTelegram for AuthTelegramService {
                         jwt = data
                     }
                     if let Some(error) = response.error {
-                        println!("Error: {}", error);
-                        return Err(Status::new(tonic::Code::Aborted, format!("{}", error)));
+                        warn!("Error: {}", error);
+                        return Err(Status::new(tonic::Code::Aborted, error.to_string()));
                     }
                 }
                 Err(e) => {
@@ -343,17 +327,13 @@ impl AuthTelegram for AuthTelegramService {
     ) -> Result<Response<LogOutTelegramAsBotResponse>> {
         let LogOutTelegramAsbotRequest { session_uuid } = req.into_inner();
         //
-        let telegram_api_id = self.cfg.telegram_api_id.clone();
+        let telegram_api_id = self.cfg.telegram_api_id;
         let telegram_api_hash = self.cfg.telegram_api_hash.clone();
         //
-        let session_file: String = format!(
-            "{}/session_{}",
-            self.cfg.session_path,
-            session_uuid.to_string()
-        );
+        let session_file: String = format!("{}/session_{}", self.cfg.session_path, session_uuid);
         let client = Client::connect(Config {
             session: Session::load_file_or_create(&session_file)?,
-            api_id: telegram_api_id.clone(),
+            api_id: telegram_api_id,
             api_hash: telegram_api_hash.clone(),
             params: Default::default(),
         })
@@ -378,7 +358,7 @@ impl AuthTelegram for AuthTelegramService {
         }
 
         Ok(Response::new(LogOutTelegramAsBotResponse {
-            session_uuid: session_uuid,
+            session_uuid,
             message: "Logged out".to_string(),
         }))
     }

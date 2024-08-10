@@ -36,7 +36,7 @@ fmt:
 
 clippy:
 	${CARGO} clippy ${VERBOSE} --all --all-targets --all-features -- \
-		-D warnings -D clippy::enum_glob_use
+		-D warnings -D clippy::enum_glob_use -D clippy::clone_on_ref_ptr
 
 sort:
 	cargo sort -gw

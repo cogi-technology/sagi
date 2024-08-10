@@ -118,18 +118,40 @@ pub struct ApproveResponse {
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct MintRequest {
+pub struct AwardItemRequest {
     #[prost(string, tag = "1")]
     pub contract: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]
     pub account: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
+    pub cid: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
     pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct MintResponse {
+pub struct AwardItemResponse {
+    #[prost(string, tag = "1")]
+    pub txhash: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AwardItemsRequest {
+    #[prost(string, tag = "1")]
+    pub contract: ::prost::alloc::string::String,
+    #[prost(string, repeated, tag = "2")]
+    pub accounts: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    #[prost(string, repeated, tag = "3")]
+    pub cids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    #[prost(string, tag = "4")]
+    pub pin_code: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AwardItemsResponse {
     #[prost(string, tag = "1")]
     pub txhash: ::prost::alloc::string::String,
 }
@@ -186,6 +208,40 @@ pub struct IsApprovedForAllRequest {
 pub struct IsApprovedForAllResponse {
     #[prost(bool, tag = "1")]
     pub result: bool,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct TokenUriRequest {
+    #[prost(string, tag = "1")]
+    pub contract: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
+    pub token_id: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct TokenUriResponse {
+    #[prost(string, tag = "1")]
+    pub token_uri: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct BurnRequest {
+    #[prost(string, tag = "1")]
+    pub contract: ::prost::alloc::string::String,
+    #[prost(string, repeated, tag = "2")]
+    pub token_ids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    #[prost(string, tag = "3")]
+    pub pin_code: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct BurnResponse {
+    #[prost(string, tag = "1")]
+    pub txhash: ::prost::alloc::string::String,
 }
 pub mod erc721_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
@@ -270,12 +326,27 @@ pub mod erc721_actix {
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct MintJson {
+    pub struct AwardItemJson {
         #[prost(string, tag = "1")]
         pub contract: ::prost::alloc::string::String,
         #[prost(string, tag = "2")]
         pub account: ::prost::alloc::string::String,
         #[prost(string, tag = "3")]
+        pub cid: ::prost::alloc::string::String,
+        #[prost(string, tag = "4")]
+        pub pin_code: ::prost::alloc::string::String,
+    }
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct AwardItemsJson {
+        #[prost(string, tag = "1")]
+        pub contract: ::prost::alloc::string::String,
+        #[prost(string, repeated, tag = "2")]
+        pub accounts: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+        #[prost(string, repeated, tag = "3")]
+        pub cids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+        #[prost(string, tag = "4")]
         pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -310,6 +381,26 @@ pub mod erc721_actix {
         pub owner: ::prost::alloc::string::String,
         #[prost(string, tag = "3")]
         pub operator: ::prost::alloc::string::String,
+    }
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct TokenURIQuery {
+        #[prost(string, tag = "1")]
+        pub contract: ::prost::alloc::string::String,
+        #[prost(string, tag = "2")]
+        pub token_id: ::prost::alloc::string::String,
+    }
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct BurnJson {
+        #[prost(string, tag = "1")]
+        pub contract: ::prost::alloc::string::String,
+        #[prost(string, repeated, tag = "2")]
+        pub token_ids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+        #[prost(string, tag = "3")]
+        pub pin_code: ::prost::alloc::string::String,
     }
     async fn call_deploy(
         service: ::actix_web::web::Data<dyn Erc721 + Sync + Send + 'static>,
@@ -461,14 +552,14 @@ pub mod erc721_actix {
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
-    async fn call_mint(
+    async fn call_award_item(
         service: ::actix_web::web::Data<dyn Erc721 + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<::actix_web::web::Json<MintResponse>, ::actix_prost::Error> {
+    ) -> Result<::actix_web::web::Json<AwardItemResponse>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
-            MintJson,
+            AwardItemJson,
         > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await
             .map_err(|err| ::actix_prost::Error::from_actix(
@@ -476,13 +567,40 @@ pub mod erc721_actix {
                 ::tonic::Code::InvalidArgument,
             ))?
             .into_inner();
-        let request = MintRequest {
+        let request = AwardItemRequest {
             contract: json.contract,
             account: json.account,
+            cid: json.cid,
             pin_code: json.pin_code,
         };
         let request = ::actix_prost::new_request(request, &http_request);
-        let response = service.mint(request).await?;
+        let response = service.award_item(request).await?;
+        let response = response.into_inner();
+        Ok(::actix_web::web::Json(response))
+    }
+    async fn call_award_items(
+        service: ::actix_web::web::Data<dyn Erc721 + Sync + Send + 'static>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
+    ) -> Result<::actix_web::web::Json<AwardItemsResponse>, ::actix_prost::Error> {
+        let mut payload = payload.into_inner();
+        let json = <::actix_web::web::Json<
+            AwardItemsJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
+            .into_inner();
+        let request = AwardItemsRequest {
+            contract: json.contract,
+            accounts: json.accounts,
+            cids: json.cids,
+            pin_code: json.pin_code,
+        };
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service.award_items(request).await?;
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
@@ -560,6 +678,53 @@ pub mod erc721_actix {
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
+    async fn call_token_uri(
+        service: ::actix_web::web::Data<dyn Erc721 + Sync + Send + 'static>,
+        http_request: ::actix_web::HttpRequest,
+    ) -> Result<::actix_web::web::Json<TokenUriResponse>, ::actix_prost::Error> {
+        let query = <::actix_web::web::Query<
+            TokenURIQuery,
+        > as ::actix_web::FromRequest>::extract(&http_request)
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
+            .into_inner();
+        let request = TokenUriRequest {
+            contract: query.contract,
+            token_id: query.token_id,
+        };
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service.token_uri(request).await?;
+        let response = response.into_inner();
+        Ok(::actix_web::web::Json(response))
+    }
+    async fn call_burn(
+        service: ::actix_web::web::Data<dyn Erc721 + Sync + Send + 'static>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
+    ) -> Result<::actix_web::web::Json<BurnResponse>, ::actix_prost::Error> {
+        let mut payload = payload.into_inner();
+        let json = <::actix_web::web::Json<
+            BurnJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
+            .into_inner();
+        let request = BurnRequest {
+            contract: json.contract,
+            token_ids: json.token_ids,
+            pin_code: json.pin_code,
+        };
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service.burn(request).await?;
+        let response = response.into_inner();
+        Ok(::actix_web::web::Json(response))
+    }
     pub fn route_erc721(
         config: &mut ::actix_web::web::ServiceConfig,
         service: Arc<dyn Erc721 + Send + Sync + 'static>,
@@ -580,7 +745,16 @@ pub mod erc721_actix {
                 ::actix_web::web::post().to(call_transfer_from),
             );
         config.route("/api/erc721/approve", ::actix_web::web::post().to(call_approve));
-        config.route("/api/erc721/mint", ::actix_web::web::post().to(call_mint));
+        config
+            .route(
+                "/api/erc721/awardItem",
+                ::actix_web::web::post().to(call_award_item),
+            );
+        config
+            .route(
+                "/api/erc721/awardItems",
+                ::actix_web::web::post().to(call_award_items),
+            );
         config
             .route(
                 "/api/erc721/getApproved",
@@ -596,6 +770,9 @@ pub mod erc721_actix {
                 "/api/erc721/isApprovedForAll",
                 ::actix_web::web::get().to(call_is_approved_for_all),
             );
+        config
+            .route("/api/erc721/token_uri", ::actix_web::web::get().to(call_token_uri));
+        config.route("/api/erc721/burn", ::actix_web::web::post().to(call_burn));
     }
 }
 /// Generated client implementations.
@@ -774,10 +951,10 @@ pub mod erc721_client {
             let path = http::uri::PathAndQuery::from_static("/erc721.ERC721/Approve");
             self.inner.unary(request.into_request(), path, codec).await
         }
-        pub async fn mint(
+        pub async fn award_item(
             &mut self,
-            request: impl tonic::IntoRequest<super::MintRequest>,
-        ) -> Result<tonic::Response<super::MintResponse>, tonic::Status> {
+            request: impl tonic::IntoRequest<super::AwardItemRequest>,
+        ) -> Result<tonic::Response<super::AwardItemResponse>, tonic::Status> {
             self.inner
                 .ready()
                 .await
@@ -788,7 +965,24 @@ pub mod erc721_client {
                     )
                 })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/erc721.ERC721/Mint");
+            let path = http::uri::PathAndQuery::from_static("/erc721.ERC721/AwardItem");
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        pub async fn award_items(
+            &mut self,
+            request: impl tonic::IntoRequest<super::AwardItemsRequest>,
+        ) -> Result<tonic::Response<super::AwardItemsResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/erc721.ERC721/AwardItems");
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn get_approved(
@@ -848,6 +1042,40 @@ pub mod erc721_client {
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
+        pub async fn token_uri(
+            &mut self,
+            request: impl tonic::IntoRequest<super::TokenUriRequest>,
+        ) -> Result<tonic::Response<super::TokenUriResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/erc721.ERC721/TokenURI");
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        pub async fn burn(
+            &mut self,
+            request: impl tonic::IntoRequest<super::BurnRequest>,
+        ) -> Result<tonic::Response<super::BurnResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/erc721.ERC721/Burn");
+            self.inner.unary(request.into_request(), path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -881,10 +1109,14 @@ pub mod erc721_server {
             &self,
             request: tonic::Request<super::ApproveRequest>,
         ) -> Result<tonic::Response<super::ApproveResponse>, tonic::Status>;
-        async fn mint(
+        async fn award_item(
             &self,
-            request: tonic::Request<super::MintRequest>,
-        ) -> Result<tonic::Response<super::MintResponse>, tonic::Status>;
+            request: tonic::Request<super::AwardItemRequest>,
+        ) -> Result<tonic::Response<super::AwardItemResponse>, tonic::Status>;
+        async fn award_items(
+            &self,
+            request: tonic::Request<super::AwardItemsRequest>,
+        ) -> Result<tonic::Response<super::AwardItemsResponse>, tonic::Status>;
         async fn get_approved(
             &self,
             request: tonic::Request<super::GetApprovedRequest>,
@@ -897,6 +1129,14 @@ pub mod erc721_server {
             &self,
             request: tonic::Request<super::IsApprovedForAllRequest>,
         ) -> Result<tonic::Response<super::IsApprovedForAllResponse>, tonic::Status>;
+        async fn token_uri(
+            &self,
+            request: tonic::Request<super::TokenUriRequest>,
+        ) -> Result<tonic::Response<super::TokenUriResponse>, tonic::Status>;
+        async fn burn(
+            &self,
+            request: tonic::Request<super::BurnRequest>,
+        ) -> Result<tonic::Response<super::BurnResponse>, tonic::Status>;
     }
     /// Define the service for
     #[derive(Debug)]
@@ -1182,22 +1422,22 @@ pub mod erc721_server {
                     };
                     Box::pin(fut)
                 }
-                "/erc721.ERC721/Mint" => {
+                "/erc721.ERC721/AwardItem" => {
                     #[allow(non_camel_case_types)]
-                    struct MintSvc<T: Erc721>(pub Arc<T>);
-                    impl<T: Erc721> tonic::server::UnaryService<super::MintRequest>
-                    for MintSvc<T> {
-                        type Response = super::MintResponse;
+                    struct AwardItemSvc<T: Erc721>(pub Arc<T>);
+                    impl<T: Erc721> tonic::server::UnaryService<super::AwardItemRequest>
+                    for AwardItemSvc<T> {
+                        type Response = super::AwardItemResponse;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
                             tonic::Status,
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::MintRequest>,
+                            request: tonic::Request<super::AwardItemRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { (*inner).mint(request).await };
+                            let fut = async move { (*inner).award_item(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -1206,7 +1446,43 @@ pub mod erc721_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
-                        let method = MintSvc(inner);
+                        let method = AwardItemSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/erc721.ERC721/AwardItems" => {
+                    #[allow(non_camel_case_types)]
+                    struct AwardItemsSvc<T: Erc721>(pub Arc<T>);
+                    impl<T: Erc721> tonic::server::UnaryService<super::AwardItemsRequest>
+                    for AwardItemsSvc<T> {
+                        type Response = super::AwardItemsResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::AwardItemsRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move { (*inner).award_items(request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = AwardItemsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -1327,6 +1603,78 @@ pub mod erc721_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = IsApprovedForAllSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/erc721.ERC721/TokenURI" => {
+                    #[allow(non_camel_case_types)]
+                    struct TokenURISvc<T: Erc721>(pub Arc<T>);
+                    impl<T: Erc721> tonic::server::UnaryService<super::TokenUriRequest>
+                    for TokenURISvc<T> {
+                        type Response = super::TokenUriResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::TokenUriRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move { (*inner).token_uri(request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = TokenURISvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/erc721.ERC721/Burn" => {
+                    #[allow(non_camel_case_types)]
+                    struct BurnSvc<T: Erc721>(pub Arc<T>);
+                    impl<T: Erc721> tonic::server::UnaryService<super::BurnRequest>
+                    for BurnSvc<T> {
+                        type Response = super::BurnResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::BurnRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move { (*inner).burn(request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = BurnSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

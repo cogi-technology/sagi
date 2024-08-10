@@ -5,12 +5,9 @@ use {
         error::{into_anyhow, Result},
     },
     anyhow::anyhow,
-    ethers::{
-        types::{
-            transaction::eip2718::TypedTransaction, Address, BlockNumber,
-            Eip1559TransactionRequest, TransactionRequest,
-        },
-        utils::parse_ether,
+    ethers::types::{
+        transaction::eip2718::TypedTransaction, Address, BlockNumber, Eip1559TransactionRequest,
+        TransactionRequest, U256,
     },
     ethers_contract::ContractFactory,
     ethers_providers::{Http, Middleware, Provider},
@@ -69,7 +66,7 @@ impl Erc20 for Erc20Service {
         let random_client = Arc::new(
             EthereumClient::random_wallet(zion_rpc_endpoint, chain_id.as_u64())
                 .await
-                .map_err(|e| into_anyhow(e.into()))?,
+                .map_err(into_anyhow)?,
         );
 
         let mut contract_wallet =
@@ -140,7 +137,8 @@ impl Erc20 for Erc20Service {
             );
         }
 
-        let initial_supply = parse_ether(initial_supply).map_err(|e| into_anyhow(e.into()))?;
+        let initial_supply =
+            U256::from_dec_str(&initial_supply).map_err(|e| into_anyhow(e.into()))?;
         debug!("initial_supply: {initial_supply:?}");
 
         let factory = ContractFactory::new(
@@ -216,7 +214,7 @@ impl Erc20 for Erc20Service {
                 .map_err(|e| into_anyhow(e.into()))?
                 .await
                 .map_err(|e| into_anyhow(e.into()))?
-                .ok_or(into_anyhow(anyhow!("refund failed")))?;
+                .ok_or_else(|| into_anyhow(anyhow!("refund receipt is None")))?;
 
             if refund_receipt.status.unwrap().is_zero() {
                 return Err(into_anyhow(anyhow!("refund failed")));
@@ -291,7 +289,7 @@ impl Erc20 for Erc20Service {
         let spender_address = spender
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
-        let amount = parse_ether(amount).map_err(|e| into_anyhow(e.into()))?;
+        let amount = U256::from_dec_str(&amount).map_err(|e| into_anyhow(e.into()))?;
 
         let contract = ERC20Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let calldata = contract
@@ -409,7 +407,7 @@ impl Erc20 for Erc20Service {
         let recipient_address = recipient
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
-        let amount = parse_ether(amount).map_err(|e| into_anyhow(e.into()))?;
+        let amount = U256::from_dec_str(&amount).map_err(|e| into_anyhow(e.into()))?;
 
         let contract = ERC20Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let calldata = contract
@@ -431,7 +429,7 @@ impl Erc20 for Erc20Service {
                 None,
             )
             .await
-            .map_err(|e| into_anyhow(e.into()))?
+            .map_err(into_anyhow)?
             .transaction_hash;
         let txhash_string = format!("{:#x}", txhash);
 
@@ -469,7 +467,7 @@ impl Erc20 for Erc20Service {
         let recipient_address = recipient
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
-        let amount = parse_ether(amount).map_err(|e| into_anyhow(e.into()))?;
+        let amount = U256::from_dec_str(&amount).map_err(|e| into_anyhow(e.into()))?;
 
         let contract = ERC20Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let calldata = contract
@@ -491,7 +489,7 @@ impl Erc20 for Erc20Service {
                 None,
             )
             .await
-            .map_err(|e| into_anyhow(e.into()))?
+            .map_err(into_anyhow)?
             .transaction_hash;
         let txhash_string = format!("{:#x}", txhash);
         debug!("transfer_from txhash: {}", txhash_string);

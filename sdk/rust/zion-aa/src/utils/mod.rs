@@ -1,25 +1,27 @@
 // mod zero_knowledge;
 mod jwt;
 
-use crate::types::{
-    jwt::ProofPoints,
-    key::RoleWeight,
-    user_operation::{request::UserOperationRequest, UserOperationSigned},
-};
-use anyhow::{anyhow, Result};
-use ethers::{
-    abi::{encode, Token},
-    signers::LocalWallet,
-    types::{
-        transaction::eip2718::TypedTransaction, Address, BlockNumber, Bytes, TransactionRequest,
-        U256,
+use {
+    crate::types::{
+        jwt::ProofPoints,
+        key::RoleWeight,
+        user_operation::{request::UserOperationRequest, UserOperationSigned},
     },
-    utils::keccak256,
+    anyhow::{anyhow, Result},
+    ethers::{
+        abi::Token,
+        signers::LocalWallet,
+        types::{
+            transaction::eip2718::TypedTransaction, Address, BlockNumber, Bytes,
+            TransactionRequest, U256,
+        },
+        utils::keccak256,
+    },
+    ethers_providers::Middleware,
+    std::{fmt::Write, sync::Arc},
 };
-use ethers_providers::Middleware;
+
 pub use jwt::decode_jwt;
-use std::fmt::Write;
-use std::sync::Arc;
 
 #[macro_export]
 macro_rules! tokio_sleep_ms {
@@ -93,7 +95,7 @@ pub async fn fill_user_op<M: Middleware + 'static>(
             base_fee_per_gas
                 + op1
                     .max_priority_fee_per_gas
-                    .unwrap_or_else(|| default_user_operation.max_priority_fee_per_gas),
+                    .unwrap_or(default_user_operation.max_priority_fee_per_gas),
         );
     }
 

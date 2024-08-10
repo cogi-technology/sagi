@@ -8,11 +8,12 @@ option go_package = "example.com/project/protos/fizz";
 message DeployRequest {
   string name = 1;
   string symbol = 2;
-  string initial_supply = 3;
-  string units = 4;
-  repeated string ids = 5;
-  string uri = 6;
-  string pin_code = 7;
+  uint32 decimals = 3;
+  string initial_supply = 4;
+  string units = 5;
+  repeated string ids = 6;
+  string uri = 7;
+  string pin_code = 8;
 }
 
 message DeployResponse {
@@ -164,7 +165,27 @@ message ERC1155TransferExemptRequest {
 }
 
 message ERC1155TransferExemptResponse {
-  bool result = 1;
+  bool is_exempt = 1;
+}
+
+message AddTransferExemptRequest {
+  string contract = 1;
+  string target = 2;
+  string pin_code = 3;
+}
+
+message AddTransferExemptResponse {
+  string txhash = 1;
+}
+
+message RemoveTransferExemptRequest {
+  string contract = 1;
+  string target = 2;
+  string pin_code = 3;
+}
+
+message RemoveTransferExemptResponse {
+  string txhash = 1;
 }
 
 // Define the service for 
@@ -184,4 +205,6 @@ service ERC404 {
   rpc ERC1155BalanceOf (ERC1155BalanceOfRequest) returns (ERC1155BalanceOfResponse);
   rpc ERC20BalanceOf (ERC20BalanceOfRequest) returns (ERC20BalanceOfResponse);
   rpc ERC1155TransferExempt (ERC1155TransferExemptRequest) returns (ERC1155TransferExemptResponse);
+  rpc AddTransferExempt (AddTransferExemptRequest) returns (AddTransferExemptResponse);
+  rpc RemoveTransferExempt (RemoveTransferExemptRequest) returns (RemoveTransferExemptResponse);
 }

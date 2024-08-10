@@ -1,11 +1,14 @@
-use openapi_proto::zionauthorization_service::{ProofPoints, StringArray};
-use zion_aa::types::jwt::ProofPoints as SdkProofPoints;
+use {
+    openapi_proto::zionauthorization_service::{ProofPoints, StringArray},
+    zion_aa::types::jwt::ProofPoints as SdkProofPoints,
+};
 
+#[allow(dead_code)]
 pub fn sdk_proofpoint_from(value: ProofPoints) -> SdkProofPoints {
     let pi_b = value
         .pi_b
         .into_iter()
-        .map(|item| item.values.into_iter().map(|v| v).collect::<Vec<String>>())
+        .map(|item| item.values.into_iter().collect::<Vec<String>>())
         .collect::<Vec<Vec<String>>>();
 
     SdkProofPoints {

@@ -62,6 +62,7 @@ pub struct TlsConfig {
 }
 
 impl TlsConfig {
+    #[allow(dead_code)]
     pub fn get_tls_identity(&self) -> Identity {
         let cert = fs::read_to_string(self.cert.clone())
             .map_err(|x| anyhow!("Failed {} {}", self.cert, x.to_string()))
@@ -93,16 +94,28 @@ mod tests {
     #[test]
     fn test() {
         let cfg: &str = "
-        grpc-listen: 0.0.0.0:50051        
-        openapi-listen: 0.0.0.0:50052        
+        grpc-listen: 0.0.0.0:50051
+        openapi-listen: 0.0.0.0:50052
         rpc-client:
-            ethereum-rpc: https://devnet-rpc.zionx.network
+            zion-rpc: https://devnet-rpc.zionx.network
+            torii-rpc: https://torii.zionx.network
             chain-id: 176923
         tls:
             cert: openapi-server/dist/tls/server.pem
             key: openapi-server/dist/tls/server.key
         auth-secret: my-secret
         doc-path: docs/openapi
+        telegram-auth:
+            telegram_api_id: 25038662
+            telegram_api_hash: a50958c4a91203f1e443b9ea10df39a3
+            client_id: \"7109740482\"
+            token_auth_bot: \"7109740482:AAGhzij1EY8NNFo73d7fg9fJg0lAATclWYw\"
+            next_public_server_login_author: \"https://teleauthy.zionx.network\"
+            next_public_server_login_with_telegram: \"https://zklogin.zionx.network\"
+            # next_public_server_login_author: \"http://192.168.100.100:9090\"
+            # next_public_server_login_with_telegram: \"http://192.168.100.100:9090\"
+            next_public_torii: \"https://torii.zionx.network/torii\"
+            session-path: openapi-server/dist/sessions
         ";
         let c = Config::from_cfg(cfg).unwrap();
         Config::to_cfg(&c).unwrap();

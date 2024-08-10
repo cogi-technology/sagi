@@ -7,15 +7,17 @@ pub struct DeployRequest {
     pub name: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]
     pub symbol: ::prost::alloc::string::String,
-    #[prost(string, tag = "3")]
-    pub initial_supply: ::prost::alloc::string::String,
+    #[prost(uint32, tag = "3")]
+    pub decimals: u32,
     #[prost(string, tag = "4")]
+    pub initial_supply: ::prost::alloc::string::String,
+    #[prost(string, tag = "5")]
     pub units: ::prost::alloc::string::String,
-    #[prost(string, repeated, tag = "5")]
+    #[prost(string, repeated, tag = "6")]
     pub ids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-    #[prost(string, tag = "6")]
-    pub uri: ::prost::alloc::string::String,
     #[prost(string, tag = "7")]
+    pub uri: ::prost::alloc::string::String,
+    #[prost(string, tag = "8")]
     pub pin_code: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -291,7 +293,43 @@ pub struct Erc1155TransferExemptRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Erc1155TransferExemptResponse {
     #[prost(bool, tag = "1")]
-    pub result: bool,
+    pub is_exempt: bool,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AddTransferExemptRequest {
+    #[prost(string, tag = "1")]
+    pub contract: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
+    pub target: ::prost::alloc::string::String,
+    #[prost(string, tag = "3")]
+    pub pin_code: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AddTransferExemptResponse {
+    #[prost(string, tag = "1")]
+    pub txhash: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct RemoveTransferExemptRequest {
+    #[prost(string, tag = "1")]
+    pub contract: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
+    pub target: ::prost::alloc::string::String,
+    #[prost(string, tag = "3")]
+    pub pin_code: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct RemoveTransferExemptResponse {
+    #[prost(string, tag = "1")]
+    pub txhash: ::prost::alloc::string::String,
 }
 pub mod erc404_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
@@ -307,15 +345,17 @@ pub mod erc404_actix {
         pub name: ::prost::alloc::string::String,
         #[prost(string, tag = "2")]
         pub symbol: ::prost::alloc::string::String,
-        #[prost(string, tag = "3")]
-        pub initial_supply: ::prost::alloc::string::String,
+        #[prost(uint32, tag = "3")]
+        pub decimals: u32,
         #[prost(string, tag = "4")]
+        pub initial_supply: ::prost::alloc::string::String,
+        #[prost(string, tag = "5")]
         pub units: ::prost::alloc::string::String,
-        #[prost(string, repeated, tag = "5")]
+        #[prost(string, repeated, tag = "6")]
         pub ids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-        #[prost(string, tag = "6")]
-        pub uri: ::prost::alloc::string::String,
         #[prost(string, tag = "7")]
+        pub uri: ::prost::alloc::string::String,
+        #[prost(string, tag = "8")]
         pub pin_code: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -506,6 +546,7 @@ pub mod erc404_actix {
         let request = DeployRequest {
             name: json.name,
             symbol: json.symbol,
+            decimals: json.decimals,
             initial_supply: json.initial_supply,
             units: json.units,
             ids: json.ids,
@@ -1283,6 +1324,47 @@ pub mod erc404_client {
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
+        pub async fn add_transfer_exempt(
+            &mut self,
+            request: impl tonic::IntoRequest<super::AddTransferExemptRequest>,
+        ) -> Result<tonic::Response<super::AddTransferExemptResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/erc404.ERC404/AddTransferExempt",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        pub async fn remove_transfer_exempt(
+            &mut self,
+            request: impl tonic::IntoRequest<super::RemoveTransferExemptRequest>,
+        ) -> Result<
+            tonic::Response<super::RemoveTransferExemptResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/erc404.ERC404/RemoveTransferExempt",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -1358,6 +1440,14 @@ pub mod erc404_server {
             tonic::Response<super::Erc1155TransferExemptResponse>,
             tonic::Status,
         >;
+        async fn add_transfer_exempt(
+            &self,
+            request: tonic::Request<super::AddTransferExemptRequest>,
+        ) -> Result<tonic::Response<super::AddTransferExemptResponse>, tonic::Status>;
+        async fn remove_transfer_exempt(
+            &self,
+            request: tonic::Request<super::RemoveTransferExemptRequest>,
+        ) -> Result<tonic::Response<super::RemoveTransferExemptResponse>, tonic::Status>;
     }
     /// Define the service for
     #[derive(Debug)]
@@ -1988,6 +2078,86 @@ pub mod erc404_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = ERC1155TransferExemptSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/erc404.ERC404/AddTransferExempt" => {
+                    #[allow(non_camel_case_types)]
+                    struct AddTransferExemptSvc<T: Erc404>(pub Arc<T>);
+                    impl<
+                        T: Erc404,
+                    > tonic::server::UnaryService<super::AddTransferExemptRequest>
+                    for AddTransferExemptSvc<T> {
+                        type Response = super::AddTransferExemptResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::AddTransferExemptRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).add_transfer_exempt(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = AddTransferExemptSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/erc404.ERC404/RemoveTransferExempt" => {
+                    #[allow(non_camel_case_types)]
+                    struct RemoveTransferExemptSvc<T: Erc404>(pub Arc<T>);
+                    impl<
+                        T: Erc404,
+                    > tonic::server::UnaryService<super::RemoveTransferExemptRequest>
+                    for RemoveTransferExemptSvc<T> {
+                        type Response = super::RemoveTransferExemptResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::RemoveTransferExemptRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).remove_transfer_exempt(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = RemoveTransferExemptSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

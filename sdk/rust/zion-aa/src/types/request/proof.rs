@@ -1,5 +1,4 @@
-use crate::types::jwt::ProofPoints;
-use serde::Deserialize;
+use {crate::types::jwt::ProofPoints, serde::Deserialize};
 
 #[derive(Deserialize, Clone)]
 pub struct RequestProofPoints {
@@ -18,7 +17,7 @@ pub fn sdk_proofpoint_from(value: RequestProofPoints) -> ProofPoints {
     let pi_b = value
         .pi_b
         .into_iter()
-        .map(|item| item.values.into_iter().map(|v| v).collect::<Vec<String>>())
+        .map(|item| item.values.into_iter().collect::<Vec<String>>())
         .collect::<Vec<Vec<String>>>();
 
     ProofPoints {

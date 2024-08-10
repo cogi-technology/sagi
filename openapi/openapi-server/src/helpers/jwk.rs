@@ -1,12 +1,6 @@
 use {
-    serde::{
-        Deserialize,
-        Serialize,
-    },
-    std::{
-        default::Default,
-        fmt::Debug,
-    },
+    serde::{Deserialize, Serialize},
+    std::{default::Default, fmt::Debug},
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -49,6 +43,7 @@ impl Default for JwkKeyPairType {
 }
 
 impl JwkKeyPairType {
+    #[allow(dead_code)]
     pub fn as_str(&self) -> &str {
         match self {
             JwkKeyPairType::RSA => "RSA",

@@ -1,12 +1,14 @@
-use anyhow::{anyhow, Result};
-use ethers::{
-    middleware::SignerMiddleware,
-    signers::{LocalWallet, Signer},
+use {
+    anyhow::{anyhow, Result},
+    ethers::{
+        middleware::SignerMiddleware,
+        signers::{LocalWallet, Signer},
+    },
+    ethers_core::k256::schnorr::SigningKey,
+    ethers_providers::{Http, Provider, ProviderExt},
+    rand::rngs::OsRng,
+    std::sync::Arc,
 };
-use ethers_core::k256::schnorr::SigningKey;
-use ethers_providers::{Http, Provider, ProviderExt};
-use rand::rngs::OsRng;
-use std::sync::Arc;
 
 pub type Client = SignerMiddleware<Arc<Provider<Http>>, LocalWallet>;
 

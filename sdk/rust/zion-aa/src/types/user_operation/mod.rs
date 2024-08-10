@@ -3,17 +3,18 @@
 pub mod hash;
 pub mod request;
 
-use std::ops::Deref;
-
-use crate::contracts::entry_point::UserOperation;
-use anyhow::Result;
-use ethers::{
-    abi::{AbiEncode, Token},
-    types::{Address, Bytes, H256, U256},
-    utils::keccak256,
+use {
+    crate::contracts::entry_point::UserOperation,
+    anyhow::Result,
+    ethers::{
+        abi::{AbiEncode, Token},
+        types::{Address, Bytes, H256, U256},
+        utils::keccak256,
+    },
+    ethers_contract::{EthAbiCodec, EthAbiType},
+    hash::UserOperationHash,
+    std::ops::Deref,
 };
-use ethers_contract::{EthAbiCodec, EthAbiType};
-use hash::UserOperationHash;
 
 #[derive(Debug, Clone)]
 pub struct UserOperationSigned(pub UserOperation);

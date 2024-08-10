@@ -58,9 +58,9 @@ impl Router {
 
         tonic::transport::Server::builder()
             // .tls_config(ServerTlsConfig::new().identity(tls_identity))
-            .add_service(Erc20Server::from_arc(Arc::clone(&self.erc20.clone())))
-            .add_service(Erc721Server::from_arc(Arc::clone(&self.erc721.clone())))
-            .add_service(Erc404Server::from_arc(Arc::clone(&self.erc404.clone())))
+            .add_service(Erc20Server::from_arc(Arc::clone(&self.erc20)))
+            .add_service(Erc721Server::from_arc(Arc::clone(&self.erc721)))
+            .add_service(Erc404Server::from_arc(Arc::clone(&self.erc404)))
             .add_service(AuthTelegramServer::from_arc(Arc::clone(&self.authtelegram)))
             .add_service(ZionAuthorizationServer::from_arc(Arc::clone(
                 &self.zionauthorization,
@@ -72,6 +72,7 @@ impl Router {
 }
 
 impl launcher::HttpRouter for Router {
+    #[allow(clippy::clone_on_ref_ptr)]
     fn register_routes(&self, service_config: &mut actix_web::web::ServiceConfig) {
         let cors = actix_cors::Cors::default()
             .allow_any_origin()

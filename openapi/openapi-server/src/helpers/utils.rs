@@ -1,30 +1,28 @@
-use crate::config::TelegramAuthConfig;
-use crate::error::{into_anyhow, Result};
-use crate::services::zionauthorization::get_data_request_for_zion_logic;
-use anyhow::Result as AnyhowResult;
-use ethers::{signers::LocalWallet, types::Address};
-use openapi_proto::zionauthorization_service::{GetDataRequestForZionResponse, ProofPoints};
-use reqwest::{Client, Method, RequestBuilder};
-use serde::de::DeserializeOwned;
-use serde::Serialize;
-use serde_json::json;
-use std::fs;
-use std::path::Path;
-use std::result::Result::Ok;
-use std::sync::Arc;
-use std::{collections::HashMap, ops::Add};
-use tokio::time::{sleep, Duration};
-use tonic::{Response, Status};
-use zion_aa::{
-    constants::{get_contract_wallet_operator, Networkish},
-    contract_wallet::{
-        client::{Client as ZionClient, ClientMethods},
-        operator::Operator,
-        wallet::ContractWallet,
+use {
+    crate::{
+        config::TelegramAuthConfig,
+        error::{into_anyhow, Result},
+        services::zionauthorization::get_data_request_for_zion_logic,
     },
-    types::{jwt::JWTOptions, request::AuthorizationData},
+    anyhow::Result as AnyhowResult,
+    ethers::{signers::LocalWallet, types::Address},
+    jsonwebtoken::TokenData,
+    reqwest::{Client, Method, RequestBuilder},
+    serde::{de::DeserializeOwned, Serialize},
+    std::{collections::HashMap, result::Result::Ok, sync::Arc},
+    tonic::Response,
+    zion_aa::{
+        constants::{get_contract_wallet_operator, Networkish},
+        contract_wallet::{
+            client::{Client as ZionClient, ClientMethods},
+            operator::Operator,
+            wallet::ContractWallet,
+        },
+        types::{jwt::JWTOptions, request::AuthorizationData},
+    },
 };
 
+#[allow(dead_code)]
 pub async fn send_request_json<T: Serialize + DeserializeOwned, U: Serialize>(
     client: &Client,
     method: Method,
@@ -50,10 +48,11 @@ pub async fn send_request_json<T: Serialize + DeserializeOwned, U: Serialize>(
         Ok(response) => response,
         Err(e) => return Err(into_anyhow(e.into())),
     };
-    return match response.json::<T>().await {
+
+    match response.json::<T>().await {
         Ok(response) => Ok(Response::new(response)),
-        Err(e) => return Err(into_anyhow(e.into())),
-    };
+        Err(e) => Err(into_anyhow(e.into())),
+    }
 }
 
 pub async fn send_request_text<U>(
@@ -84,10 +83,11 @@ where
         Ok(response) => response,
         Err(e) => return Err(into_anyhow(e.into())),
     };
-    return match response.text().await {
+
+    match response.text().await {
         Ok(response) => Ok(Response::new(response)),
-        Err(e) => return Err(into_anyhow(e.into())),
-    };
+        Err(e) => Err(into_anyhow(e.into())),
+    }
 }
 
 pub async fn init_contract_wallet(
@@ -109,7 +109,6 @@ pub async fn init_contract_wallet(
         .iter()
         .map(|b| b.parse::<Address>().unwrap())
         .collect::<Vec<_>>();
-    // let proof = sdk_proofpoint_from(proof.unwrap());
 
     let contract_wallet_operator =
         get_contract_wallet_operator(Some(Networkish::Name("ziontestnet".into())));
@@ -122,21 +121,26 @@ pub async fn init_contract_wallet(
         )
         .await?,
     );
-    // let login_data = LoginData {
-    //     salt,
-    //     proof,
-    //     ephemeral_key_pair,
-    //     beneficiaries,
-    // };
-    let jwt_options =
-        JWTOptions::<LocalWallet>::try_init(token_data, ephemeral_key_pair, proof, salt)?;
+    let jwt_options = JWTOptions::<LocalWallet>::try_init(
+        token_data.clone(),
+        ephemeral_key_pair,
+        proof,
+        salt.clone(),
+    )?;
 
     let operator = Arc::new(Operator::new(
         contract_wallet_operator,
         Arc::clone(&client),
         address_beneficiaries,
     ));
-    let contract_address = "0x31158C661D5a1266c7A7324EE9beBc84293a67B1".parse::<Address>()?;
+    let TokenData {
+        header: _,
+        claims: payload,
+    } = token_data;
+
+    let contract_address = operator
+        .get_address(payload.sub, salt, payload.iss, payload.aud)
+        .await?;
 
     let mut contract_wallet = ContractWallet::<ZionClient, _>::new(contract_address, operator);
     contract_wallet.set_jwt(jwt_options);

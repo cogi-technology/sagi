@@ -1,17 +1,17 @@
-use crate::{
-    constants::OWNER_ROLE_WEIGHT,
-    types::key::{KeyType, RoleWeight},
+use {
+    super::KeyBase,
+    crate::{
+        constants::OWNER_ROLE_WEIGHT,
+        types::key::{KeyType, RoleWeight},
+    },
+    anyhow::Result,
+    ethers::{
+        abi::{AbiEncode, Token},
+        signers::{LocalWallet, Signer},
+        types::{Bytes, H256},
+    },
+    std::sync::Arc,
 };
-use anyhow::Result;
-use ethers::{
-    abi::AbiEncode,
-    signers::{LocalWallet, Signer},
-    types::{Bytes, H256},
-};
-use ethers_core::abi::Token;
-use std::sync::Arc;
-
-use super::KeyBase;
 
 #[derive(Clone)]
 pub struct PINCode {

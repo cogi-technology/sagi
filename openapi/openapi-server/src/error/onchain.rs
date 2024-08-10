@@ -1,7 +1,6 @@
-use ethers::types::{Bytes, U256};
-use hex::FromHex;
-use std::str;
+use {ethers::types::U256, hex::FromHex, std::str};
 
+#[allow(dead_code)]
 pub fn decode_revert_reason(data: String) -> String {
     if data.len() < 10 {
         return "Invalid revert reason data".to_string();
@@ -38,6 +37,7 @@ pub fn decode_revert_reason(data: String) -> String {
     "Unable to decode revert reason".to_string()
 }
 
+#[allow(dead_code)]
 fn decode_custom_error(data: String) -> String {
     // Here you would define how to decode the specific custom error
     // For demonstration purposes, let's assume it's a custom error with specific fields

@@ -1,17 +1,17 @@
-use crate::{
-    types::key::{KeyType, RoleWeight},
-    utils::serialize_role_weight,
+use {
+    crate::{
+        types::key::{KeyType, RoleWeight},
+        utils::serialize_role_weight,
+    },
+    anyhow::Result,
+    ethers::{
+        abi::AbiEncode,
+        signers::LocalWallet,
+        types::{Address, Bytes, H256},
+    },
+    ethers_core::abi::Token,
+    std::sync::Arc,
 };
-use anyhow::Result;
-use ethers::{
-    abi::AbiEncode,
-    signers::LocalWallet,
-    types::{Address, Bytes, H256},
-};
-use ethers_core::abi::Token;
-use std::sync::Arc;
-
-use super::KeyBase;
 
 #[derive(Clone)]
 pub struct KeyERC1271Wallet {

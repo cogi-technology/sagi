@@ -1,27 +1,27 @@
-use std::{collections::HashMap, sync::Arc};
-
-use crate::{
-    contracts::{Account, EntryPoint, Factory},
-    signer::keys::{key_jwt::KeyJWT, pincode::PINCode, KeyBase},
-    types::{
-        jwt::JWTOptions,
-        user_operation::{request::UserOperationRequest, UserOperationSigned},
+use {
+    super::{operator::Operator, sign::fill_and_sign},
+    crate::{
+        contracts::{Account, EntryPoint, Factory},
+        signer::keys::{key_jwt::KeyJWT, pincode::PINCode, KeyBase},
+        types::{
+            jwt::JWTOptions,
+            user_operation::{request::UserOperationRequest, UserOperationSigned},
+        },
+        utils::{fill_user_op, make_pin_code_holder},
     },
-    utils::{fill_user_op, make_pin_code_holder},
-};
-use anyhow::{anyhow, Result};
-use ethers::{
-    signers::Signer,
-    types::{
-        transaction::eip2718::TypedTransaction, Address, Bytes,
-        Eip1559TransactionRequest, TransactionReceipt, H160, U256,
+    anyhow::{anyhow, Result},
+    ethers::{
+        signers::Signer,
+        types::{
+            transaction::eip2718::TypedTransaction, Address, Eip1559TransactionRequest,
+            TransactionReceipt, H160, U256,
+        },
     },
+    ethers_providers::Middleware,
+    rand::Rng,
+    serde::{Deserialize, Serialize},
+    std::{collections::HashMap, sync::Arc},
 };
-use ethers_providers::Middleware;
-use rand::Rng;
-use serde::{Deserialize, Serialize};
-
-use super::{operator::Operator, sign::fill_and_sign};
 
 pub struct ContractWallet<M, S> {
     contract: Arc<Account<M>>,
@@ -90,9 +90,9 @@ where
     pub fn get_required_prefund(&self) -> Result<U256> {
         let default_user_op = UserOperationSigned::default().into_inner();
 
-        let required_gas = U256::from(default_user_op.verification_gas_limit)
-            + U256::from(default_user_op.pre_verification_gas);
-        let ret = required_gas * U256::from(default_user_op.max_fee_per_gas);
+        let required_gas =
+            default_user_op.verification_gas_limit + default_user_op.pre_verification_gas;
+        let ret = required_gas * default_user_op.max_fee_per_gas;
         Ok(ret)
     }
 
@@ -223,6 +223,7 @@ where
         Ok(receipt)
     }
 
+    #[allow(clippy::clone_on_ref_ptr)]
     pub async fn onchain_update_pin_code(
         &self,
         code: String,
@@ -326,8 +327,8 @@ where
 
         let default_chain_id = self.entry_point().client().get_chainid().await.unwrap();
         let chain_id = chain_id.unwrap_or(default_chain_id);
-        let tx_value = transaction.value.unwrap_or(U256::zero());
-        let tx_data = transaction.data.unwrap_or(Bytes::new());
+        let tx_value = transaction.value.unwrap_or_default();
+        let tx_data = transaction.data.unwrap_or_default();
         let to = transaction
             .to
             .ok_or_else(|| anyhow!("to is None!"))?
@@ -340,11 +341,6 @@ where
             .execute(to, tx_value, tx_data)
             .calldata()
             .ok_or_else(|| anyhow!("Calldata is None!"))?;
-        // Debug
-        // println!(
-        //     "ContractWallet::populate_tx::line331::tx_exec_data: {}",
-        //     hex::encode(tx_exec_data.clone())
-        // );
 
         let mut request_op = UserOperationRequest {
             nonce: self.nonce().await?,
@@ -381,9 +377,6 @@ where
         .await?
         .into_inner();
 
-        // Debug
-        // println!("ContractWallet::populate_tx::line373::op: {signed_op:#?}",);
-
         let ret = if let Some(gas_limit) = transaction.gas {
             self.entry_point()
                 .handle_ops([signed_op].into(), self.operator.pick_up_beneficiary())
@@ -396,9 +389,6 @@ where
                 .legacy()
                 .tx
         };
-
-        // Debug
-        // println!("ContractWallet::populate_tx::line387::ret: {ret:#?}",);
 
         Ok(ret)
     }

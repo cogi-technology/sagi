@@ -1,15 +1,20 @@
 use {
-    crate::{config::TelegramAuthConfig, entity::telegram::GetRequestType}, actix_web::{dev::ServiceRequest, Error}, jsonwebtoken::{decode, decode_header, errors::ErrorKind, Algorithm, DecodingKey, Validation}, jwt_simple::{
+    crate::{config::TelegramAuthConfig, entity::telegram::GetRequestType},
+    actix_web::{dev::ServiceRequest, Error},
+    jsonwebtoken::{decode_header, errors::ErrorKind, Algorithm},
+    jwt_simple::{
         algorithms::{EdDSAPublicKeyLike, RSAPublicKeyLike},
         claims::{JWTClaims, NoCustomClaims},
-    }, reqwest::Client, serde::{Deserialize, Serialize}, std::{fs, path::Path as PathFile}, zion_aa::types::jwt::JWTPayload
+    },
+    reqwest::Client,
+    serde::{Deserialize, Serialize},
 };
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Claims {
     sub: String,
     exp: u32,
-    uid: Option<String>
+    uid: Option<String>,
 }
 
 pub async fn validator_token(
@@ -37,6 +42,7 @@ fn base64_url_to_base64(base64_url: &str) -> String {
 //     path.exists() && path.is_file()
 // }
 
+#[allow(deprecated)]
 async fn validate_token(
     token: &str,
     telegram_auth_config: TelegramAuthConfig,
@@ -54,7 +60,7 @@ async fn validate_token(
     // let mut validation = Validation::new(header.alg);
     // validation.insecure_disable_signature_validation();
     // validation.validate_aud = false;
-    // let payload = match decode::<Claims>(token, &key, &validation) {    
+    // let payload = match decode::<Claims>(token, &key, &validation) {
     //     Ok(data) => data,
     //     Err(_) => return Err(jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken))
     // };
@@ -71,9 +77,7 @@ async fn validate_token(
     // };
     //
     let client = Client::new();
-    let base_url = telegram_auth_config
-        .next_public_server_login_author
-        .clone();
+    let base_url = telegram_auth_config.next_public_server_login_author.clone();
     let url = format!("{}/auth/v1/oidc/certs", base_url);
     let cert = match client.get(&url).send().await {
         Ok(response) => response,
@@ -101,10 +105,8 @@ async fn validate_token(
                     let key = jwt_simple::algorithms::RS256PublicKey::from_components(
                         &modulus, &exponent,
                     )
-                    .map_err(|_| {
-                        return jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken);
-                    })?;
-                    return match key.verify_token::<NoCustomClaims>(&token, None) {
+                    .map_err(|_| jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken))?;
+                    return match key.verify_token::<NoCustomClaims>(token, None) {
                         Ok(data) => Ok(data),
                         Err(_) => {
                             return Err(jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken))
@@ -115,9 +117,7 @@ async fn validate_token(
                     let key = jwt_simple::algorithms::RS384PublicKey::from_components(
                         &modulus, &exponent,
                     )
-                    .map_err(|_| {
-                        return jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken);
-                    })?;
+                    .map_err(|_| jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken))?;
                     return match key.verify_token::<NoCustomClaims>(token, None) {
                         Ok(data) => Ok(data),
                         Err(_) => {
@@ -129,14 +129,10 @@ async fn validate_token(
                     let key = jwt_simple::algorithms::RS512PublicKey::from_components(
                         &modulus, &exponent,
                     )
-                    .map_err(|_| {
-                        return jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken);
-                    })?;
+                    .map_err(|_| jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken))?;
                     return match key.verify_token::<NoCustomClaims>(token, None) {
                         Ok(data) => Ok(data),
-                        Err(_) => {
-                            return Err(jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken))
-                        }
+                        Err(_) => Err(jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken)),
                     };
                 }
                 Algorithm::EdDSA => {
@@ -149,15 +145,11 @@ async fn validate_token(
                     };
                     let key: jwt_simple::prelude::Ed25519PublicKey =
                         jwt_simple::algorithms::Ed25519PublicKey::from_der(&x_plus).map_err(
-                            |_| {
-                                return jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken);
-                            },
+                            |_| jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken),
                         )?;
                     return match key.verify_token::<NoCustomClaims>(token, None) {
                         Ok(data) => Ok(data),
-                        Err(_) => {
-                            return Err(jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken))
-                        }
+                        Err(_) => Err(jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken)),
                     };
                 }
                 _default => {
@@ -166,5 +158,5 @@ async fn validate_token(
             };
         }
     }
-    return Err(jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken));
+    Err(jsonwebtoken::errors::Error::from(ErrorKind::InvalidToken))
 }
