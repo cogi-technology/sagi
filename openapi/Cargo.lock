@@ -7156,6 +7156,8 @@ dependencies = [
  "serde_json",
  "thiserror",
  "tokio",
+ "tonic",
+ "uuid 1.10.0",
  "zion-logger",
 ]
 

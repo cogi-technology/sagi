@@ -73,7 +73,6 @@ impl EthermanState {
             .await
             .unwrap_or(c.start_block_number.to_string())
             .parse::<u64>()?;
-        println!("annnnnnn start_block_number:{}", b);
         Ok(Self {
             db,
             start_block_number: b.into(),

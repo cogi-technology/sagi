@@ -156,11 +156,112 @@ pub struct NewBill<'a> {
     pub paid_at: &'a NaiveDateTime,
     pub status: &'a i16,
 }
-
 #[derive(Queryable, Selectable, Insertable, AsChangeset, Debug, PartialEq)]
 #[diesel(table_name = crate::schema::states)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct State {
     pub key: String,
     pub value: String,
+}
+
+// Services 
+#[derive(Debug, thiserror::Error)]
+#[error("ServiceError: {msg}, {status}")]
+pub struct ServiceError {
+    pub msg: String,
+    pub status: i32,
+}
+
+impl ServiceError {
+    pub fn not_found(msg: String) -> Self {
+        Self {
+            msg,
+            status: Status::NotFound as i32,
+        }
+    }
+    pub fn something_wrong(msg: String) -> Self {
+        Self {
+            msg,
+            status: Status::SomethingWrong as i32,
+        }
+    }
+}
+
+impl From<diesel::result::Error> for ServiceError {
+    fn from(error: diesel::result::Error) -> Self {
+        if error == diesel::result::Error::NotFound {
+            ServiceError::not_found(error.to_string())
+        } else {
+            ServiceError::something_wrong(error.to_string())
+        }
+    }
+}
+#[derive(Queryable, Selectable, Insertable, AsChangeset, Debug, PartialEq)]
+#[diesel(table_name = crate::schema::services)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct Service {
+    pub id: String,
+    pub client_id: String,
+    pub info: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+impl Default for Service {
+    fn default() -> Self {
+        Self {
+            id: Default::default(),
+            client_id: "".into(),
+            info: "".into(),
+            created_at: Local::now().naive_utc(),
+            updated_at: Local::now().naive_utc()
+        }
+    }
+}
+
+#[derive(Queryable, Selectable, Insertable, AsChangeset, Debug, PartialEq)]
+#[diesel(table_name = crate::schema::services_webhood)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct ServiceWebhood {
+    pub id: String,
+    pub client_id: String,
+    pub endpoint_url: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+impl Default for ServiceWebhood {
+    fn default() -> Self {
+        Self {
+            id: Default::default(),
+            client_id: "".into(),
+            endpoint_url: "".into(),
+            created_at: Local::now().naive_utc(),
+            updated_at: Local::now().naive_utc()
+        }
+    }
+}
+
+#[derive(Queryable, Selectable, Insertable, AsChangeset, Debug, PartialEq)]
+#[diesel(table_name = crate::schema::services_collections)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct ServiceCollection {
+    pub id: String,
+    pub service_id: String,
+    pub address: String,
+    pub status: i32,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Queryable, Selectable, Insertable, AsChangeset, Debug, PartialEq)]
+#[diesel(table_name = crate::schema::events)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct Event {
+    pub id: String,
+    pub payload: String,
+    pub txhash: String,
+    pub status: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }

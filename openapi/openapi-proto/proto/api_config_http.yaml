@@ -21,6 +21,43 @@ http:
 
     - selector: zionauthorization.ZionAuthorization.GetDataRequestForZION
       get: /api/zionauthorization/getDataRequestForZION    
+      
+    - selector: serviceszion.ServicesZION.RegisterService
+      post: /api/serviceszion/registerService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.GetInfoService
+      post: /api/serviceszion/getInfoService  
+      body: "*"
+    - selector: serviceszion.ServicesZION.GetAllServices
+      get: /api/serviceszion/getAllServices 
+
+    - selector: serviceszion.ServicesZION.GetAllEndpointForService
+      get: /api/serviceszion/getAllEndpointForService     
+    - selector: serviceszion.ServicesZION.GetInfoEndpointForService
+      post: /api/serviceszion/getInfoEndpointForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.ResgiterEndpointForService
+      post: /api/serviceszion/resgiterEndpointForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.UnRegisterEndpointForService
+      post: /api/serviceszion/unRegisterEndpointForService     
+      body: "*"
+
+    - selector: serviceszion.ServicesZION.GetAllCollectionForService
+      get: /api/serviceszion/getAllCollectionForService     
+    - selector: serviceszion.ServicesZION.GeInfoCollectionForService
+      post: /api/serviceszion/geInfoCollectionForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.RegisterCollectionForService
+      post: /api/serviceszion/registerCollectionForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.UnRegisterCollectionForService
+      post: /api/serviceszion/unRegisterCollectionForService     
+      body: "*"
+
+    - selector: serviceszion.ServicesZION.TestSendToEndpoints
+      post: /api/serviceszion/testSendToEndpoints     
+      body: "*"
 
     - selector: erc20.ERC20.Deploy
       post: /api/erc20/deploy

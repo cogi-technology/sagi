@@ -21,3 +21,8 @@ pub mod authtelegram_service {
 pub mod zionauthorization_service {
     include!("./generated/zionauthorization.rs");
 }
+
+pub mod serviceszion_service {
+    include!("./generated/serviceszion.rs");
+}
+

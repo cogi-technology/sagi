@@ -23,3 +23,5 @@ num-traits.workspace = true
 num-derive.workspace = true
 thiserror.workspace = true
 ethers.workspace = true
+uuid.workspace = true
+tonic.workspace = true

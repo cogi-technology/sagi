@@ -21,6 +21,61 @@ diesel::table! {
 }
 
 diesel::table! {
+    events (id) {
+        #[max_length = 255]
+        id -> Varchar,
+        #[max_length = 255]
+        payload -> Varchar,
+        #[max_length = 255]
+        txhash -> Varchar,
+        #[max_length = 255]
+        status -> Varchar,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    services (id) {
+        #[max_length = 255]
+        id -> Varchar,
+        #[max_length = 255]
+        client_id -> Varchar,
+        #[max_length = 255]
+        info -> Varchar,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    services_collections (id) {
+        #[max_length = 255]
+        id -> Varchar,
+        #[max_length = 255]
+        service_id -> Varchar,
+        #[max_length = 255]
+        address -> Varchar,
+        status -> Int4,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    services_webhood (id) {
+        #[max_length = 255]
+        id -> Varchar,
+        #[max_length = 255]
+        client_id -> Varchar,
+        #[max_length = 255]
+        endpoint_url -> Varchar,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     states (key) {
         #[max_length = 255]
         key -> Varchar,
@@ -29,4 +84,11 @@ diesel::table! {
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(bills, states,);
+diesel::allow_tables_to_appear_in_same_query!(
+    bills,
+    events,
+    services,
+    services_collections,
+    services_webhood,
+    states,
+);

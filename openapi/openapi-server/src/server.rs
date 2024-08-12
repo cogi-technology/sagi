@@ -3,8 +3,7 @@ use {
         config::TelegramAuthConfig,
         helpers::http_auth::validator_token,
         services::{
-            authtelegram::AuthTelegramService, erc20::Erc20Service, erc404::Erc404Service,
-            erc721::Erc721Service, zionauthorization::ZionAuthorizationService,
+            authtelegram::AuthTelegramService, erc20::Erc20Service, erc404::Erc404Service, erc721::Erc721Service, serviceszion::ServicesZionService, zionauthorization::ZionAuthorizationService
         },
     },
     actix_files::Files,
@@ -21,12 +20,13 @@ use {
         erc20_service::{erc20_actix::route_erc20, erc20_server::Erc20Server},
         erc404_service::{erc404_actix::route_erc404, erc404_server::Erc404Server},
         erc721_service::{erc721_actix::route_erc721, erc721_server::Erc721Server},
+        serviceszion_service::{services_zion_actix::route_services_zion,services_zion_server::ServicesZionServer},
         zionauthorization_service::{
             zion_authorization_actix::route_zion_authorization,
             zion_authorization_server::ZionAuthorizationServer,
         },
     },
-    std::{net::SocketAddr, sync::Arc},
+    std::{net::SocketAddr, sync::Arc}, zion_service_db::database::Database,
 };
 
 const SERVICE_NAME: &str = "sagi_openapi_server";
@@ -47,6 +47,7 @@ struct Router {
     erc20: Arc<Erc20Service>,
     erc721: Arc<Erc721Service>,
     erc404: Arc<Erc404Service>,
+    services_zion: Arc<ServicesZionService>,
     config: ServerConfig,
     telegram_auth_config: TelegramAuthConfig,
 }
@@ -64,6 +65,9 @@ impl Router {
             .add_service(AuthTelegramServer::from_arc(Arc::clone(&self.authtelegram)))
             .add_service(ZionAuthorizationServer::from_arc(Arc::clone(
                 &self.zionauthorization,
+            )))
+            .add_service(ServicesZionServer::from_arc(Arc::clone(
+                &self.services_zion,
             )))
         // .map_err(|e| anyhow!("Failed {}", e.to_string()))
         // .unwrap()
@@ -107,7 +111,8 @@ impl launcher::HttpRouter for Router {
                     .configure(|config| route_erc404(config, self.erc404.clone()))
                     .configure(|config| {
                         route_zion_authorization(config, self.zionauthorization.clone())
-                    }),
+                    })
+                    .configure(|config| route_services_zion(config, self.services_zion.clone())),
             );
     }
 }
@@ -117,6 +122,7 @@ pub async fn run(
     torii_provider: Arc<Provider<Http>>,
     server_config: ServerConfig,
     telegram_auth_config: TelegramAuthConfig,
+    db:  Arc<Database>
 ) -> Result<(), anyhow::Error> {
     let erc20 = Arc::new(Erc20Service::new(
         Arc::clone(&zion_provider),
@@ -135,6 +141,7 @@ pub async fn run(
     ));
     let authtelegram = Arc::new(AuthTelegramService::new(telegram_auth_config.clone()));
     let zionauthorization = Arc::new(ZionAuthorizationService::new(telegram_auth_config.clone()));
+    let services_zion = Arc::new(ServicesZionService::new(db.clone()));
 
     let router = Router {
         authtelegram,
@@ -142,6 +149,7 @@ pub async fn run(
         erc721,
         erc404,
         zionauthorization,
+        services_zion,
         config: server_config.clone(),
         telegram_auth_config: telegram_auth_config.clone(),
     };

@@ -8,6 +8,7 @@ tags:
   - name: ERC20
   - name: ERC404
   - name: ERC721
+  - name: ServicesZION
 consumes:
   - application/json
 produces:
@@ -883,6 +884,231 @@ paths:
             $ref: '#/definitions/erc721TransferFromRequest'
       tags:
         - ERC721
+  /api/serviceszion/geInfoCollectionForService:
+    post:
+      operationId: ServicesZION_GeInfoCollectionForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionCollectionForService'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionGeInfoCollectionForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getAllCollectionForService:
+    get:
+      summary: Services with Collections
+      operationId: ServicesZION_GetAllCollectionForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionGetAllCollectionForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getAllEndpointForService:
+    get:
+      summary: Services with endpoints
+      operationId: ServicesZION_GetAllEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionGetAllEndpointForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getAllServices:
+    get:
+      operationId: ServicesZION_GetAllServices
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionGetAllServicesResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getInfoEndpointForService:
+    post:
+      operationId: ServicesZION_GetInfoEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionEndpointForService'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionGetInfoEndpointForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getInfoService:
+    post:
+      operationId: ServicesZION_GetInfoService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionInfoService'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionGetInfoServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/registerCollectionForService:
+    post:
+      operationId: ServicesZION_RegisterCollectionForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionRegisterCollectionForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionRegisterCollectionForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/registerService:
+    post:
+      summary: Services
+      operationId: ServicesZION_RegisterService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionInfoService'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionRegisterServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/resgiterEndpointForService:
+    post:
+      operationId: ServicesZION_ResgiterEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionResgiterEndpointForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionResgiterEndpointForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/testSendToEndpoints:
+    post:
+      operationId: ServicesZION_TestSendToEndpoints
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionTestSendToEndpointsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionTestSendToEndpointsRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/unRegisterCollectionForService:
+    post:
+      operationId: ServicesZION_UnRegisterCollectionForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionUnRegisterCollectionForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionUnRegisterCollectionForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/unRegisterEndpointForService:
+    post:
+      operationId: ServicesZION_UnRegisterEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionUnRegisterEndpointForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionUnRegisterEndpointForServiceRequest'
+      tags:
+        - ServicesZION
   /api/zionauthorization/getDataRequestForZION:
     get:
       operationId: ZionAuthorization_GetDataRequestForZION
@@ -1423,6 +1649,195 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/protobufAny'
+  serviceszionCollectionForService:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      address:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionEndpointForService:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionGeInfoCollectionForServiceRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+  serviceszionGetAllCollectionForServiceResponse:
+    type: object
+    properties:
+      lst:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/serviceszionCollectionForService'
+  serviceszionGetAllEndpointForServiceResponse:
+    type: object
+    properties:
+      lst:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/serviceszionEndpointForService'
+  serviceszionGetAllServicesResponse:
+    type: object
+    properties:
+      lstServices:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/serviceszionInfoService'
+  serviceszionGetInfoEndpointForServiceRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+  serviceszionGetInfoServiceRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+  serviceszionInfoService:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      info:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionRegisterCollectionForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      address:
+        type: string
+  serviceszionRegisterCollectionForServiceResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      address:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionRegisterServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      info:
+        type: string
+    title: Services
+  serviceszionResgiterEndpointForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+  serviceszionResgiterEndpointForServiceResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionTestSendToEndpointsRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+    title: Test Endpoints
+  serviceszionTestSendToEndpointsResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionUnRegisterCollectionForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      address:
+        type: string
+  serviceszionUnRegisterCollectionForServiceResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      address:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionUnRegisterEndpointForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+  serviceszionUnRegisterEndpointForServiceResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
   zionauthorizationGetDataRequestForZionResponse:
     type: object
     properties:

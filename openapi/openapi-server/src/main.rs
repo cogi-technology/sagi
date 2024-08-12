@@ -42,8 +42,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     //
     // etherman
-    let db: Arc<_> = Arc::new(Database::new(c.db_url));
-    let etherman: Arc<Etherman> = Arc::new(Etherman::init(db, "test".into(), c.etherman).await?);
+    let db: Arc<Database> = Arc::new(Database::new(c.db_url));
+    let etherman: Arc<Etherman> = Arc::new(Etherman::init(db.clone(), "test".into(), c.etherman).await?);
     //
     let server_config = ServerConfig {
         auth_secret: c.auth_secret,
@@ -56,7 +56,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tokio::select! {
         _ = etherman.heartbeat() => {},
         _ = async move {
-            run_server(zion_provider, torii_provider, server_config, c.telegram_auth).await
+            run_server(zion_provider, torii_provider, server_config, c.telegram_auth, db.clone()).await
         } => {},
         _ = async move {
             remove_expired_jwt_cache().await
