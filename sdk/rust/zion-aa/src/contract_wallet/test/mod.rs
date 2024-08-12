@@ -9,7 +9,7 @@ use {
     ethers::{
         signers::LocalWallet,
         types::{Address, BlockNumber, Eip1559TransactionRequest, U256},
-        utils::{parse_ether, parse_units},
+        utils::parse_ether,
     },
     ethers_contract::abigen,
     ethers_providers::Middleware,
@@ -533,7 +533,7 @@ async fn test_mint_erc721_token_via_contract_wallet() -> Result<()> {
     Ok(())
 }
 
-// #[ignore]
+#[ignore]
 #[tokio::test]
 async fn test_transfer_erc404_token_via_contract_wallet() -> Result<()> {
     let token = std::fs::read_to_string("./src/contract_wallet/test/inputs/jwt.data")?;
@@ -606,18 +606,14 @@ async fn test_transfer_erc404_token_via_contract_wallet() -> Result<()> {
 
     abigen!(ERC404, "./src/contract_wallet/test/abi/erc404.json");
 
-    let contract_address = "0xd6c791d0bb69023e7cda1f7a947b04b04a489353".parse::<Address>()?;
+    let contract_address = "0xc8401306ba73c7100e4e710221b57bdb2eccb02e".parse::<Address>()?;
     let contract = ERC404::new(contract_address, Arc::clone(&client));
 
     let before_balance = contract.balance_of(recipient).await?;
-    eprintln!("aaaaaaaaa");
     let calldata = contract
-        .transfer(recipient, U256::from_dec_str("600000").unwrap())
+        .transfer(recipient, U256::from_dec_str("111111111").unwrap())
         .calldata()
         .unwrap();
-
-    // let calldata = hex::decode("a9059cbb0000000000000000000000004284912e4bc9b862ba0069ddedcafebd6c95658c000000000000000000000000000000000000000000000000000000000007a120")?;
-    eprintln!("calldata: {:?}", calldata);
 
     let transaction = Eip1559TransactionRequest::new()
         .to(contract_address)
@@ -633,7 +629,7 @@ async fn test_transfer_erc404_token_via_contract_wallet() -> Result<()> {
     let after_balance = contract.balance_of(recipient).await?;
     eprintln!("after_balance: {:?}", after_balance);
 
-    // assert_eq!(after_balance.as_u64(), before_balance.as_u64() + 1);
+    assert_eq!(after_balance.as_u64(), before_balance.as_u64() + 111111111);
 
     Ok(())
 }

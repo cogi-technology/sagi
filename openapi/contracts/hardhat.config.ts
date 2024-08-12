@@ -22,18 +22,19 @@ const config: HardhatUserConfig = {
       url: "http://127.0.0.1:8545/",
       accounts: local_accounts,
     },
-    // zionx: {
-    //   url: "https://devnet-rpc.zionx.network",
-    //   chainId: 176923,
-    //   accounts
-    // },
+    zionx: {
+      url: "https://devnet-rpc.zionx.network",
+      chainId: 176923,
+      accounts
+    },
   },
   sourcify: {
     enabled: true,
   },
   etherscan: {
     apiKey: {
-      ganache: `${process.env.ETHERSCAN_API_KEY as string}`
+      ganache: `${process.env.ETHERSCAN_API_KEY as string}`,
+      zionx: "your API key"
     },
     customChains: [
       {
@@ -42,6 +43,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: 'http://localhost/api',
           browserURL: 'http://localhost',
+        },
+      },
+      {
+        network: 'zionx',
+        chainId: 176923,
+        urls: {
+          apiURL: 'https://devnet-explorer.zionx.network/api',
+          browserURL: 'https://devnet-explorer.zionx.network',
         },
       },
     ]
