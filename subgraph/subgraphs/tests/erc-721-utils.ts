@@ -5,7 +5,7 @@ import {
   ApprovalForAll,
   OwnershipTransferred,
   Transfer
-} from "../generated/test721/test721"
+} from "../generated/erc721/erc721"
 
 export function createApprovalEvent(
   owner: Address,

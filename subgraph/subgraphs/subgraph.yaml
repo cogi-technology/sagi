@@ -5,11 +5,11 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
-    name: test721
+    name: erc721
     network: https://devnet-rpc.zionx.network
     source:
       address: "0xc807aa2ee0d8d6d175484d165b996782b32d75d6"
-      abi: test721
+      abi: erc721
       startBlock: 1138
     mapping:
       kind: ethereum/events
@@ -21,8 +21,8 @@ dataSources:
         - OwnershipTransferred
         - Transfer
       abis:
-        - name: test721
-          file: ./abis/test721.json
+        - name: erc721
+          file: ./abis/erc721.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,indexed uint256)
           handler: handleApproval
@@ -32,4 +32,4 @@ dataSources:
           handler: handleOwnershipTransferred
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
-      file: ./src/test-721.ts
+      file: ./src/erc-721.ts

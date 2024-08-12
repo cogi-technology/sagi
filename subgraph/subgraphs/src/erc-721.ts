@@ -3,7 +3,7 @@ import {
   ApprovalForAll as ApprovalForAllEvent,
   OwnershipTransferred as OwnershipTransferredEvent,
   Transfer as TransferEvent
-} from "../generated/test721/test721"
+} from "../generated/erc721/erc721"
 import {
   Approval,
   ApprovalForAll,
