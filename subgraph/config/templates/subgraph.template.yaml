@@ -1,0 +1,34 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  {{#each datasources}}
+    - kind: {{this.kind}}
+      name: {{name}}
+      network: {{this.network}}
+      source:
+        address: "{{this.source.address}}"
+        abi: {{this.source.abi}}
+        startBlock: {{this.source.startBlock}}
+      mapping:
+        kind: {{this.mapping.kind}}
+        apiVersion: {{this.mapping.apiVersion}}
+        language: {{this.mapping.language}}
+        entities:
+        {{#each this.mapping.entities}}
+          - {{this}}
+        {{/each}}
+        abis:
+        {{#each this.mapping.abis}}
+          - name: {{name}}
+            file: {{file}}
+        {{/each}}
+        eventHandlers:
+        {{#each this.mapping.eventHandlers}}
+          - event: {{event}}
+            handler: {{handler}}
+        {{/each}}
+        file: {{this.mapping.file}}
+  {{/each}}

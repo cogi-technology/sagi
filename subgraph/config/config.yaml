@@ -1,0 +1,12 @@
+erc20:
+  network: zionx
+  address: "0xf221a7ba59fa2fbb64e71ff9c1b662ea48dfea0e"
+  startBlock: 1141
+erc721:
+  network: zionx
+  address: "0x4289a6df97c02222755b0b24ec1832cfedbac50f"
+  startBlock: 1109
+erc404:
+  network: zionx
+  address: "0xc8401306ba73c7100e4e710221b57bdb2eccb02e"
+  startBlock: 1101

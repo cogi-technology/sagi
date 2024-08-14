@@ -1,0 +1,26 @@
+kind: ethereum
+name: erc20
+network: {{network}}
+source:
+  address: "{{address}}"
+  abi: erc20
+  startBlock: {{startBlock}}
+mapping:
+  kind: ethereum/events
+  apiVersion: 0.0.7
+  language: wasm/assemblyscript
+  entities:
+    - Erc20Approval
+    - Erc20OwnershipTransferred
+    - Erc20Transfer
+  abis:
+    - name: erc20
+      file: ./abis/erc20.json
+  eventHandlers:
+    - event: Approval(indexed address,indexed address,uint256)
+      handler: handleApproval
+    - event: OwnershipTransferred(indexed address,indexed address)
+      handler: handleOwnershipTransferred
+    - event: Transfer(indexed address,indexed address,uint256)
+      handler: handleTransfer
+  file: ./src/erc-20.ts
