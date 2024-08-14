@@ -128,7 +128,7 @@ http:
       param: "contract"
     - selector: erc404.ERC404.BalanceOf
       get: /api/erc404/balanceOf
-      param: "contract&account"
+      param: "contract&account&token_id"
     - selector: erc404.ERC404.Allowance
       get: /api/erc404/allowance
       param: "contract&owner&spender"

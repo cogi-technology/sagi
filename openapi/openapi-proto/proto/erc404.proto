@@ -31,6 +31,7 @@ message TotalSupplyResponse {
 message BalanceOfRequest {
   string contract = 1;
   string account = 2;
+  optional string token_id = 3;
 }
 
 message BalanceOfResponse {

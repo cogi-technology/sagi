@@ -27,7 +27,6 @@ build-openapi-image:
 run-openapi-dev:
 	RUST_BACKTRACE=full RUST_LOG=info,hyper=info,openapi=trace${RUST_LOG} ${CARGO} run --bin openapi-server
 
-
 check-fmt:
 	cargo +nightly fmt ${VERBOSE} --all -- --check
 

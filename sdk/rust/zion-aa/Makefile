@@ -33,3 +33,6 @@ test-transfer-erc20-token:
 
 test-mint-erc721-token:
 	cargo test test_mint_erc721_token_via_contract_wallet -- --nocapture
+
+test-transfer-erc404-token:
+	cargo test test_transfer_erc404_token_via_contract_wallet -- --nocapture

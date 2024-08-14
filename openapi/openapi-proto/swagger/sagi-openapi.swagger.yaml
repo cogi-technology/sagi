@@ -331,6 +331,10 @@ paths:
           in: query
           required: false
           type: string
+        - name: token_id
+          in: query
+          required: false
+          type: string
       tags:
         - ERC404
   /api/erc404/balanceOfBatch:

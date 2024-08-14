@@ -13,7 +13,7 @@ use {
         signers::LocalWallet,
         types::{
             transaction::eip2718::TypedTransaction, Address, BlockNumber, Bytes,
-            TransactionRequest, U256,
+            Eip1559TransactionRequest, U256,
         },
         utils::keccak256,
     },
@@ -63,21 +63,22 @@ pub async fn fill_user_op<M: Middleware + 'static>(
     entry_point_address: Address,
 ) -> Result<UserOperationSigned> {
     let mut op1 = request_op;
-    // let account = Account::new(op1.sender, Arc::clone(&provider));
-    // op1.nonce = account.nonce().await?;
-    // println!("{:#?}", op1.call_data);
 
     if op1.call_gas_limit.is_none() {
-        let tx = TransactionRequest::new()
+        let tx = Eip1559TransactionRequest::new()
             .from(entry_point_address)
             .to(op1.sender)
             .data(op1.call_data.clone());
+        eprintln!("fill_user_op::tx {:?}", tx);
+
         let gas_estimated = provider
             .estimate_gas(
-                &TypedTransaction::Legacy(tx),
+                &TypedTransaction::Eip1559(tx),
                 Some(BlockNumber::Latest.into()),
             )
             .await?;
+        eprintln!("fill_user_op::gas_estimated {:?}", gas_estimated);
+
         op1.call_gas_limit = Some(gas_estimated);
     }
 
