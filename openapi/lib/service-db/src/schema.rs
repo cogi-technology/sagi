@@ -21,7 +21,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    events (id) {
+    events_erc721 (id) {
         #[max_length = 255]
         id -> Varchar,
         #[max_length = 255]
@@ -30,6 +30,11 @@ diesel::table! {
         txhash -> Varchar,
         #[max_length = 255]
         status -> Varchar,
+        #[max_length = 255]
+        method -> Varchar,
+        #[max_length = 255]
+        collection -> Varchar,
+        token_id -> Int4,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -53,10 +58,13 @@ diesel::table! {
         #[max_length = 255]
         id -> Varchar,
         #[max_length = 255]
-        service_id -> Varchar,
+        client_id -> Varchar,
         #[max_length = 255]
         address -> Varchar,
+        #[max_length = 255]
+        namespace -> Varchar,
         status -> Int4,
+        start_block_number -> Int4,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -86,7 +94,7 @@ diesel::table! {
 
 diesel::allow_tables_to_appear_in_same_query!(
     bills,
-    events,
+    events_erc721,
     services,
     services_collections,
     services_webhood,

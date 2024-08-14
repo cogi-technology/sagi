@@ -45,8 +45,8 @@ http:
 
     - selector: serviceszion.ServicesZION.GetAllCollectionForService
       get: /api/serviceszion/getAllCollectionForService     
-    - selector: serviceszion.ServicesZION.GeInfoCollectionForService
-      post: /api/serviceszion/geInfoCollectionForService     
+    - selector: serviceszion.ServicesZION.GetInfoCollectionForService
+      post: /api/serviceszion/getInfoCollectionForService     
       body: "*"
     - selector: serviceszion.ServicesZION.RegisterCollectionForService
       post: /api/serviceszion/registerCollectionForService     

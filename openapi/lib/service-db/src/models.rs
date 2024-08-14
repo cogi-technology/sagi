@@ -1,21 +1,10 @@
 use {
-    chrono::{
-        Local,
-        NaiveDateTime,
-    },
+    chrono::{Local, NaiveDateTime},
     diesel::{
-        deserialize::{
-            self,
-            FromSql,
-            FromSqlRow,
-        },
+        deserialize::{self, FromSql, FromSqlRow},
         expression::AsExpression,
         prelude::*,
-        serialize::{
-            self,
-            Output,
-            ToSql,
-        },
+        serialize::{self, Output, ToSql},
         sql_types::*,
     },
     diesel_enum::DbEnum,
@@ -105,10 +94,8 @@ impl ToSql<VarChar, diesel::pg::Pg> for Address {
 
 impl FromSql<VarChar, diesel::pg::Pg> for Address {
     fn from_sql(bytes: diesel::pg::PgValue<'_>) -> deserialize::Result<Self> {
-        <String as FromSql<VarChar, diesel::pg::Pg>>::from_sql(bytes).map(|s| {
-            Address {
-                value: s.parse().unwrap(),
-            }
+        <String as FromSql<VarChar, diesel::pg::Pg>>::from_sql(bytes).map(|s| Address {
+            value: s.parse().unwrap(),
         })
     }
 }
@@ -164,7 +151,7 @@ pub struct State {
     pub value: String,
 }
 
-// Services 
+// Services
 #[derive(Debug, thiserror::Error)]
 #[error("ServiceError: {msg}, {status}")]
 pub struct ServiceError {
@@ -214,7 +201,7 @@ impl Default for Service {
             client_id: "".into(),
             info: "".into(),
             created_at: Local::now().naive_utc(),
-            updated_at: Local::now().naive_utc()
+            updated_at: Local::now().naive_utc(),
         }
     }
 }
@@ -237,7 +224,7 @@ impl Default for ServiceWebhood {
             client_id: "".into(),
             endpoint_url: "".into(),
             created_at: Local::now().naive_utc(),
-            updated_at: Local::now().naive_utc()
+            updated_at: Local::now().naive_utc(),
         }
     }
 }
@@ -247,21 +234,73 @@ impl Default for ServiceWebhood {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct ServiceCollection {
     pub id: String,
-    pub service_id: String,
+    pub client_id: String,
     pub address: String,
+    pub namespace: String,
     pub status: i32,
+    pub start_block_number: i32,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
 
+impl Default for ServiceCollection {
+    fn default() -> Self {
+        Self {
+            id: Default::default(),
+            client_id: "".into(),
+            address: "".into(),
+            namespace: "".into(),
+            status: 1,
+            start_block_number: 1,
+            created_at: Local::now().naive_utc(),
+            updated_at: Local::now().naive_utc(),
+        }
+    }
+}
+
+pub enum StatusEvent {
+    Sent,
+    Init,
+    SentError,
+}
+
+impl StatusEvent {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            StatusEvent::Sent => "Sent",
+            StatusEvent::Init => "Init",
+            StatusEvent::SentError => "SentError",
+        }
+    }
+}
+
 #[derive(Queryable, Selectable, Insertable, AsChangeset, Debug, PartialEq)]
-#[diesel(table_name = crate::schema::events)]
+#[diesel(table_name = crate::schema::events_erc721)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct Event {
+pub struct EventErc721 {
     pub id: String,
     pub payload: String,
     pub txhash: String,
     pub status: String,
+    pub method: String,
+    pub collection: String,
+    pub token_id: i32,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+}
+
+impl Default for EventErc721 {
+    fn default() -> Self {
+        Self {
+            id: Default::default(),
+            payload: "".into(),
+            txhash: "".into(),
+            method: "".into(),
+            collection: "".into(),
+            token_id: 0,
+            status: StatusEvent::Sent.as_str().to_string(),
+            created_at: Local::now().naive_utc(),
+            updated_at: Local::now().naive_utc(),
+        }
+    }
 }

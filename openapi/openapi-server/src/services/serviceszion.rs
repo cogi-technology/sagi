@@ -1,39 +1,34 @@
 use {
-    crate::{
-        cache::JWT_CACHE,
-        config::TelegramAuthConfig,
-        entity::telegram::{GetProofRequest, GetRequestType, GetSaltRequest},
-        error::{into_anyhow, Result as TonicResult},
-        helpers::{into::proto_proofpoint_from, utils::send_request_text},
-    },
-    anyhow::{anyhow, Result},
-    ethers::signers::{LocalWallet, Signer},
-    ethers_core::{k256::ecdsa::SigningKey, rand::rngs::OsRng},
-    jsonwebtoken::TokenData,
-    openapi_logger::debug,
+    crate::error::Result as TonicResult,
     openapi_proto::serviceszion_service::{services_zion_server::ServicesZion, *},
-    reqwest::{Client as ClientReqwest, Method},
     std::sync::Arc,
-    tonic::{metadata::MetadataMap, Request, Response, Status},
-    zion_aa::{
-        address_to_string,
-        types::{
-            jwt::{JWTPayload, ProofPoints as SdkProofPoints},
-            request::AuthorizationData,
+    tonic::{Request, Response, Status},
+    zion_service_db::{
+        database::Database,
+        repositories::{
+            services::Services, services_collection::ServicesCollection,
+            services_webhood::ServicesWebhood,
         },
     },
-    zion_service_db::{database::Database, repositories::services::Services},
 };
 
 #[derive(Debug, Clone)]
 pub struct ServicesZionService {
-    services_db: Arc<Services>, // pub cfg: TelegramAuthConfig,
+    services_db: Arc<Services>,
+    services_webhood_db: Arc<ServicesWebhood>,
+    services_collection_db: Arc<ServicesCollection>,
 }
 
 impl ServicesZionService {
     pub fn new(db: Arc<Database>) -> Self {
         let services_db = Arc::new(Services::new(Arc::clone(&db)));
-        Self { services_db }
+        let services_webhood_db = Arc::new(ServicesWebhood::new(Arc::clone(&db)));
+        let services_collection_db = Arc::new(ServicesCollection::new(Arc::clone(&db)));
+        Self {
+            services_db,
+            services_webhood_db,
+            services_collection_db,
+        }
     }
 }
 
@@ -43,6 +38,12 @@ impl ServicesZion for ServicesZionService {
         &self,
         req: Request<RegisterServiceRequest>,
     ) -> TonicResult<Response<InfoService>> {
+        if req.get_ref().client_id.is_empty() || req.get_ref().info.is_empty() {
+            return Err(Status::new(
+                tonic::Code::InvalidArgument,
+                "client_id or info is empty",
+            ));
+        }
         let response = self
             .services_db
             .register_service(req.get_ref().client_id.clone(), req.get_ref().info.clone())
@@ -56,7 +57,7 @@ impl ServicesZion for ServicesZionService {
                 response.created_at = service.created_at.to_string();
                 response.updated_at = service.updated_at.to_string();
                 Ok(Response::new(response))
-            },
+            }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
         }
     }
@@ -68,19 +69,22 @@ impl ServicesZion for ServicesZionService {
         let response = self.services_db.get_all().await;
         match response {
             Ok(service) => {
-                let lst_services = service.iter().map(|s| {
-                    let mut response = InfoService::default();
-                    response.id = s.id.clone();
-                    response.client_id = s.client_id.clone();
-                    response.info = s.info.clone();
-                    response.created_at = s.created_at.to_string();
-                    response.updated_at = s.updated_at.to_string();
-                    response
-                }).collect();
+                let lst_services = service
+                    .iter()
+                    .map(|s| {
+                        let mut response = InfoService::default();
+                        response.id = s.id.clone();
+                        response.client_id = s.client_id.clone();
+                        response.info = s.info.clone();
+                        response.created_at = s.created_at.to_string();
+                        response.updated_at = s.updated_at.to_string();
+                        response
+                    })
+                    .collect();
                 let mut response = GetAllServicesResponse::default();
-                response.lst_services = lst_services;
+                response.data = lst_services;
                 Ok(Response::new(response))
-            },
+            }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
         }
     }
@@ -89,7 +93,10 @@ impl ServicesZion for ServicesZionService {
         &self,
         req: Request<GetInfoServiceRequest>,
     ) -> TonicResult<Response<InfoService>> {
-        let response = self.services_db.get(req.get_ref().id.clone(), req.get_ref().client_id.clone()).await;
+        let response = self
+            .services_db
+            .get(req.get_ref().id.clone(), req.get_ref().client_id.clone())
+            .await;
         match response {
             Ok(service) => {
                 let mut response = InfoService::default();
@@ -99,7 +106,7 @@ impl ServicesZion for ServicesZionService {
                 response.created_at = service.created_at.to_string();
                 response.updated_at = service.updated_at.to_string();
                 Ok(Response::new(response))
-            },
+            }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
         }
     }
@@ -109,57 +116,220 @@ impl ServicesZion for ServicesZionService {
         &self,
         _: Request<GetAllEndpointForServiceRequest>,
     ) -> TonicResult<Response<GetAllEndpointForServiceResponse>> {
-        Err(Status::new(tonic::Code::Aborted, "Error".to_string()))
+        let response = self.services_webhood_db.get_all().await;
+        match response {
+            Ok(service) => {
+                let lst_services = service
+                    .iter()
+                    .map(|s| {
+                        let mut response = EndpointForService::default();
+                        response.id = s.id.clone();
+                        response.client_id = s.client_id.clone();
+                        response.endpoint_url = s.endpoint_url.clone();
+                        response.created_at = s.created_at.to_string();
+                        response.updated_at = s.updated_at.to_string();
+                        response
+                    })
+                    .collect();
+                let mut response = GetAllEndpointForServiceResponse::default();
+                response.data = lst_services;
+                Ok(Response::new(response))
+            }
+            Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
+        }
     }
 
     async fn get_info_endpoint_for_service(
         &self,
         req: Request<GetInfoEndpointForServiceRequest>,
     ) -> TonicResult<Response<EndpointForService>> {
-        Err(Status::new(tonic::Code::Aborted, "Error".to_string()))
+        let response = self
+            .services_webhood_db
+            .get(req.get_ref().id.clone(), req.get_ref().client_id.clone())
+            .await;
+        match response {
+            Ok(service) => {
+                let mut response = EndpointForService::default();
+                response.id = service.id.clone();
+                response.client_id = service.client_id.clone();
+                response.endpoint_url = service.endpoint_url.clone();
+                response.created_at = service.created_at.to_string();
+                response.updated_at = service.updated_at.to_string();
+                Ok(Response::new(response))
+            }
+            Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
+        }
     }
 
     async fn resgiter_endpoint_for_service(
         &self,
         req: Request<ResgiterEndpointForServiceRequest>,
     ) -> TonicResult<Response<ResgiterEndpointForServiceResponse>> {
-        Err(Status::new(tonic::Code::Aborted, "Error".to_string()))
+        if req.get_ref().client_id.is_empty() || req.get_ref().endpoint_url.is_empty() {
+            return Err(Status::new(
+                tonic::Code::InvalidArgument,
+                "client_id or endpoint_url is empty",
+            ));
+        }
+        let response = self
+            .services_webhood_db
+            .register_service_webhood(
+                req.get_ref().client_id.clone(),
+                req.get_ref().endpoint_url.clone(),
+            )
+            .await;
+        match response {
+            Ok(service) => {
+                let mut response = ResgiterEndpointForServiceResponse::default();
+                response.id = service.id.clone();
+                response.client_id = service.client_id.clone();
+                response.endpoint_url = service.endpoint_url.clone();
+                response.created_at = service.created_at.to_string();
+                response.updated_at = service.updated_at.to_string();
+                Ok(Response::new(response))
+            }
+            Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
+        }
     }
 
     async fn un_register_endpoint_for_service(
         &self,
         req: Request<UnRegisterEndpointForServiceRequest>,
     ) -> TonicResult<Response<UnRegisterEndpointForServiceResponse>> {
-        Err(Status::new(tonic::Code::Aborted, "Error".to_string()))
+        if req.get_ref().client_id.is_empty() {
+            return Err(Status::new(
+                tonic::Code::InvalidArgument,
+                "client_id is empty",
+            ));
+        }
+        let response = self
+            .services_webhood_db
+            .un_register_service_webhood(req.get_ref().client_id.clone())
+            .await;
+        match response {
+            Ok(service) => {
+                let mut response = UnRegisterEndpointForServiceResponse::default();
+                response.id = service.id.clone();
+                response.client_id = service.client_id.clone();
+                response.endpoint_url = service.endpoint_url.clone();
+                response.created_at = service.created_at.to_string();
+                response.updated_at = service.updated_at.to_string();
+                Ok(Response::new(response))
+            }
+            Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
+        }
     }
 
     //Service Collections
     async fn get_all_collection_for_service(
         &self,
-        req: Request<GetAllCollectionForServiceRequest>,
+        _: Request<GetAllCollectionForServiceRequest>,
     ) -> TonicResult<Response<GetAllCollectionForServiceResponse>> {
-        Err(Status::new(tonic::Code::Aborted, "Error".to_string()))
+        let response = self.services_collection_db.get_all().await;
+        match response {
+            Ok(service) => {
+                let lst_services = service
+                    .iter()
+                    .map(|s| {
+                        let mut response = CollectionForService::default();
+                        response.id = s.id.clone();
+                        response.client_id = s.client_id.clone();
+                        response.address = s.address.clone();
+                        response.created_at = s.created_at.to_string();
+                        response.updated_at = s.updated_at.to_string();
+                        response
+                    })
+                    .collect();
+                let mut response = GetAllCollectionForServiceResponse::default();
+                response.data = lst_services;
+                Ok(Response::new(response))
+            }
+            Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
+        }
     }
 
-    async fn ge_info_collection_for_service(
+    async fn get_info_collection_for_service(
         &self,
         req: Request<GeInfoCollectionForServiceRequest>,
     ) -> TonicResult<Response<CollectionForService>> {
-        Err(Status::new(tonic::Code::Aborted, "Error".to_string()))
+        let response = self
+            .services_collection_db
+            .get(req.get_ref().id.clone(), req.get_ref().client_id.clone())
+            .await;
+        match response {
+            Ok(service) => {
+                let mut response = CollectionForService::default();
+                response.id = service.id.clone();
+                response.client_id = service.client_id.clone();
+                response.address = service.address.clone();
+                response.created_at = service.created_at.to_string();
+                response.updated_at = service.updated_at.to_string();
+                Ok(Response::new(response))
+            }
+            Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
+        }
     }
 
     async fn register_collection_for_service(
         &self,
         req: Request<RegisterCollectionForServiceRequest>,
     ) -> TonicResult<Response<RegisterCollectionForServiceResponse>> {
-        Err(Status::new(tonic::Code::Aborted, "Error".to_string()))
+        if req.get_ref().client_id.is_empty() || req.get_ref().address.is_empty() {
+            return Err(Status::new(
+                tonic::Code::InvalidArgument,
+                "client_id or address is empty",
+            ));
+        }
+        let response = self
+            .services_collection_db
+            .register_service_collection(
+                req.get_ref().client_id.clone(),
+                req.get_ref().address.clone(),
+                req.get_ref().namespace.clone(),
+                req.get_ref().start_block_number.clone(),
+            )
+            .await;
+        match response {
+            Ok(service) => {
+                let mut response = RegisterCollectionForServiceResponse::default();
+                response.id = service.id.clone();
+                response.client_id = service.client_id.clone();
+                response.address = service.address.clone();
+                response.namespace = service.namespace.clone();
+                response.created_at = service.created_at.to_string();
+                response.updated_at = service.updated_at.to_string();
+                Ok(Response::new(response))
+            }
+            Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
+        }
     }
 
     async fn un_register_collection_for_service(
         &self,
         req: Request<UnRegisterCollectionForServiceRequest>,
     ) -> TonicResult<Response<UnRegisterCollectionForServiceResponse>> {
-        Err(Status::new(tonic::Code::Aborted, "Error".to_string()))
+        if req.get_ref().client_id.is_empty() {
+            return Err(Status::new(
+                tonic::Code::InvalidArgument,
+                "client_id is empty",
+            ));
+        }
+        let response = self
+            .services_collection_db
+            .un_register_service_collection(req.get_ref().client_id.clone())
+            .await;
+        match response {
+            Ok(service) => {
+                let mut response = UnRegisterCollectionForServiceResponse::default();
+                response.id = service.id.clone();
+                response.client_id = service.client_id.clone();
+                response.address = service.address.clone();
+                response.created_at = service.created_at.to_string();
+                response.updated_at = service.updated_at.to_string();
+                Ok(Response::new(response))
+            }
+            Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
+        }
     }
 
     // Test Service
@@ -167,6 +337,10 @@ impl ServicesZion for ServicesZionService {
         &self,
         req: Request<TestSendToEndpointsRequest>,
     ) -> TonicResult<Response<TestSendToEndpointsResponse>> {
-        Err(Status::new(tonic::Code::Aborted, "Error".to_string()))
+        let mut response = TestSendToEndpointsResponse::default();
+        response.code = "1".to_string();
+        response.description = "Success".to_string();
+        response.id = req.get_ref().id.clone();
+        Ok(Response::new(response))
     }
 }

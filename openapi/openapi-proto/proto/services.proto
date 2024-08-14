@@ -12,7 +12,7 @@ message RegisterServiceRequest {
 
 message GetAllServicesRequest {}
 message GetAllServicesResponse {
-  repeated InfoService lstServices = 1;
+  repeated InfoService data = 1;
 }
 
 message GetInfoServiceRequest {
@@ -31,7 +31,7 @@ message InfoService {
 // Services with endpoints
 message GetAllEndpointForServiceRequest {}
 message GetAllEndpointForServiceResponse {
-  repeated EndpointForService lst = 1;
+  repeated EndpointForService data = 1;
 }
 
 message GetInfoEndpointForServiceRequest {
@@ -75,7 +75,7 @@ message UnRegisterEndpointForServiceResponse {
 // Services with Collections
 message GetAllCollectionForServiceRequest {}
 message GetAllCollectionForServiceResponse {
-  repeated CollectionForService lst = 1;
+  repeated CollectionForService data = 1;
 }
 
 message GeInfoCollectionForServiceRequest {
@@ -94,14 +94,18 @@ message CollectionForService {
 message RegisterCollectionForServiceRequest {
   string client_id = 1;
   string address = 2;
+  string namespace = 3;
+  int32 start_block_number = 4;
 }
 
 message RegisterCollectionForServiceResponse {
   string id = 1;
   string client_id = 2;
   string address = 3;
-  string created_at = 4;
-  string updated_at = 5;
+  string namespace = 4;
+  int32 start_block_number = 5;
+  string created_at = 6;
+  string updated_at = 7;
 }
 
 message UnRegisterCollectionForServiceRequest {
@@ -113,21 +117,24 @@ message UnRegisterCollectionForServiceResponse {
   string id = 1;
   string client_id = 2;
   string address = 3;
-  string created_at = 4;
-  string updated_at = 5;
+  int32 start_block_number = 4;
+  string created_at = 5;
+  string updated_at = 6;
 }
 
 // Test Endpoints
 message TestSendToEndpointsRequest {
-  string client_id = 1;
+  string id = 1;
+  string client_id = 2;
+  string payload = 3;
+  string owner = 4;
 }
 
 message TestSendToEndpointsResponse {
   string id = 1;
-  string client_id = 2;
-  string endpoint_url = 3;
-  string created_at = 4;
-  string updated_at = 5;
+  string code = 2;
+  string description = 3;
+  string additionalInfo = 4;
 }
 
 // Define the service for 
@@ -143,7 +150,7 @@ service ServicesZION {
   rpc UnRegisterEndpointForService (UnRegisterEndpointForServiceRequest) returns (UnRegisterEndpointForServiceResponse);
   // Services with Collections
   rpc GetAllCollectionForService (GetAllCollectionForServiceRequest) returns (GetAllCollectionForServiceResponse);
-  rpc GeInfoCollectionForService (GeInfoCollectionForServiceRequest) returns (CollectionForService);
+  rpc GetInfoCollectionForService (GeInfoCollectionForServiceRequest) returns (CollectionForService);
   rpc RegisterCollectionForService (RegisterCollectionForServiceRequest) returns (RegisterCollectionForServiceResponse);
   rpc UnRegisterCollectionForService (UnRegisterCollectionForServiceRequest) returns (UnRegisterCollectionForServiceResponse);
   rpc TestSendToEndpoints (TestSendToEndpointsRequest) returns (TestSendToEndpointsResponse);

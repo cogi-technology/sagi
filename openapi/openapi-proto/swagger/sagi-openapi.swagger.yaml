@@ -884,26 +884,6 @@ paths:
             $ref: '#/definitions/erc721TransferFromRequest'
       tags:
         - ERC721
-  /api/serviceszion/geInfoCollectionForService:
-    post:
-      operationId: ServicesZION_GeInfoCollectionForService
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/serviceszionCollectionForService'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/serviceszionGeInfoCollectionForServiceRequest'
-      tags:
-        - ServicesZION
   /api/serviceszion/getAllCollectionForService:
     get:
       summary: Services with Collections
@@ -946,6 +926,26 @@ paths:
           description: An unexpected error response.
           schema:
             $ref: '#/definitions/rpcStatus'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getInfoCollectionForService:
+    post:
+      operationId: ServicesZION_GetInfoCollectionForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionCollectionForService'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionGeInfoCollectionForServiceRequest'
       tags:
         - ServicesZION
   /api/serviceszion/getInfoEndpointForService:
@@ -1685,7 +1685,7 @@ definitions:
   serviceszionGetAllCollectionForServiceResponse:
     type: object
     properties:
-      lst:
+      data:
         type: array
         items:
           type: object
@@ -1693,7 +1693,7 @@ definitions:
   serviceszionGetAllEndpointForServiceResponse:
     type: object
     properties:
-      lst:
+      data:
         type: array
         items:
           type: object
@@ -1701,7 +1701,7 @@ definitions:
   serviceszionGetAllServicesResponse:
     type: object
     properties:
-      lstServices:
+      data:
         type: array
         items:
           type: object
@@ -1740,6 +1740,11 @@ definitions:
         type: string
       address:
         type: string
+      namespace:
+        type: string
+      start_block_number:
+        type: integer
+        format: int32
   serviceszionRegisterCollectionForServiceResponse:
     type: object
     properties:
@@ -1749,6 +1754,11 @@ definitions:
         type: string
       address:
         type: string
+      namespace:
+        type: string
+      start_block_number:
+        type: integer
+        format: int32
       created_at:
         type: string
       updated_at:
@@ -1784,7 +1794,13 @@ definitions:
   serviceszionTestSendToEndpointsRequest:
     type: object
     properties:
+      id:
+        type: string
       client_id:
+        type: string
+      payload:
+        type: string
+      owner:
         type: string
     title: Test Endpoints
   serviceszionTestSendToEndpointsResponse:
@@ -1792,13 +1808,11 @@ definitions:
     properties:
       id:
         type: string
-      client_id:
+      code:
         type: string
-      endpoint_url:
+      description:
         type: string
-      created_at:
-        type: string
-      updated_at:
+      additionalInfo:
         type: string
   serviceszionUnRegisterCollectionForServiceRequest:
     type: object
@@ -1816,6 +1830,9 @@ definitions:
         type: string
       address:
         type: string
+      start_block_number:
+        type: integer
+        format: int32
       created_at:
         type: string
       updated_at:

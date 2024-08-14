@@ -17,7 +17,7 @@ pub struct GetAllServicesRequest {}
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetAllServicesResponse {
     #[prost(message, repeated, tag = "1")]
-    pub lst_services: ::prost::alloc::vec::Vec<InfoService>,
+    pub data: ::prost::alloc::vec::Vec<InfoService>,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -53,7 +53,7 @@ pub struct GetAllEndpointForServiceRequest {}
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetAllEndpointForServiceResponse {
     #[prost(message, repeated, tag = "1")]
-    pub lst: ::prost::alloc::vec::Vec<EndpointForService>,
+    pub data: ::prost::alloc::vec::Vec<EndpointForService>,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -135,7 +135,7 @@ pub struct GetAllCollectionForServiceRequest {}
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GetAllCollectionForServiceResponse {
     #[prost(message, repeated, tag = "1")]
-    pub lst: ::prost::alloc::vec::Vec<CollectionForService>,
+    pub data: ::prost::alloc::vec::Vec<CollectionForService>,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -169,6 +169,10 @@ pub struct RegisterCollectionForServiceRequest {
     pub client_id: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]
     pub address: ::prost::alloc::string::String,
+    #[prost(string, tag = "3")]
+    pub namespace: ::prost::alloc::string::String,
+    #[prost(int32, tag = "4")]
+    pub start_block_number: i32,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -181,8 +185,12 @@ pub struct RegisterCollectionForServiceResponse {
     #[prost(string, tag = "3")]
     pub address: ::prost::alloc::string::String,
     #[prost(string, tag = "4")]
+    pub namespace: ::prost::alloc::string::String,
+    #[prost(int32, tag = "5")]
+    pub start_block_number: i32,
+    #[prost(string, tag = "6")]
     pub created_at: ::prost::alloc::string::String,
-    #[prost(string, tag = "5")]
+    #[prost(string, tag = "7")]
     pub updated_at: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -204,9 +212,11 @@ pub struct UnRegisterCollectionForServiceResponse {
     pub client_id: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
     pub address: ::prost::alloc::string::String,
-    #[prost(string, tag = "4")]
-    pub created_at: ::prost::alloc::string::String,
+    #[prost(int32, tag = "4")]
+    pub start_block_number: i32,
     #[prost(string, tag = "5")]
+    pub created_at: ::prost::alloc::string::String,
+    #[prost(string, tag = "6")]
     pub updated_at: ::prost::alloc::string::String,
 }
 /// Test Endpoints
@@ -215,7 +225,13 @@ pub struct UnRegisterCollectionForServiceResponse {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct TestSendToEndpointsRequest {
     #[prost(string, tag = "1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
     pub client_id: ::prost::alloc::string::String,
+    #[prost(string, tag = "3")]
+    pub payload: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
+    pub owner: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -224,13 +240,11 @@ pub struct TestSendToEndpointsResponse {
     #[prost(string, tag = "1")]
     pub id: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]
-    pub client_id: ::prost::alloc::string::String,
+    pub code: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
-    pub endpoint_url: ::prost::alloc::string::String,
+    pub description: ::prost::alloc::string::String,
     #[prost(string, tag = "4")]
-    pub created_at: ::prost::alloc::string::String,
-    #[prost(string, tag = "5")]
-    pub updated_at: ::prost::alloc::string::String,
+    pub additional_info: ::prost::alloc::string::String,
 }
 pub mod services_zion_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
@@ -284,7 +298,7 @@ pub mod services_zion_actix {
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct GeInfoCollectionForServiceJson {
+    pub struct GetInfoCollectionForServiceJson {
         #[prost(string, optional, tag = "1")]
         pub id: ::core::option::Option<::prost::alloc::string::String>,
         #[prost(string, optional, tag = "2")]
@@ -298,6 +312,10 @@ pub mod services_zion_actix {
         pub client_id: ::prost::alloc::string::String,
         #[prost(string, tag = "2")]
         pub address: ::prost::alloc::string::String,
+        #[prost(string, tag = "3")]
+        pub namespace: ::prost::alloc::string::String,
+        #[prost(int32, tag = "4")]
+        pub start_block_number: i32,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -314,7 +332,13 @@ pub mod services_zion_actix {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct TestSendToEndpointsJson {
         #[prost(string, tag = "1")]
+        pub id: ::prost::alloc::string::String,
+        #[prost(string, tag = "2")]
         pub client_id: ::prost::alloc::string::String,
+        #[prost(string, tag = "3")]
+        pub payload: ::prost::alloc::string::String,
+        #[prost(string, tag = "4")]
+        pub owner: ::prost::alloc::string::String,
     }
     async fn call_register_service(
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
@@ -478,14 +502,14 @@ pub mod services_zion_actix {
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
-    async fn call_ge_info_collection_for_service(
+    async fn call_get_info_collection_for_service(
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<CollectionForService>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
-            GeInfoCollectionForServiceJson,
+            GetInfoCollectionForServiceJson,
         > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
             .await
             .map_err(|err| ::actix_prost::Error::from_actix(
@@ -498,7 +522,7 @@ pub mod services_zion_actix {
             client_id: json.client_id,
         };
         let request = ::actix_prost::new_request(request, &http_request);
-        let response = service.ge_info_collection_for_service(request).await?;
+        let response = service.get_info_collection_for_service(request).await?;
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
@@ -523,6 +547,8 @@ pub mod services_zion_actix {
         let request = RegisterCollectionForServiceRequest {
             client_id: json.client_id,
             address: json.address,
+            namespace: json.namespace,
+            start_block_number: json.start_block_number,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.register_collection_for_service(request).await?;
@@ -575,7 +601,10 @@ pub mod services_zion_actix {
             ))?
             .into_inner();
         let request = TestSendToEndpointsRequest {
+            id: json.id,
             client_id: json.client_id,
+            payload: json.payload,
+            owner: json.owner,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.test_send_to_endpoints(request).await?;
@@ -629,8 +658,8 @@ pub mod services_zion_actix {
             );
         config
             .route(
-                "/api/serviceszion/geInfoCollectionForService",
-                ::actix_web::web::post().to(call_ge_info_collection_for_service),
+                "/api/serviceszion/getInfoCollectionForService",
+                ::actix_web::web::post().to(call_get_info_collection_for_service),
             );
         config
             .route(
@@ -886,7 +915,7 @@ pub mod services_zion_client {
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
-        pub async fn ge_info_collection_for_service(
+        pub async fn get_info_collection_for_service(
             &mut self,
             request: impl tonic::IntoRequest<super::GeInfoCollectionForServiceRequest>,
         ) -> Result<tonic::Response<super::CollectionForService>, tonic::Status> {
@@ -901,7 +930,7 @@ pub mod services_zion_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/serviceszion.ServicesZION/GeInfoCollectionForService",
+                "/serviceszion.ServicesZION/GetInfoCollectionForService",
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
@@ -1026,7 +1055,7 @@ pub mod services_zion_server {
             tonic::Response<super::GetAllCollectionForServiceResponse>,
             tonic::Status,
         >;
-        async fn ge_info_collection_for_service(
+        async fn get_info_collection_for_service(
             &self,
             request: tonic::Request<super::GeInfoCollectionForServiceRequest>,
         ) -> Result<tonic::Response<super::CollectionForService>, tonic::Status>;
@@ -1443,14 +1472,14 @@ pub mod services_zion_server {
                     };
                     Box::pin(fut)
                 }
-                "/serviceszion.ServicesZION/GeInfoCollectionForService" => {
+                "/serviceszion.ServicesZION/GetInfoCollectionForService" => {
                     #[allow(non_camel_case_types)]
-                    struct GeInfoCollectionForServiceSvc<T: ServicesZion>(pub Arc<T>);
+                    struct GetInfoCollectionForServiceSvc<T: ServicesZion>(pub Arc<T>);
                     impl<
                         T: ServicesZion,
                     > tonic::server::UnaryService<
                         super::GeInfoCollectionForServiceRequest,
-                    > for GeInfoCollectionForServiceSvc<T> {
+                    > for GetInfoCollectionForServiceSvc<T> {
                         type Response = super::CollectionForService;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
@@ -1464,7 +1493,7 @@ pub mod services_zion_server {
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
-                                (*inner).ge_info_collection_for_service(request).await
+                                (*inner).get_info_collection_for_service(request).await
                             };
                             Box::pin(fut)
                         }
@@ -1474,7 +1503,7 @@ pub mod services_zion_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
-                        let method = GeInfoCollectionForServiceSvc(inner);
+                        let method = GetInfoCollectionForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

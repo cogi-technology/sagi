@@ -1,30 +1,61 @@
 use {
     super::abi::*,
-    crate::{config::Config, db_string, tokio_sleep_ms},
-    anyhow::{anyhow, Result},
-    chrono::Local,
+    crate::{
+        config::Config,
+        db_string,
+        tokio_sleep_ms,
+    },
+    anyhow::{
+        anyhow,
+        Result,
+    },
     ethers::{
         middleware::SignerMiddleware,
         providers::Provider,
-        signers::{LocalWallet, Signer},
-        types::{Address, Filter, Log, H160, H256, U256},
+        signers::{
+            LocalWallet,
+            Signer,
+        },
+        types::{
+            Address,
+            Filter,
+            Log,
+            H256,
+            U256,
+        },
         utils::keccak256,
     },
     ethers_contract::EthEvent,
-    ethers_providers::{Http, Middleware, ProviderExt},
-    futures::{stream::FuturesUnordered, FutureExt, StreamExt},
-    std::{
-        str::FromStr,
-        sync::{
-            atomic::{AtomicU64, Ordering},
-            Arc,
-        },
+    ethers_providers::{
+        Http,
+        Middleware,
+        ProviderExt,
     },
-    zion_logger::{debug, info, tracing, warn},
+    futures::{
+        stream::FuturesUnordered,
+        FutureExt,
+        StreamExt,
+    },
+    std::sync::{
+        atomic::{
+            AtomicU64,
+            Ordering,
+        },
+        Arc,
+    },
     zion_service_db::{
         database::Database,
-        models::{EventErc721, StatusEvent},
-        repositories::{bill::Bills, events::Events, services_collection::ServicesCollection, state::States},
+        models::Status,
+        repositories::{
+            bill::Bills,
+            state::States,
+        },
+    },
+    zion_logger::{
+        debug,
+        info,
+        tracing,
+        warn,
     },
 };
 
@@ -74,29 +105,24 @@ impl EthermanState {
 type Client = SignerMiddleware<Arc<Provider<Http>>, LocalWallet>;
 
 pub struct Etherman {
-    erc721_contract: Arc<KogiERC721<Client>>,
+    rewarder_contract: Arc<RewardPool<Client>>,
     state: Arc<EthermanState>,
-    event_db: Arc<Events>,
-    service_collection_db: Arc<ServicesCollection>,
+    bills: Arc<Bills>,
     client: Arc<Client>,
     event_filter: Filter,
 }
 
 impl Etherman {
-    pub fn get_event_db(&self) -> Arc<Events> {
-        Arc::clone(&self.event_db)
-    }
-
-    pub fn get_service_collection_db(&self) -> Arc<ServicesCollection> {
-        Arc::clone(&self.service_collection_db)
+    pub fn get_bills(&self) -> Arc<Bills> {
+        Arc::clone(&self.bills)
     }
 
     pub fn get_client(&self) -> Arc<Client> {
         Arc::clone(&self.client)
     }
 
-    pub fn get_contract(&self) -> Arc<KogiERC721<Client>> {
-        Arc::clone(&self.erc721_contract)
+    pub fn get_contract(&self) -> Arc<RewardPool<Client>> {
+        Arc::clone(&self.rewarder_contract)
     }
 }
 
@@ -114,8 +140,7 @@ impl Etherman {
         let provider = Arc::new(Provider::<Http>::connect(c.ethereum_rpc.as_str()).await);
 
         let state = Arc::new(EthermanState::init(Arc::clone(&db), c.clone()).await?);
-        let event_db = Arc::new(Events::new(Arc::clone(&db)));
-        let service_collection_db = Arc::new(ServicesCollection::new(Arc::clone(&db)));
+        let bills = Arc::new(Bills::new(Arc::clone(&db)));
         let operator = LocalWallet::decrypt_keystore(c.operator_keystore, key_password)
             .map_err(|x| anyhow!("decrypt_keystore failed err:{}", x))?;
 
@@ -123,26 +148,18 @@ impl Etherman {
             Arc::clone(&provider),
             operator.with_chain_id(c.chain_id),
         ));
-        let address = "0xde8F7421b6746f53bd8441A078d8d1c03F8272f2".to_string();
-        let addres_erc721: H160 = H160::from_str(&address).expect("Invalid H160 address");
-        let contract = Arc::new(KogiERC721::new(addres_erc721, Arc::clone(&client)));
+        let contract = Arc::new(RewardPool::new(c.contract_address, Arc::clone(&client)));
 
         let events = vec![
-            // ApprovalFilter::abi_signature().into_owned(),
-            // ApprovalForAllFilter::abi_signature().into_owned(),
-            OnBurnFilter::abi_signature().into_owned(),
-            OnAwardItemFilter::abi_signature().into_owned(),
-            // OnAwardItemsFilter::abi_signature().into_owned(),
-            // OnUnlockFilter::abi_signature().into_owned(),
-            TransferFilter::abi_signature().into_owned(),
+            PaidOnBillFilter::abi_signature().into_owned(),
+            RewardedOnBillFilter::abi_signature().into_owned(),
         ];
         let event_filter = Filter::new().address(contract.address()).events(events);
 
         Ok(Self {
-            erc721_contract: contract,
+            rewarder_contract: contract,
             state,
-            event_db,
-            service_collection_db,
+            bills,
             client,
             event_filter,
         })
@@ -150,6 +167,25 @@ impl Etherman {
 
     #[tracing::instrument(skip_all, name = "get_logs", level = "info")]
     pub async fn get_logs(&self, from_block: u64, to_block: u64) -> Result<Vec<Log>> {
+        // let _step: usize = 1000;
+        // let mut logs: Vec<Log> = Vec::new();
+
+        // for sub_range in split_range(from_block, to_block, _step) {
+        //     let filter = self
+        //         .event_filter
+        //         .clone()
+        //         .from_block(sub_range.0)
+        //         .to_block(sub_range.1);
+        //     let found_logs = self.client.get_logs(&filter).await?;
+        //     info!(
+        //         "from_block:{} to_block:{} found:{}",
+        //         sub_range.0,
+        //         sub_range.1,
+        //         found_logs.len()
+        //     );
+        //     logs.extend(found_logs.into_iter());
+        // }
+        // Ok(logs)
         let filter = self
             .event_filter
             .clone()
@@ -171,117 +207,108 @@ impl Etherman {
     }
 
     /*
-    event Transfer(address indexed arg0, address indexed arg1, uint256 indexed arg2)
-    https://sepolia.etherscan.io/tx/0x6ad8158ff44cc7ac76b299dc1987747c6ae58bf44be17ea375e7d4125cd12a26
+    event PaidOnBill(address indexed bill_customer,uint256 indexed bill_id,uint256 bill_quality)
+    https://sepolia.etherscan.io/tx/0x353877fb193c161e656f9928a12aac5281812b12774c22a3af7eaddad0306442
     */
-    #[tracing::instrument(skip_all, name = "Transfer", level = "warn")]
-    async fn on_transfer(&self, log: Log) -> Result<bool> {
+    #[tracing::instrument(skip_all, name = "on_paid_event", level = "warn")]
+    async fn on_paid_event(&self, log: Log) -> Result<bool> {
         if !self.is_allow_event(
             &log,
-            TransferFilter::abi_signature().into_owned().as_mut(),
-            self.erc721_contract.address(),
+            PaidOnBillFilter::abi_signature().into_owned().as_mut(),
+            self.rewarder_contract.address(),
         ) {
             return Ok(false);
         }
         let txhash = db_string!(log
             .transaction_hash
-            .ok_or(anyhow!("onTransfer.txhash is None"))?);
-        let (from, to, token_id): (Address, Address, U256) = self
-            .erc721_contract
-            .decode_event("Transfer", log.topics, log.data)
+            .ok_or(anyhow!("on_paid_event.txhash is None"))?);
+        let (bill_customer, bill_id, bill_quality): (Address, String, U256) = self
+            .rewarder_contract
+            .decode_event("PaidOnBill", log.topics, log.data)
             .unwrap();
 
-        let mut m = TransferFilter::default();
-        m.from = from.clone();
-        m.to = to.clone();
-        m.token_id = token_id;
+        debug!(
+            "bill_customer:{bill_customer:?} bill_id:{bill_id} bill_quality:{:?}",
+            bill_quality
+        );
 
-        let json_data = serde_json::to_string(&m).expect("Failed to serialize");
-        self.event_db
+        if let Err(e) = self
+            .bills
             .add(
-                json_data,
-                txhash,
-                self.erc721_contract.address().to_string(),
-                "Transfer".to_string(),
-                i32::try_from(token_id.low_u64()).unwrap_or_default(),
+                bill_id.clone(),
+                db_string!(bill_customer),
+                bill_quality.to_string(),
+                txhash.clone(),
             )
+            .await
+        {
+            let failed_msg = e.msg;
+            warn!("{failed_msg} txhash:{:?}", txhash);
+            return Ok(false);
+        };
+
+        let is_rewarded = self
+            .rewarder_contract
+            .method::<String, bool>("isRewardedBill", bill_id.clone())?
+            .call()
             .await?;
+        if !is_rewarded {
+            let function_call = self
+                .rewarder_contract
+                .method::<(Address, String, U256), H256>(
+                    "rewardOnBill",
+                    (bill_customer, bill_id.clone(), bill_quality),
+                )?
+                .legacy();
+            let rewarded_txhash = function_call.send().await?.tx_hash();
+            debug!("rewarded_txhash: {:?}", rewarded_txhash);
+        } else {
+            debug!("bill rewarded: {}", bill_id);
+        }
+
         Ok(true)
     }
 
     /*
-    event OnAwardItem(address indexed arg0, address indexed arg1, uint256 indexed arg2)
-    https://sepolia.etherscan.io/tx/
+    event RewardedOnBill(address indexed bill_customer, string indexed bill_id, uint256 rewarded_amount)
+    https://sepolia.etherscan.io/tx/0xe0a7acb3e9d6eae0d8694b29fe757abf326814d4f1607eb1e77ca43d81a77a58
     */
-    #[tracing::instrument(skip_all, name = "OnAwardItemFilter", level = "warn")]
-    async fn on_award_item_filter(&self, log: Log) -> Result<bool> {
+    #[tracing::instrument(skip_all, name = "on_rewarded_event", level = "warn")]
+    async fn on_rewarded_event(&self, log: Log) -> Result<bool> {
         if !self.is_allow_event(
             &log,
-            OnAwardItemFilter::abi_signature().into_owned().as_mut(),
-            self.erc721_contract.address(),
+            RewardedOnBillFilter::abi_signature().into_owned().as_mut(),
+            self.rewarder_contract.address(),
         ) {
             return Ok(false);
         }
         let txhash = db_string!(log
             .transaction_hash
-            .ok_or(anyhow!("OnAwardItem.txhash is None"))?);
-        let (recipient, cid, token_id): (Address, String, U256) = self
-            .erc721_contract
-            .decode_event("onAwardItem", log.topics, log.data)
+            .ok_or(anyhow!("on_rewarded_event.txhash is None"))?);
+        let (bill_customer, bill_id, rewarded_amount) = self
+            .rewarder_contract
+            .decode_event::<(Address, String, U256)>("RewardedOnBill", log.topics, log.data)
             .unwrap();
+        debug!(
+            "bill_customer:{bill_customer:?} amount:{} rewarded_amount:{:?} txhash:{:?}",
+            &bill_id, rewarded_amount, txhash
+        );
 
-        let mut m = OnAwardItemFilter::default();
-        m.recipient = recipient.clone();
-        m.cid = cid.clone();
-        m.token_id = token_id;
-
-        let json_data = serde_json::to_string(&m).expect("Failed to serialize");
-        self.event_db
-            .add(
-                json_data,
-                txhash,
-                self.erc721_contract.address().to_string(),
-                "onAwardItem".to_string(),
-                i32::try_from(token_id.low_u64()).unwrap_or_default(),
+        if let Err(e) = self
+            .bills
+            .update_rewarded(
+                bill_id,
+                Some(txhash.clone()),
+                Some(rewarded_amount.to_string()),
             )
-            .await?;
-        Ok(true)
-    }
+            .await
+        {
+            if e.status == Status::AlreadyRewarded as i32 {
+                warn!("Status::AlreadyRewarded txhash:{:?}", txhash);
+                return Ok(false);
+            }
+        };
 
-    /*
-    event OnAwardItem(address indexed arg0, address indexed arg1, uint256 indexed arg2)
-    https://sepolia.etherscan.io/tx/
-    */
-    #[tracing::instrument(skip_all, name = "OnBurnFilter", level = "warn")]
-    async fn on_burn_filter(&self, log: Log) -> Result<bool> {
-        if !self.is_allow_event(
-            &log,
-            OnBurnFilter::abi_signature().into_owned().as_mut(),
-            self.erc721_contract.address(),
-        ) {
-            return Ok(false);
-        }
-        let txhash = db_string!(log
-            .transaction_hash
-            .ok_or(anyhow!("OnBurnFilter.txhash is None"))?);
-        let token_id = self
-            .erc721_contract
-            .decode_event("onBurn", log.topics, log.data)
-            .unwrap();
-
-        let mut m = OnBurnFilter::default();
-        m.token_id = token_id;
-
-        let json_data = serde_json::to_string(&m).expect("Failed to serialize");
-        self.event_db
-            .add(
-                json_data,
-                txhash,
-                self.erc721_contract.address().to_string(),
-                "onBurn".to_string(),
-                i32::try_from(token_id.low_u64()).unwrap_or_default(),
-            )
-            .await?;
         Ok(true)
     }
 
@@ -301,7 +328,11 @@ impl Etherman {
                 );
                 processing_block_number = Some(log.block_number.unwrap().as_u64());
 
-                if self.on_transfer(log.clone()).await? {
+                if self.on_paid_event(log.clone()).await? {
+                    apply += 1;
+                    continue;
+                }
+                if self.on_rewarded_event(log.clone()).await? {
                     apply += 1;
                     continue;
                 }
