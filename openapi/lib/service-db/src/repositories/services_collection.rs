@@ -56,13 +56,13 @@ impl ServicesCollection {
         client_id: String,
         address: String,
         namespace: String,
-        start_block_number: i32
+        start_block_number: i32,
     ) -> Result<ServiceCollection, ServiceError> {
         let service = self
             .get(Some("".to_string()), Some(client_id.clone()))
             .await
             .unwrap_or(ServiceCollection::default());
-        if service.client_id != "".to_string() && service.address != "".to_string() {
+        if service.client_id != "".to_string() && service.address == address.to_string() {
             return Err(ServiceError {
                 msg: "Collection for Service exists".into(),
                 status: tonic::Code::Unknown as i32,
@@ -108,6 +108,34 @@ impl ServicesCollection {
         let ret = diesel::delete(
             services_collections::table.filter(services_collections::client_id.eq(client_id)),
         )
+        .returning(ServiceCollection::as_returning())
+        .get_result(&mut conn)
+        .await?;
+
+        Ok(ret)
+    }
+
+    pub async fn update_start_block_number(
+        &self,
+        id: String,
+        start_block_number: i32,
+    ) -> Result<ServiceCollection, ServiceError> {
+        let service = self
+            .get(Some(id.to_string()), Some("".to_string()))
+            .await
+            .unwrap_or(ServiceCollection::default());
+        if service.client_id == "".to_string() || service.address == "".to_string() {
+            return Err(ServiceError {
+                msg: "Endpoint for Service not exist".into(),
+                status: tonic::Code::Unknown as i32,
+            });
+        }
+
+        let mut conn = self.db.get_connection().await;
+        let ret = diesel::update(
+            services_collections::table.filter(services_collections::id.eq(id.clone())),
+        )
+        .set(services_collections::start_block_number.eq(start_block_number))
         .returning(ServiceCollection::as_returning())
         .get_result(&mut conn)
         .await?;

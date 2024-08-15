@@ -219,33 +219,6 @@ pub struct UnRegisterCollectionForServiceResponse {
     #[prost(string, tag = "6")]
     pub updated_at: ::prost::alloc::string::String,
 }
-/// Test Endpoints
-#[actix_prost_macros::serde(rename_all = "snake_case")]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct TestSendToEndpointsRequest {
-    #[prost(string, tag = "1")]
-    pub id: ::prost::alloc::string::String,
-    #[prost(string, tag = "2")]
-    pub client_id: ::prost::alloc::string::String,
-    #[prost(string, tag = "3")]
-    pub payload: ::prost::alloc::string::String,
-    #[prost(string, tag = "4")]
-    pub owner: ::prost::alloc::string::String,
-}
-#[actix_prost_macros::serde(rename_all = "snake_case")]
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct TestSendToEndpointsResponse {
-    #[prost(string, tag = "1")]
-    pub id: ::prost::alloc::string::String,
-    #[prost(string, tag = "2")]
-    pub code: ::prost::alloc::string::String,
-    #[prost(string, tag = "3")]
-    pub description: ::prost::alloc::string::String,
-    #[prost(string, tag = "4")]
-    pub additional_info: ::prost::alloc::string::String,
-}
 pub mod services_zion_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
     use super::*;
@@ -325,20 +298,6 @@ pub mod services_zion_actix {
         pub client_id: ::prost::alloc::string::String,
         #[prost(string, tag = "2")]
         pub address: ::prost::alloc::string::String,
-    }
-    /// Test Endpoints
-    #[actix_prost_macros::serde(rename_all = "snake_case")]
-    #[allow(clippy::derive_partial_eq_without_eq)]
-    #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct TestSendToEndpointsJson {
-        #[prost(string, tag = "1")]
-        pub id: ::prost::alloc::string::String,
-        #[prost(string, tag = "2")]
-        pub client_id: ::prost::alloc::string::String,
-        #[prost(string, tag = "3")]
-        pub payload: ::prost::alloc::string::String,
-        #[prost(string, tag = "4")]
-        pub owner: ::prost::alloc::string::String,
     }
     async fn call_register_service(
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
@@ -582,35 +541,6 @@ pub mod services_zion_actix {
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
-    async fn call_test_send_to_endpoints(
-        service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
-        http_request: ::actix_web::HttpRequest,
-        payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<TestSendToEndpointsResponse>,
-        ::actix_prost::Error,
-    > {
-        let mut payload = payload.into_inner();
-        let json = <::actix_web::web::Json<
-            TestSendToEndpointsJson,
-        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
-            .await
-            .map_err(|err| ::actix_prost::Error::from_actix(
-                err,
-                ::tonic::Code::InvalidArgument,
-            ))?
-            .into_inner();
-        let request = TestSendToEndpointsRequest {
-            id: json.id,
-            client_id: json.client_id,
-            payload: json.payload,
-            owner: json.owner,
-        };
-        let request = ::actix_prost::new_request(request, &http_request);
-        let response = service.test_send_to_endpoints(request).await?;
-        let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
-    }
     pub fn route_services_zion(
         config: &mut ::actix_web::web::ServiceConfig,
         service: Arc<dyn ServicesZion + Send + Sync + 'static>,
@@ -670,11 +600,6 @@ pub mod services_zion_actix {
             .route(
                 "/api/serviceszion/unRegisterCollectionForService",
                 ::actix_web::web::post().to(call_un_register_collection_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/testSendToEndpoints",
-                ::actix_web::web::post().to(call_test_send_to_endpoints),
             );
     }
 }
@@ -980,25 +905,6 @@ pub mod services_zion_client {
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
-        pub async fn test_send_to_endpoints(
-            &mut self,
-            request: impl tonic::IntoRequest<super::TestSendToEndpointsRequest>,
-        ) -> Result<tonic::Response<super::TestSendToEndpointsResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
-            let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/serviceszion.ServicesZION/TestSendToEndpoints",
-            );
-            self.inner.unary(request.into_request(), path, codec).await
-        }
     }
 }
 /// Generated server implementations.
@@ -1073,10 +979,6 @@ pub mod services_zion_server {
             tonic::Response<super::UnRegisterCollectionForServiceResponse>,
             tonic::Status,
         >;
-        async fn test_send_to_endpoints(
-            &self,
-            request: tonic::Request<super::TestSendToEndpointsRequest>,
-        ) -> Result<tonic::Response<super::TestSendToEndpointsResponse>, tonic::Status>;
     }
     /// Define the service for
     #[derive(Debug)]
@@ -1592,46 +1494,6 @@ pub mod services_zion_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = UnRegisterCollectionForServiceSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
-                        let res = grpc.unary(method, req).await;
-                        Ok(res)
-                    };
-                    Box::pin(fut)
-                }
-                "/serviceszion.ServicesZION/TestSendToEndpoints" => {
-                    #[allow(non_camel_case_types)]
-                    struct TestSendToEndpointsSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<super::TestSendToEndpointsRequest>
-                    for TestSendToEndpointsSvc<T> {
-                        type Response = super::TestSendToEndpointsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
-                        fn call(
-                            &mut self,
-                            request: tonic::Request<super::TestSendToEndpointsRequest>,
-                        ) -> Self::Future {
-                            let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).test_send_to_endpoints(request).await
-                            };
-                            Box::pin(fut)
-                        }
-                    }
-                    let accept_compression_encodings = self.accept_compression_encodings;
-                    let send_compression_encodings = self.send_compression_encodings;
-                    let inner = self.inner.clone();
-                    let fut = async move {
-                        let inner = inner.0;
-                        let method = TestSendToEndpointsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

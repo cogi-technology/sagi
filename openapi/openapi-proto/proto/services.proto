@@ -122,21 +122,6 @@ message UnRegisterCollectionForServiceResponse {
   string updated_at = 6;
 }
 
-// Test Endpoints
-message TestSendToEndpointsRequest {
-  string id = 1;
-  string client_id = 2;
-  string payload = 3;
-  string owner = 4;
-}
-
-message TestSendToEndpointsResponse {
-  string id = 1;
-  string code = 2;
-  string description = 3;
-  string additionalInfo = 4;
-}
-
 // Define the service for 
 service ServicesZION {
   // Services
@@ -153,5 +138,4 @@ service ServicesZION {
   rpc GetInfoCollectionForService (GeInfoCollectionForServiceRequest) returns (CollectionForService);
   rpc RegisterCollectionForService (RegisterCollectionForServiceRequest) returns (RegisterCollectionForServiceResponse);
   rpc UnRegisterCollectionForService (UnRegisterCollectionForServiceRequest) returns (UnRegisterCollectionForServiceResponse);
-  rpc TestSendToEndpoints (TestSendToEndpointsRequest) returns (TestSendToEndpointsResponse);
 }

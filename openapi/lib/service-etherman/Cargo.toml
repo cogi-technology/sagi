@@ -6,6 +6,8 @@ edition = "2021"
 [dependencies]
 zion-service-db.workspace = true
 zion-logger.workspace = true
+openapi-proto.workspace = true
+openapi-logger.workspace = true
 
 tokio.workspace = true
 serde.workspace = true
@@ -20,3 +22,6 @@ futures.workspace = true
 chrono.workspace = true
 hex.workspace = true
 parking_lot.workspace = true
+reqwest.workspace = true
+tonic.workspace = true
+openssl.workspace = true

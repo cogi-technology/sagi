@@ -16,7 +16,7 @@ use {
     server::{run as run_server, ServerConfig},
     std::{fs, sync::Arc},
     zion_service_db::database::Database,
-    zion_service_etherman::etherman::Etherman,
+    zion_service_etherman::{etherman::Etherman, webhood::Webhood},
 };
 
 #[tokio::main]
@@ -44,7 +44,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // etherman
     let db: Arc<Database> = Arc::new(Database::new(c.db_url));
     let etherman: Arc<Etherman> = Arc::new(Etherman::init(db.clone(), "test".into(), c.etherman).await?);
+    // webhoood
+    let webhood: Arc<Webhood> = Arc::new(Webhood::init(db.clone(), c.private_key_path).await?);
     //
+
     let server_config = ServerConfig {
         auth_secret: c.auth_secret,
         doc_path: c.doc_path,
@@ -54,6 +57,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     info!("Started at {}", c.grpc_listen);
     tokio::select! {
+        _ = webhood.heartbeat() => {},
         _ = etherman.heartbeat() => {},
         _ = async move {
             run_server(zion_provider, torii_provider, server_config, c.telegram_auth, db.clone()).await

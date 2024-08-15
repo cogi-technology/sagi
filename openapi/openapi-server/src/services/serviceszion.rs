@@ -331,16 +331,4 @@ impl ServicesZion for ServicesZionService {
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
         }
     }
-
-    // Test Service
-    async fn test_send_to_endpoints(
-        &self,
-        req: Request<TestSendToEndpointsRequest>,
-    ) -> TonicResult<Response<TestSendToEndpointsResponse>> {
-        let mut response = TestSendToEndpointsResponse::default();
-        response.code = "1".to_string();
-        response.description = "Success".to_string();
-        response.id = req.get_ref().id.clone();
-        Ok(Response::new(response))
-    }
 }

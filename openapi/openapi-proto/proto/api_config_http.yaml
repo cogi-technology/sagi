@@ -19,6 +19,10 @@ http:
       post: /api/authtelegram/logOutTelegramAsBot
       body: "*"
 
+    - selector: authtelegram.AuthTelegram.TestSendToEndpoints
+      post: /api/authtelegram/testSendToEndpoints     
+      body: "*"
+
     - selector: zionauthorization.ZionAuthorization.GetDataRequestForZION
       get: /api/zionauthorization/getDataRequestForZION    
       
@@ -53,10 +57,6 @@ http:
       body: "*"
     - selector: serviceszion.ServicesZION.UnRegisterCollectionForService
       post: /api/serviceszion/unRegisterCollectionForService     
-      body: "*"
-
-    - selector: serviceszion.ServicesZION.TestSendToEndpoints
-      post: /api/serviceszion/testSendToEndpoints     
       body: "*"
 
     - selector: erc20.ERC20.Deploy

@@ -362,4 +362,16 @@ impl AuthTelegram for AuthTelegramService {
             message: "Logged out".to_string(),
         }))
     }
+
+    // Test Service
+    async fn test_send_to_endpoints(
+        &self,
+        req: Request<TestSendToEndpointsRequest>,
+    ) -> Result<Response<TestSendToEndpointsResponse>> {
+        let mut response = TestSendToEndpointsResponse::default();
+        response.code = "1".to_string();
+        response.description = "Success".to_string();
+        response.id = req.get_ref().id.clone();
+        Ok(Response::new(response))
+    }
 }

@@ -114,6 +114,26 @@ paths:
             $ref: '#/definitions/authtelegramSignInTelegramAsBotRequest'
       tags:
         - AuthTelegram
+  /api/authtelegram/testSendToEndpoints:
+    post:
+      operationId: AuthTelegram_TestSendToEndpoints
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/authtelegramTestSendToEndpointsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/authtelegramTestSendToEndpointsRequest'
+      tags:
+        - AuthTelegram
   /api/erc20/allowance:
     get:
       operationId: ERC20_Allowance
@@ -328,6 +348,10 @@ paths:
           required: false
           type: string
         - name: account
+          in: query
+          required: false
+          type: string
+        - name: token_id
           in: query
           required: false
           type: string
@@ -1049,26 +1073,6 @@ paths:
             $ref: '#/definitions/serviceszionResgiterEndpointForServiceRequest'
       tags:
         - ServicesZION
-  /api/serviceszion/testSendToEndpoints:
-    post:
-      operationId: ServicesZION_TestSendToEndpoints
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/serviceszionTestSendToEndpointsResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/serviceszionTestSendToEndpointsRequest'
-      tags:
-        - ServicesZION
   /api/serviceszion/unRegisterCollectionForService:
     post:
       operationId: ServicesZION_UnRegisterCollectionForService
@@ -1190,6 +1194,29 @@ definitions:
       jwt:
         type: string
       sessionUuid:
+        type: string
+  authtelegramTestSendToEndpointsRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      payload:
+        type: string
+      owner:
+        type: string
+    title: Test Endpoints
+  authtelegramTestSendToEndpointsResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      code:
+        type: string
+      description:
+        type: string
+      additionalInfo:
         type: string
   erc20AllowanceResponse:
     type: object
@@ -1740,6 +1767,11 @@ definitions:
         type: string
       address:
         type: string
+      namespace:
+        type: string
+      start_block_number:
+        type: integer
+        format: int32
   serviceszionRegisterCollectionForServiceResponse:
     type: object
     properties:
@@ -1749,6 +1781,11 @@ definitions:
         type: string
       address:
         type: string
+      namespace:
+        type: string
+      start_block_number:
+        type: integer
+        format: int32
       created_at:
         type: string
       updated_at:
@@ -1781,29 +1818,6 @@ definitions:
         type: string
       updated_at:
         type: string
-  serviceszionTestSendToEndpointsRequest:
-    type: object
-    properties:
-      id:
-        type: string
-      client_id:
-        type: string
-      payload:
-        type: string
-      owner:
-        type: string
-    title: Test Endpoints
-  serviceszionTestSendToEndpointsResponse:
-    type: object
-    properties:
-      id:
-        type: string
-      code:
-        type: string
-      description:
-        type: string
-      additionalInfo:
-        type: string
   serviceszionUnRegisterCollectionForServiceRequest:
     type: object
     properties:
@@ -1820,6 +1834,9 @@ definitions:
         type: string
       address:
         type: string
+      start_block_number:
+        type: integer
+        format: int32
       created_at:
         type: string
       updated_at:

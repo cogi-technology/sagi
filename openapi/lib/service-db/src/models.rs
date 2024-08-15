@@ -229,7 +229,7 @@ impl Default for ServiceWebhood {
     }
 }
 
-#[derive(Queryable, Selectable, Insertable, AsChangeset, Debug, PartialEq)]
+#[derive(Queryable, Selectable, Insertable, AsChangeset, Debug, PartialEq, Clone)]
 #[diesel(table_name = crate::schema::services_collections)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct ServiceCollection {
@@ -284,6 +284,7 @@ pub struct EventErc721 {
     pub status: String,
     pub method: String,
     pub collection: String,
+    pub client_id: String,
     pub token_id: i32,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -297,6 +298,7 @@ impl Default for EventErc721 {
             txhash: "".into(),
             method: "".into(),
             collection: "".into(),
+            client_id: "".into(),
             token_id: 0,
             status: StatusEvent::Sent.as_str().to_string(),
             created_at: Local::now().naive_utc(),

@@ -2,7 +2,6 @@ use {
     super::abi::*,
     crate::{config::Config, db_string, tokio_sleep_ms},
     anyhow::{anyhow, Result},
-    chrono::Local,
     ethers::{
         middleware::SignerMiddleware,
         providers::Provider,
@@ -23,8 +22,8 @@ use {
     zion_logger::{debug, info, tracing, warn},
     zion_service_db::{
         database::Database,
-        models::{EventErc721, StatusEvent},
-        repositories::{bill::Bills, events::Events, services_collection::ServicesCollection, state::States},
+        models::ServiceCollection,
+        repositories::{events::Events, services_collection::ServicesCollection, state::States},
     },
 };
 
@@ -74,12 +73,12 @@ impl EthermanState {
 type Client = SignerMiddleware<Arc<Provider<Http>>, LocalWallet>;
 
 pub struct Etherman {
-    erc721_contract: Arc<KogiERC721<Client>>,
+    // erc721_contract: Arc<KogiERC721<Client>>,
     state: Arc<EthermanState>,
     event_db: Arc<Events>,
     service_collection_db: Arc<ServicesCollection>,
     client: Arc<Client>,
-    event_filter: Filter,
+    // event_filter: Filter,
 }
 
 impl Etherman {
@@ -95,9 +94,9 @@ impl Etherman {
         Arc::clone(&self.client)
     }
 
-    pub fn get_contract(&self) -> Arc<KogiERC721<Client>> {
-        Arc::clone(&self.erc721_contract)
-    }
+    // pub fn get_contract(&self) -> Arc<KogiERC721<Client>> {
+    //     Arc::clone(&self.erc721_contract)
+    // }
 }
 
 impl Etherman {
@@ -123,35 +122,30 @@ impl Etherman {
             Arc::clone(&provider),
             operator.with_chain_id(c.chain_id),
         ));
-        let address = "0xde8F7421b6746f53bd8441A078d8d1c03F8272f2".to_string();
-        let addres_erc721: H160 = H160::from_str(&address).expect("Invalid H160 address");
-        let contract = Arc::new(KogiERC721::new(addres_erc721, Arc::clone(&client)));
+        // let address = "0x931c914fbf71a18d9c02365bc9e4ddc04c8308f3".to_string();
+        // let addres_erc721: H160 = H160::from_str(&address).expect("Invalid H160 address");
+        // let contract = Arc::new(KogiERC721::new(addres_erc721, Arc::clone(&client)));
 
-        let events = vec![
-            // ApprovalFilter::abi_signature().into_owned(),
-            // ApprovalForAllFilter::abi_signature().into_owned(),
-            OnBurnFilter::abi_signature().into_owned(),
-            OnAwardItemFilter::abi_signature().into_owned(),
-            // OnAwardItemsFilter::abi_signature().into_owned(),
-            // OnUnlockFilter::abi_signature().into_owned(),
-            TransferFilter::abi_signature().into_owned(),
-        ];
-        let event_filter = Filter::new().address(contract.address()).events(events);
+        // let event_filter = Filter::new().address(contract.address()).events(events);
 
         Ok(Self {
-            erc721_contract: contract,
+            // erc721_contract: contract,
             state,
             event_db,
             service_collection_db,
             client,
-            event_filter,
+            // event_filter,
         })
     }
 
     #[tracing::instrument(skip_all, name = "get_logs", level = "info")]
-    pub async fn get_logs(&self, from_block: u64, to_block: u64) -> Result<Vec<Log>> {
-        let filter = self
-            .event_filter
+    pub async fn get_logs(
+        &self,
+        event_filter: Filter,
+        from_block: u64,
+        to_block: u64,
+    ) -> Result<Vec<Log>> {
+        let filter = event_filter
             .clone()
             .from_block(from_block)
             .to_block(to_block);
@@ -175,19 +169,23 @@ impl Etherman {
     https://sepolia.etherscan.io/tx/0x6ad8158ff44cc7ac76b299dc1987747c6ae58bf44be17ea375e7d4125cd12a26
     */
     #[tracing::instrument(skip_all, name = "Transfer", level = "warn")]
-    async fn on_transfer(&self, log: Log) -> Result<bool> {
+    async fn on_transfer(
+        &self,
+        service_collection: ServiceCollection,
+        erc721_contract: Arc<KogiERC721<Client>>,
+        log: Log,
+    ) -> Result<bool> {
         if !self.is_allow_event(
             &log,
             TransferFilter::abi_signature().into_owned().as_mut(),
-            self.erc721_contract.address(),
+            erc721_contract.address(),
         ) {
             return Ok(false);
         }
         let txhash = db_string!(log
             .transaction_hash
             .ok_or(anyhow!("onTransfer.txhash is None"))?);
-        let (from, to, token_id): (Address, Address, U256) = self
-            .erc721_contract
+        let (from, to, token_id): (Address, Address, U256) = erc721_contract
             .decode_event("Transfer", log.topics, log.data)
             .unwrap();
 
@@ -199,9 +197,10 @@ impl Etherman {
         let json_data = serde_json::to_string(&m).expect("Failed to serialize");
         self.event_db
             .add(
+                service_collection.client_id,
                 json_data,
                 txhash,
-                self.erc721_contract.address().to_string(),
+                erc721_contract.address().to_string(),
                 "Transfer".to_string(),
                 i32::try_from(token_id.low_u64()).unwrap_or_default(),
             )
@@ -214,19 +213,23 @@ impl Etherman {
     https://sepolia.etherscan.io/tx/
     */
     #[tracing::instrument(skip_all, name = "OnAwardItemFilter", level = "warn")]
-    async fn on_award_item_filter(&self, log: Log) -> Result<bool> {
+    async fn on_award_item_filter(
+        &self,
+        service_collection: ServiceCollection,
+        erc721_contract: Arc<KogiERC721<Client>>,
+        log: Log,
+    ) -> Result<bool> {
         if !self.is_allow_event(
             &log,
             OnAwardItemFilter::abi_signature().into_owned().as_mut(),
-            self.erc721_contract.address(),
+            erc721_contract.address(),
         ) {
             return Ok(false);
         }
         let txhash = db_string!(log
             .transaction_hash
             .ok_or(anyhow!("OnAwardItem.txhash is None"))?);
-        let (recipient, cid, token_id): (Address, String, U256) = self
-            .erc721_contract
+        let (recipient, cid, token_id): (Address, String, U256) = erc721_contract
             .decode_event("onAwardItem", log.topics, log.data)
             .unwrap();
 
@@ -238,9 +241,10 @@ impl Etherman {
         let json_data = serde_json::to_string(&m).expect("Failed to serialize");
         self.event_db
             .add(
+                service_collection.client_id,
                 json_data,
                 txhash,
-                self.erc721_contract.address().to_string(),
+                erc721_contract.address().to_string(),
                 "onAwardItem".to_string(),
                 i32::try_from(token_id.low_u64()).unwrap_or_default(),
             )
@@ -253,19 +257,23 @@ impl Etherman {
     https://sepolia.etherscan.io/tx/
     */
     #[tracing::instrument(skip_all, name = "OnBurnFilter", level = "warn")]
-    async fn on_burn_filter(&self, log: Log) -> Result<bool> {
+    async fn on_burn_filter(
+        &self,
+        service_collection: ServiceCollection,
+        erc721_contract: Arc<KogiERC721<Client>>,
+        log: Log,
+    ) -> Result<bool> {
         if !self.is_allow_event(
             &log,
             OnBurnFilter::abi_signature().into_owned().as_mut(),
-            self.erc721_contract.address(),
+            erc721_contract.address(),
         ) {
             return Ok(false);
         }
         let txhash = db_string!(log
             .transaction_hash
             .ok_or(anyhow!("OnBurnFilter.txhash is None"))?);
-        let token_id = self
-            .erc721_contract
+        let token_id = erc721_contract
             .decode_event("onBurn", log.topics, log.data)
             .unwrap();
 
@@ -275,9 +283,10 @@ impl Etherman {
         let json_data = serde_json::to_string(&m).expect("Failed to serialize");
         self.event_db
             .add(
+                service_collection.client_id,
                 json_data,
                 txhash,
-                self.erc721_contract.address().to_string(),
+                erc721_contract.address().to_string(),
                 "onBurn".to_string(),
                 i32::try_from(token_id.low_u64()).unwrap_or_default(),
             )
@@ -286,13 +295,23 @@ impl Etherman {
     }
 
     #[tracing::instrument(skip_all, name = "event_perform", level = "info")]
-    pub async fn event_perform(&self, from_block: u64, to_block: u64) -> Result<(i32, i32)> {
+    pub async fn event_perform(
+        &self,
+        service_collection: ServiceCollection,
+        erc721_contract: Arc<KogiERC721<Client>>,
+        event_filter: Filter,
+        from_block: u64,
+        to_block: u64,
+    ) -> Result<(i32, i32)> {
         let mut found = 0;
         let mut apply = 0;
         let mut processing_block_number = None;
 
         if from_block <= to_block {
-            for log in self.get_logs(from_block, to_block).await? {
+            for log in self
+                .get_logs(event_filter.clone(), from_block, to_block)
+                .await?
+            {
                 found += 1;
                 debug!(
                     "processing_block:{} tx:{:?}",
@@ -301,14 +320,37 @@ impl Etherman {
                 );
                 processing_block_number = Some(log.block_number.unwrap().as_u64());
 
-                if self.on_transfer(log.clone()).await? {
+                if self
+                    .on_transfer(service_collection.clone(), erc721_contract.clone(), log.clone())
+                    .await?
+                {
+                    apply += 1;
+                    continue;
+                }
+                if self
+                    .on_burn_filter(service_collection.clone(), erc721_contract.clone(), log.clone())
+                    .await?
+                {
+                    apply += 1;
+                    continue;
+                }
+                if self
+                    .on_award_item_filter(service_collection.clone(), erc721_contract.clone(), log.clone())
+                    .await?
+                {
                     apply += 1;
                     continue;
                 }
             }
             if processing_block_number.is_some() {
-                self.state
-                    .set_start_block_number(processing_block_number.unwrap() + 1)
+                // self.state
+                //     .set_start_block_number(processing_block_number.unwrap() + 1)
+                //     .await?;
+                self.service_collection_db
+                    .update_start_block_number(
+                        service_collection.id,
+                        (processing_block_number.unwrap() + 1) as i32,
+                    )
                     .await?;
             }
             info!(
@@ -337,13 +379,31 @@ impl Etherman {
     #[tracing::instrument(skip_all, name = "heartbeat_event", level = "warn")]
     pub async fn heartbeat_event(&self) -> Result<()> {
         loop {
-            let from_block = self.state.get_start_block_number();
-            let to_block = self.state.get_last_block_number();
-            if let Err(e) = self.event_perform(from_block, to_block).await {
-                warn!(
-                    "err:{}, from_block:{}, to_block:{}",
-                    e, from_block, to_block
-                );
+            // get all contract
+            let m = self.service_collection_db.get_all().await?;
+            for s in m {
+                let from_block = s.start_block_number;
+                let to_block = self.state.get_last_block_number();
+                // Contract
+                let address = s.address.to_string();
+                let addres_erc721: H160 = H160::from_str(&address).expect("Invalid H160 address");
+                let contract = Arc::new(KogiERC721::new(addres_erc721, self.get_client()));
+                let events = vec![
+                    OnBurnFilter::abi_signature().into_owned(),
+                    OnAwardItemFilter::abi_signature().into_owned(),
+                    TransferFilter::abi_signature().into_owned(),
+                ];
+                let event_filter = Filter::new().address(contract.address()).events(events);
+                // event_perform
+                if let Err(e) = self
+                    .event_perform(s, contract, event_filter, from_block as u64, to_block)
+                    .await
+                {
+                    warn!(
+                        "err:{}, from_block:{}, to_block:{}",
+                        e, from_block, to_block
+                    );
+                }
             }
             tokio_sleep_ms!(10 * 1000)
         }

@@ -85,6 +85,33 @@ pub struct LogOutTelegramAsBotResponse {
     #[prost(string, tag = "4")]
     pub message: ::prost::alloc::string::String,
 }
+/// Test Endpoints
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct TestSendToEndpointsRequest {
+    #[prost(string, tag = "1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
+    pub client_id: ::prost::alloc::string::String,
+    #[prost(string, tag = "3")]
+    pub payload: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
+    pub owner: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct TestSendToEndpointsResponse {
+    #[prost(string, tag = "1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
+    pub code: ::prost::alloc::string::String,
+    #[prost(string, tag = "3")]
+    pub description: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
+    pub additional_info: ::prost::alloc::string::String,
+}
 pub mod auth_telegram_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
     use super::*;
@@ -131,6 +158,20 @@ pub mod auth_telegram_actix {
     pub struct LogOutTelegramAsBotJson {
         #[prost(string, tag = "2")]
         pub session_uuid: ::prost::alloc::string::String,
+    }
+    /// Test Endpoints
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct TestSendToEndpointsJson {
+        #[prost(string, tag = "1")]
+        pub id: ::prost::alloc::string::String,
+        #[prost(string, tag = "2")]
+        pub client_id: ::prost::alloc::string::String,
+        #[prost(string, tag = "3")]
+        pub payload: ::prost::alloc::string::String,
+        #[prost(string, tag = "4")]
+        pub owner: ::prost::alloc::string::String,
     }
     async fn call_send_code_telegram(
         service: ::actix_web::web::Data<dyn AuthTelegram + Sync + Send + 'static>,
@@ -256,6 +297,35 @@ pub mod auth_telegram_actix {
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
+    async fn call_test_send_to_endpoints(
+        service: ::actix_web::web::Data<dyn AuthTelegram + Sync + Send + 'static>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
+    ) -> Result<
+        ::actix_web::web::Json<TestSendToEndpointsResponse>,
+        ::actix_prost::Error,
+    > {
+        let mut payload = payload.into_inner();
+        let json = <::actix_web::web::Json<
+            TestSendToEndpointsJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
+            .into_inner();
+        let request = TestSendToEndpointsRequest {
+            id: json.id,
+            client_id: json.client_id,
+            payload: json.payload,
+            owner: json.owner,
+        };
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service.test_send_to_endpoints(request).await?;
+        let response = response.into_inner();
+        Ok(::actix_web::web::Json(response))
+    }
     pub fn route_auth_telegram(
         config: &mut ::actix_web::web::ServiceConfig,
         service: Arc<dyn AuthTelegram + Send + Sync + 'static>,
@@ -285,6 +355,11 @@ pub mod auth_telegram_actix {
             .route(
                 "/api/authtelegram/logOutTelegramAsBot",
                 ::actix_web::web::post().to(call_log_out_telegram_as_bot),
+            );
+        config
+            .route(
+                "/api/authtelegram/testSendToEndpoints",
+                ::actix_web::web::post().to(call_test_send_to_endpoints),
             );
     }
 }
@@ -453,6 +528,25 @@ pub mod auth_telegram_client {
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
+        pub async fn test_send_to_endpoints(
+            &mut self,
+            request: impl tonic::IntoRequest<super::TestSendToEndpointsRequest>,
+        ) -> Result<tonic::Response<super::TestSendToEndpointsResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/authtelegram.AuthTelegram/TestSendToEndpoints",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -482,6 +576,10 @@ pub mod auth_telegram_server {
             &self,
             request: tonic::Request<super::LogOutTelegramAsbotRequest>,
         ) -> Result<tonic::Response<super::LogOutTelegramAsBotResponse>, tonic::Status>;
+        async fn test_send_to_endpoints(
+            &self,
+            request: tonic::Request<super::TestSendToEndpointsRequest>,
+        ) -> Result<tonic::Response<super::TestSendToEndpointsResponse>, tonic::Status>;
     }
     /// Define the service for
     #[derive(Debug)]
@@ -732,6 +830,46 @@ pub mod auth_telegram_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = LogOutTelegramAsBotSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/authtelegram.AuthTelegram/TestSendToEndpoints" => {
+                    #[allow(non_camel_case_types)]
+                    struct TestSendToEndpointsSvc<T: AuthTelegram>(pub Arc<T>);
+                    impl<
+                        T: AuthTelegram,
+                    > tonic::server::UnaryService<super::TestSendToEndpointsRequest>
+                    for TestSendToEndpointsSvc<T> {
+                        type Response = super::TestSendToEndpointsResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::TestSendToEndpointsRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).test_send_to_endpoints(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = TestSendToEndpointsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

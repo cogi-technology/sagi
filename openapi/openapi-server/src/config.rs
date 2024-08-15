@@ -1,7 +1,6 @@
 use {
     anyhow::{anyhow, Result},
     clap::Parser,
-    ethers::types::H160,
     openapi_ethers::config::Config as EthereumClientConfig,
     serde::{Deserialize, Serialize},
     std::{fs, net::SocketAddr},
@@ -24,6 +23,9 @@ pub struct Config {
 
     #[serde(rename = "telegram-auth")]
     pub telegram_auth: TelegramAuthConfig,
+
+    #[serde(rename = "private-key-path")]
+    pub private_key_path: String,
 
     #[serde(rename = "auth-secret")]
     pub auth_secret: String,

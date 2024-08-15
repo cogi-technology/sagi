@@ -48,8 +48,25 @@ impl Events {
         Ok(ret)
     }
 
+    pub async fn get_events_by_client_id(
+        &self,
+        client_id: String,
+    ) -> Result<Vec<EventErc721>, ServiceError> {
+        let mut conn = self.db.get_connection().await;
+
+        let ret = events_erc721::table
+            .filter(events_erc721::client_id.eq(client_id.clone()))
+            .select(EventErc721::as_select())
+            .order((events_erc721::client_id, events_erc721::created_at.asc()))
+            .load(&mut conn)
+            .await?;
+
+        Ok(ret)
+    }
+
     pub async fn add(
         &self,
+        client_id: String,
         payload: String,
         txhash: String,
         collection: String,
@@ -74,6 +91,7 @@ impl Events {
             collection: collection,
             method: method,
             token_id: token_id,
+            client_id: client_id,
             status: StatusEvent::Init.as_str().to_string(),
             created_at: Local::now().naive_utc(),
             updated_at: Local::now().naive_utc(),
@@ -89,7 +107,7 @@ impl Events {
         Ok(ret)
     }
 
-    pub async fn update(
+    pub async fn update_status(
         &self,
         id: String,
         status: StatusEvent,
@@ -98,9 +116,9 @@ impl Events {
             .get(Some(id.to_string()), Some("".to_string()))
             .await
             .unwrap_or(EventErc721::default());
-        if event.payload != "".to_string() && event.txhash != "".to_string() {
+        if event.id == "".to_string() {
             return Err(ServiceError {
-                msg: "Event exists".into(),
+                msg: "Event not exists".into(),
                 status: tonic::Code::Unknown as i32,
             });
         }

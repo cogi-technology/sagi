@@ -34,6 +34,8 @@ diesel::table! {
         method -> Varchar,
         #[max_length = 255]
         collection -> Varchar,
+        #[max_length = 255]
+        client_id -> Varchar,
         token_id -> Int4,
         created_at -> Timestamp,
         updated_at -> Timestamp,
