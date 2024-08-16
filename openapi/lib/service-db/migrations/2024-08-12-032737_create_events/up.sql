@@ -1,6 +1,6 @@
 CREATE TABLE events_erc721 (
     id VARCHAR(255) PRIMARY KEY,
-    payload VARCHAR(255) NOT NULL,
+    payload VARCHAR(500) NOT NULL,
     txHash VARCHAR(255) NOT NULL,
     status VARCHAR(255) NOT NULL,
     method VARCHAR(255) NOT NULL,

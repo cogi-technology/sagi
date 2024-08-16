@@ -4,7 +4,7 @@ diesel::table! {
     events_erc721 (id) {
         #[max_length = 255]
         id -> Varchar,
-        #[max_length = 255]
+        #[max_length = 500]
         payload -> Varchar,
         #[max_length = 255]
         txhash -> Varchar,

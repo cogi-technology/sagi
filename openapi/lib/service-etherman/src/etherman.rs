@@ -1,6 +1,11 @@
 use {
     super::abi::*,
-    crate::{config::Config, db_string, tokio_sleep_ms},
+    crate::{
+        config::Config,
+        db_string,
+        model::{ParamPayloadCallback, PayloadCallback, StatusEventCallback},
+        tokio_sleep_ms,
+    },
     anyhow::{anyhow, Result},
     ethers::{
         middleware::SignerMiddleware,
@@ -185,27 +190,35 @@ impl Etherman {
         let txhash = db_string!(log
             .transaction_hash
             .ok_or(anyhow!("onTransfer.txhash is None"))?);
-        let (from, to, token_id): (Address, Address, U256) = erc721_contract
+        let (_, _, token_id): (Address, Address, U256) = erc721_contract
             .decode_event("Transfer", log.topics, log.data)
             .unwrap();
-
-        // let owner: Address = erc721_contract
-        //     .method::<_, Address>("ownerOf", token_id)?
-        //     .call()
-        //     .await?;
-
-        // println!("annnnnnn owner:{}", owner);
-
-        let mut m = TransferFilter::default();
-        m.from = from.clone();
-        m.to = to.clone();
-        m.token_id = token_id;
-
-        let json_data = serde_json::to_string(&m).expect("Failed to serialize");
+        // get owner
+        let owner: Address = erc721_contract
+            .method::<_, Address>("ownerOf", token_id.clone())?
+            .call()
+            .await?;
+        let cid: String = erc721_contract
+            .method::<_, String>("tokenURI", token_id.clone())?
+            .call()
+            .await?;
+        // param
+        let mut param = ParamPayloadCallback::default();
+        param.token_id = token_id.clone();
+        param.txhash = txhash.clone();
+        param.address = erc721_contract.address();
+        param.owner = owner.clone();
+        param.cid = cid.clone();
+        // payload
+        let mut payload_call_back = PayloadCallback::default();
+        payload_call_back.status = StatusEventCallback::Transfer.as_str();
+        payload_call_back.namespace = service_collection.namespace.clone();
+        payload_call_back.param = param;
+        //
         self.event_db
             .add(
                 service_collection.client_id,
-                json_data,
+                serde_json::to_string(&payload_call_back).expect("Failed to serialize"),
                 txhash,
                 erc721_contract.address().to_string(),
                 "Transfer".to_string(),
@@ -236,20 +249,32 @@ impl Etherman {
         let txhash = db_string!(log
             .transaction_hash
             .ok_or(anyhow!("OnAwardItem.txhash is None"))?);
-        let (recipient, cid, token_id): (Address, String, U256) = erc721_contract
+        let (_, cid, token_id): (Address, String, U256) = erc721_contract
             .decode_event("onAwardItem", log.topics, log.data)
             .unwrap();
 
-        let mut m = OnAwardItemFilter::default();
-        m.recipient = recipient.clone();
-        m.cid = cid.clone();
-        m.token_id = token_id;
-
-        let json_data = serde_json::to_string(&m).expect("Failed to serialize");
+        // get owner
+        let owner: Address = erc721_contract
+            .method::<_, Address>("ownerOf", token_id.clone())?
+            .call()
+            .await?;
+        // param
+        let mut param = ParamPayloadCallback::default();
+        param.token_id = token_id.clone();
+        param.txhash = txhash.clone();
+        param.address = erc721_contract.address();
+        param.owner = owner.clone();
+        param.cid = cid.clone();
+        // payload
+        let mut payload_call_back = PayloadCallback::default();
+        payload_call_back.status = StatusEventCallback::TxSuccess.as_str();
+        payload_call_back.namespace = service_collection.namespace.clone();
+        payload_call_back.param = param;
+        //
         self.event_db
             .add(
                 service_collection.client_id,
-                json_data,
+                serde_json::to_string(&payload_call_back).expect("Failed to serialize"),
                 txhash,
                 erc721_contract.address().to_string(),
                 "onAwardItem".to_string(),
@@ -280,18 +305,39 @@ impl Etherman {
         let txhash = db_string!(log
             .transaction_hash
             .ok_or(anyhow!("OnBurnFilter.txhash is None"))?);
-        let token_id = erc721_contract
+
+        let token_id: U256 = erc721_contract
             .decode_event("onBurn", log.topics, log.data)
             .unwrap();
 
-        let mut m = OnBurnFilter::default();
-        m.token_id = token_id;
+        // get owner
+        let owner: Address = erc721_contract
+            .method::<_, Address>("ownerOf", token_id.clone())?
+            .call()
+            .await?;
 
-        let json_data = serde_json::to_string(&m).expect("Failed to serialize");
+        let cid: String = erc721_contract
+            .method::<_, String>("tokenURI", token_id.clone())?
+            .call()
+            .await?;
+
+        // param
+        let mut param = ParamPayloadCallback::default();
+        param.token_id = token_id.clone();
+        param.txhash = txhash.clone();
+        param.address = erc721_contract.address();
+        param.owner = owner.clone();
+        param.cid = cid.clone();
+        // payload
+        let mut payload_call_back = PayloadCallback::default();
+        payload_call_back.status = StatusEventCallback::Burned.as_str();
+        payload_call_back.namespace = service_collection.namespace.clone();
+        payload_call_back.param = param;
+        //
         self.event_db
             .add(
                 service_collection.client_id,
-                json_data,
+                serde_json::to_string(&payload_call_back).expect("Failed to serialize"),
                 txhash,
                 erc721_contract.address().to_string(),
                 "onBurn".to_string(),
