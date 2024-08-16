@@ -125,6 +125,30 @@ pub struct UnRegisterEndpointForServiceResponse {
     #[prost(string, tag = "5")]
     pub updated_at: ::prost::alloc::string::String,
 }
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdateEndpointForServiceRequest {
+    #[prost(string, tag = "1")]
+    pub client_id: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
+    pub endpoint_url: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdateEndpointForServiceeResponse {
+    #[prost(string, tag = "1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
+    pub client_id: ::prost::alloc::string::String,
+    #[prost(string, tag = "3")]
+    pub endpoint_url: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
+    pub created_at: ::prost::alloc::string::String,
+    #[prost(string, tag = "5")]
+    pub updated_at: ::prost::alloc::string::String,
+}
 /// Services with Collections
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -330,6 +354,15 @@ pub mod services_zion_actix {
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct UpdateEndpointForServiceJson {
+        #[prost(string, tag = "1")]
+        pub client_id: ::prost::alloc::string::String,
+        #[prost(string, tag = "2")]
+        pub endpoint_url: ::prost::alloc::string::String,
+    }
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct GetInfoCollectionForServiceJson {
         #[prost(string, optional, tag = "1")]
         pub id: ::core::option::Option<::prost::alloc::string::String>,
@@ -526,6 +559,33 @@ pub mod services_zion_actix {
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
+    async fn call_update_endpoint_for_service(
+        service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
+    ) -> Result<
+        ::actix_web::web::Json<UpdateEndpointForServiceeResponse>,
+        ::actix_prost::Error,
+    > {
+        let mut payload = payload.into_inner();
+        let json = <::actix_web::web::Json<
+            UpdateEndpointForServiceJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
+            .into_inner();
+        let request = UpdateEndpointForServiceRequest {
+            client_id: json.client_id,
+            endpoint_url: json.endpoint_url,
+        };
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service.update_endpoint_for_service(request).await?;
+        let response = response.into_inner();
+        Ok(::actix_web::web::Json(response))
+    }
     async fn call_get_all_collection_for_service(
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
@@ -708,6 +768,11 @@ pub mod services_zion_actix {
             .route(
                 "/api/serviceszion/unRegisterEndpointForService",
                 ::actix_web::web::post().to(call_un_register_endpoint_for_service),
+            );
+        config
+            .route(
+                "/api/serviceszion/updateEndpointForService",
+                ::actix_web::web::post().to(call_update_endpoint_for_service),
             );
         config
             .route(
@@ -955,6 +1020,28 @@ pub mod services_zion_client {
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
+        pub async fn update_endpoint_for_service(
+            &mut self,
+            request: impl tonic::IntoRequest<super::UpdateEndpointForServiceRequest>,
+        ) -> Result<
+            tonic::Response<super::UpdateEndpointForServiceeResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/serviceszion.ServicesZION/UpdateEndpointForService",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
         /// Services with Collections
         pub async fn get_all_collection_for_service(
             &mut self,
@@ -1128,6 +1215,13 @@ pub mod services_zion_server {
             request: tonic::Request<super::UnRegisterEndpointForServiceRequest>,
         ) -> Result<
             tonic::Response<super::UnRegisterEndpointForServiceResponse>,
+            tonic::Status,
+        >;
+        async fn update_endpoint_for_service(
+            &self,
+            request: tonic::Request<super::UpdateEndpointForServiceRequest>,
+        ) -> Result<
+            tonic::Response<super::UpdateEndpointForServiceeResponse>,
             tonic::Status,
         >;
         /// Services with Collections
@@ -1506,6 +1600,48 @@ pub mod services_zion_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = UnRegisterEndpointForServiceSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/serviceszion.ServicesZION/UpdateEndpointForService" => {
+                    #[allow(non_camel_case_types)]
+                    struct UpdateEndpointForServiceSvc<T: ServicesZion>(pub Arc<T>);
+                    impl<
+                        T: ServicesZion,
+                    > tonic::server::UnaryService<super::UpdateEndpointForServiceRequest>
+                    for UpdateEndpointForServiceSvc<T> {
+                        type Response = super::UpdateEndpointForServiceeResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<
+                                super::UpdateEndpointForServiceRequest,
+                            >,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).update_endpoint_for_service(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = UpdateEndpointForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

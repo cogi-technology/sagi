@@ -1,5 +1,7 @@
 use {
+    super::utils::get_payload_from_jwt,
     crate::error::{into_anyhow, Result as TonicResult},
+    jsonwebtoken::TokenData,
     openapi_proto::{
         authtelegram_service::{TestSendToEndpointsRequest, TestSendToEndpointsResponse},
         serviceszion_service::{services_zion_server::ServicesZion, *},
@@ -7,6 +9,7 @@ use {
     reqwest::{Client, Method},
     std::{collections::HashMap, sync::Arc},
     tonic::{Request, Response, Status},
+    zion_aa::types::jwt::JWTPayload,
     zion_service_db::{
         database::Database,
         models::StatusEvent,
@@ -49,6 +52,13 @@ impl ServicesZion for ServicesZionService {
         &self,
         req: Request<RegisterServiceRequest>,
     ) -> TonicResult<Response<InfoService>> {
+        // Get Sub User
+        let metadata = req.metadata();
+        let payload: TokenData<JWTPayload> = match get_payload_from_jwt(metadata).await {
+            Ok(p) => p,
+            Err(e) => return Err(Status::new(tonic::Code::Unknown, e.to_string())),
+        };
+        //
         if req.get_ref().client_id.is_empty() || req.get_ref().info.is_empty() {
             return Err(Status::new(
                 tonic::Code::InvalidArgument,
@@ -57,7 +67,11 @@ impl ServicesZion for ServicesZionService {
         }
         let response = self
             .services_db
-            .register_service(req.get_ref().client_id.clone(), req.get_ref().info.clone())
+            .register_service(
+                req.get_ref().client_id.clone(),
+                req.get_ref().info.clone(),
+                payload.claims.sub.clone(),
+            )
             .await;
         match response {
             Ok(service) => {
@@ -75,9 +89,16 @@ impl ServicesZion for ServicesZionService {
 
     async fn get_all_services(
         &self,
-        _: Request<GetAllServicesRequest>,
+        req: Request<GetAllServicesRequest>,
     ) -> TonicResult<Response<GetAllServicesResponse>> {
-        let response = self.services_db.get_all().await;
+        // Get Sub User
+        let metadata = req.metadata();
+        let payload: TokenData<JWTPayload> = match get_payload_from_jwt(metadata).await {
+            Ok(p) => p,
+            Err(e) => return Err(Status::new(tonic::Code::Unknown, e.to_string())),
+        };
+        //
+        let response = self.services_db.get_all(payload.claims.sub.clone()).await;
         match response {
             Ok(service) => {
                 let lst_services = service
@@ -104,9 +125,20 @@ impl ServicesZion for ServicesZionService {
         &self,
         req: Request<GetInfoServiceRequest>,
     ) -> TonicResult<Response<InfoService>> {
+        // Get Sub User
+        let metadata = req.metadata();
+        let payload: TokenData<JWTPayload> = match get_payload_from_jwt(metadata).await {
+            Ok(p) => p,
+            Err(e) => return Err(Status::new(tonic::Code::Unknown, e.to_string())),
+        };
+        //
         let response = self
             .services_db
-            .get(req.get_ref().id.clone(), req.get_ref().client_id.clone())
+            .get(
+                req.get_ref().id.clone(),
+                req.get_ref().client_id.clone(),
+                payload.claims.sub.clone(),
+            )
             .await;
         match response {
             Ok(service) => {
@@ -125,9 +157,19 @@ impl ServicesZion for ServicesZionService {
     // Service Endpoints
     async fn get_all_endpoint_for_service(
         &self,
-        _: Request<GetAllEndpointForServiceRequest>,
+        req: Request<GetAllEndpointForServiceRequest>,
     ) -> TonicResult<Response<GetAllEndpointForServiceResponse>> {
-        let response = self.services_webhood_db.get_all().await;
+        // Get Sub User
+        let metadata = req.metadata();
+        let payload: TokenData<JWTPayload> = match get_payload_from_jwt(metadata).await {
+            Ok(p) => p,
+            Err(e) => return Err(Status::new(tonic::Code::Unknown, e.to_string())),
+        };
+        //
+        let response = self
+            .services_webhood_db
+            .get_all_with_created_by(payload.claims.sub.clone())
+            .await;
         match response {
             Ok(service) => {
                 let lst_services = service
@@ -154,9 +196,20 @@ impl ServicesZion for ServicesZionService {
         &self,
         req: Request<GetInfoEndpointForServiceRequest>,
     ) -> TonicResult<Response<EndpointForService>> {
+        // Get Sub User
+        let metadata = req.metadata();
+        let payload: TokenData<JWTPayload> = match get_payload_from_jwt(metadata).await {
+            Ok(p) => p,
+            Err(e) => return Err(Status::new(tonic::Code::Unknown, e.to_string())),
+        };
+        //
         let response = self
             .services_webhood_db
-            .get(req.get_ref().id.clone(), req.get_ref().client_id.clone())
+            .get(
+                req.get_ref().id.clone(),
+                req.get_ref().client_id.clone(),
+                payload.claims.sub.clone(),
+            )
             .await;
         match response {
             Ok(service) => {
@@ -176,6 +229,13 @@ impl ServicesZion for ServicesZionService {
         &self,
         req: Request<ResgiterEndpointForServiceRequest>,
     ) -> TonicResult<Response<ResgiterEndpointForServiceResponse>> {
+        // Get Sub User
+        let metadata = req.metadata();
+        let payload: TokenData<JWTPayload> = match get_payload_from_jwt(metadata).await {
+            Ok(p) => p,
+            Err(e) => return Err(Status::new(tonic::Code::Unknown, e.to_string())),
+        };
+        //
         if req.get_ref().client_id.is_empty() || req.get_ref().endpoint_url.is_empty() {
             return Err(Status::new(
                 tonic::Code::InvalidArgument,
@@ -187,6 +247,7 @@ impl ServicesZion for ServicesZionService {
             .register_service_webhood(
                 req.get_ref().client_id.clone(),
                 req.get_ref().endpoint_url.clone(),
+                payload.claims.sub.clone(),
             )
             .await;
         match response {
@@ -207,6 +268,13 @@ impl ServicesZion for ServicesZionService {
         &self,
         req: Request<UnRegisterEndpointForServiceRequest>,
     ) -> TonicResult<Response<UnRegisterEndpointForServiceResponse>> {
+          // Get Sub User
+          let metadata = req.metadata();
+          let payload: TokenData<JWTPayload> = match get_payload_from_jwt(metadata).await {
+              Ok(p) => p,
+              Err(e) => return Err(Status::new(tonic::Code::Unknown, e.to_string())),
+          };
+          //
         if req.get_ref().client_id.is_empty() {
             return Err(Status::new(
                 tonic::Code::InvalidArgument,
@@ -215,7 +283,7 @@ impl ServicesZion for ServicesZionService {
         }
         let response = self
             .services_webhood_db
-            .un_register_service_webhood(req.get_ref().client_id.clone())
+            .un_register_service_webhood(req.get_ref().client_id.clone(), payload.claims.sub.clone())
             .await;
         match response {
             Ok(service) => {
@@ -231,12 +299,61 @@ impl ServicesZion for ServicesZionService {
         }
     }
 
+    async fn update_endpoint_for_service(
+        &self,
+        req: Request<UpdateEndpointForServiceRequest>,
+    ) -> TonicResult<Response<UpdateEndpointForServiceeResponse>> {
+        // Get Sub User
+        let metadata = req.metadata();
+        let payload: TokenData<JWTPayload> = match get_payload_from_jwt(metadata).await {
+            Ok(p) => p,
+            Err(e) => return Err(Status::new(tonic::Code::Unknown, e.to_string())),
+        };
+        //
+        if req.get_ref().client_id.is_empty() || req.get_ref().endpoint_url.is_empty() {
+            return Err(Status::new(
+                tonic::Code::InvalidArgument,
+                "client_id or endpoint_url is empty",
+            ));
+        }
+        let response = self
+            .services_webhood_db
+            .update_service_webhood(
+                req.get_ref().client_id.clone(),
+                req.get_ref().endpoint_url.clone(),
+                payload.claims.sub.clone(),
+            )
+            .await;
+        match response {
+            Ok(service) => {
+                let mut response = UpdateEndpointForServiceeResponse::default();
+                response.id = service.id.clone();
+                response.client_id = service.client_id.clone();
+                response.endpoint_url = service.endpoint_url.clone();
+                response.created_at = service.created_at.to_string();
+                response.updated_at = service.updated_at.to_string();
+                Ok(Response::new(response))
+            }
+            Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
+        }
+    }
+
     //Service Collections
     async fn get_all_collection_for_service(
         &self,
-        _: Request<GetAllCollectionForServiceRequest>,
+        req: Request<GetAllCollectionForServiceRequest>,
     ) -> TonicResult<Response<GetAllCollectionForServiceResponse>> {
-        let response = self.services_collection_db.get_all().await;
+        // Get Sub User
+        let metadata = req.metadata();
+        let payload: TokenData<JWTPayload> = match get_payload_from_jwt(metadata).await {
+            Ok(p) => p,
+            Err(e) => return Err(Status::new(tonic::Code::Unknown, e.to_string())),
+        };
+        //
+        let response = self
+            .services_collection_db
+            .get_all_with_created_by(payload.claims.sub.clone())
+            .await;
         match response {
             Ok(service) => {
                 let lst_services = service
@@ -263,9 +380,16 @@ impl ServicesZion for ServicesZionService {
         &self,
         req: Request<GeInfoCollectionForServiceRequest>,
     ) -> TonicResult<Response<CollectionForService>> {
+        // Get Sub User
+        let metadata = req.metadata();
+        let payload: TokenData<JWTPayload> = match get_payload_from_jwt(metadata).await {
+            Ok(p) => p,
+            Err(e) => return Err(Status::new(tonic::Code::Unknown, e.to_string())),
+        };
+        //
         let response = self
             .services_collection_db
-            .get(req.get_ref().id.clone(), req.get_ref().client_id.clone())
+            .get(req.get_ref().id.clone(), req.get_ref().client_id.clone(), payload.claims.sub.clone()) 
             .await;
         match response {
             Ok(service) => {
@@ -285,6 +409,13 @@ impl ServicesZion for ServicesZionService {
         &self,
         req: Request<RegisterCollectionForServiceRequest>,
     ) -> TonicResult<Response<RegisterCollectionForServiceResponse>> {
+        // Get Sub User
+        let metadata = req.metadata();
+        let payload: TokenData<JWTPayload> = match get_payload_from_jwt(metadata).await {
+            Ok(p) => p,
+            Err(e) => return Err(Status::new(tonic::Code::Unknown, e.to_string())),
+        };
+        //
         if req.get_ref().client_id.is_empty() || req.get_ref().address.is_empty() {
             return Err(Status::new(
                 tonic::Code::InvalidArgument,
@@ -298,6 +429,7 @@ impl ServicesZion for ServicesZionService {
                 req.get_ref().address.clone(),
                 req.get_ref().namespace.clone(),
                 req.get_ref().start_block_number.clone(),
+                payload.claims.sub.clone(),
             )
             .await;
         match response {
@@ -319,6 +451,13 @@ impl ServicesZion for ServicesZionService {
         &self,
         req: Request<UnRegisterCollectionForServiceRequest>,
     ) -> TonicResult<Response<UnRegisterCollectionForServiceResponse>> {
+          // Get Sub User
+          let metadata = req.metadata();
+          let payload: TokenData<JWTPayload> = match get_payload_from_jwt(metadata).await {
+              Ok(p) => p,
+              Err(e) => return Err(Status::new(tonic::Code::Unknown, e.to_string())),
+          };
+          //
         if req.get_ref().client_id.is_empty() {
             return Err(Status::new(
                 tonic::Code::InvalidArgument,
@@ -327,7 +466,7 @@ impl ServicesZion for ServicesZionService {
         }
         let response = self
             .services_collection_db
-            .un_register_service_collection(req.get_ref().client_id.clone())
+            .un_register_service_collection(req.get_ref().client_id.clone(), payload.claims.sub.clone())
             .await;
         match response {
             Ok(service) => {
@@ -367,7 +506,7 @@ impl ServicesZion for ServicesZionService {
                         response.client_id = s.client_id.clone();
                         response.status = s.status.clone();
                         response.collection = s.collection.clone();
-                        response.token_id = s.token_id.clone();
+                        response.token_id = s.token_id.unwrap_or(0);
                         response.created_at = s.created_at.to_string();
                         response.updated_at = s.updated_at.to_string();
                         response
@@ -385,12 +524,18 @@ impl ServicesZion for ServicesZionService {
         &self,
         req: Request<ResendNotiEventsRequest>,
     ) -> TonicResult<Response<ResendNotiEventsResponse>> {
+        // Get Sub User
+        let metadata = req.metadata();
+        let payload: TokenData<JWTPayload> = match get_payload_from_jwt(metadata).await {
+            Ok(p) => p,
+            Err(e) => return Err(Status::new(tonic::Code::Unknown, e.to_string())),
+        };
+        //
         let filter = req.get_ref();
         let response = self.events_db.get_events_by_id(filter.id.clone()).await;
         match response {
             Ok(event) => {
-                if event.client_id.is_empty() || event.collection.is_empty() 
-                {
+                if event.client_id.is_empty() || event.collection.is_empty() {
                     return Err(Status::new(
                         tonic::Code::InvalidArgument,
                         "client_id or collection or token_id is empty",
@@ -405,7 +550,11 @@ impl ServicesZion for ServicesZionService {
                 // Resend noti
                 let services_webhood = self
                     .services_webhood_db
-                    .get(Some("".to_string()), Some(event.client_id.clone()))
+                    .get(
+                        Some("".to_string()),
+                        Some(event.client_id.clone()),
+                        payload.claims.sub.clone(),
+                    )
                     .await
                     .map_err(|e| into_anyhow(e.into()))?;
 

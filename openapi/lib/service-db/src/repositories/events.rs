@@ -133,7 +133,7 @@ impl Events {
             txhash: txhash,
             collection: collection,
             method: method,
-            token_id: token_id,
+            token_id: Some(token_id),
             client_id: client_id,
             status: StatusEvent::Init.as_str().to_string(),
             created_at: Local::now().naive_utc(),

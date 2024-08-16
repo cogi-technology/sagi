@@ -76,12 +76,12 @@ impl Webhood {
                     .get_events_by_client_id(s.client_id.clone())
                     .await?;
                 let mut collection_rej = "".to_string();
-                let mut token_rej = "".to_string();
+                let mut token_rej = None;
                 for e in lst_events {
                     if e.status == StatusEvent::Sent.as_str() {
                         continue;
                     }
-                    if e.collection == collection_rej && e.token_id.to_string() == token_rej {
+                    if e.collection == collection_rej && e.token_id.is_some() && Some(e.token_id) == Some(token_rej) {
                         continue;
                     }
                     // send endpoint
@@ -148,7 +148,7 @@ impl Webhood {
                                         }
                                     }
                                     collection_rej = e.collection.clone();
-                                    token_rej = e.token_id.to_string();
+                                    token_rej = e.token_id;
                                 }
                             }
                         }
@@ -164,7 +164,7 @@ impl Webhood {
                                 }
                             }
                             collection_rej = e.collection.clone();
-                            token_rej = e.token_id.to_string();
+                            token_rej = e.token_id;
                         }
                     }
                 }

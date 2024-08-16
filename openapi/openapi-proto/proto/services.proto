@@ -72,6 +72,20 @@ message UnRegisterEndpointForServiceResponse {
   string updated_at = 5;
 }
 
+
+message UpdateEndpointForServiceRequest {
+  string client_id = 1;
+  string endpoint_url = 2;
+}
+
+message UpdateEndpointForServiceeResponse {
+  string id = 1;
+  string client_id = 2;
+  string endpoint_url = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}
+
 // Services with Collections
 message GetAllCollectionForServiceRequest {}
 message GetAllCollectionForServiceResponse {
@@ -165,6 +179,7 @@ service ServicesZION {
   rpc GetInfoEndpointForService (GetInfoEndpointForServiceRequest) returns (EndpointForService);
   rpc ResgiterEndpointForService (ResgiterEndpointForServiceRequest) returns (ResgiterEndpointForServiceResponse);
   rpc UnRegisterEndpointForService (UnRegisterEndpointForServiceRequest) returns (UnRegisterEndpointForServiceResponse);
+  rpc UpdateEndpointForService (UpdateEndpointForServiceRequest) returns (UpdateEndpointForServiceeResponse);
   // Services with Collections
   rpc GetAllCollectionForService (GetAllCollectionForServiceRequest) returns (GetAllCollectionForServiceResponse);
   rpc GetInfoCollectionForService (GeInfoCollectionForServiceRequest) returns (CollectionForService);

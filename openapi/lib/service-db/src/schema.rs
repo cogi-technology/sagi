@@ -1,26 +1,6 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    bills (id) {
-        #[max_length = 255]
-        id -> Varchar,
-        #[max_length = 255]
-        customer -> Varchar,
-        #[max_length = 255]
-        paid_amount -> Varchar,
-        #[max_length = 255]
-        rewarded_amount -> Nullable<Varchar>,
-        #[max_length = 255]
-        paid_txhash -> Varchar,
-        #[max_length = 255]
-        rewarded_txhash -> Nullable<Varchar>,
-        paid_at -> Timestamp,
-        rewarded_at -> Nullable<Timestamp>,
-        status -> Int2,
-    }
-}
-
-diesel::table! {
     events_erc721 (id) {
         #[max_length = 255]
         id -> Varchar,
@@ -36,7 +16,7 @@ diesel::table! {
         collection -> Varchar,
         #[max_length = 255]
         client_id -> Varchar,
-        token_id -> Int4,
+        token_id -> Nullable<Int4>,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -50,6 +30,8 @@ diesel::table! {
         client_id -> Varchar,
         #[max_length = 255]
         info -> Varchar,
+        #[max_length = 255]
+        created_by -> Varchar,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -67,6 +49,8 @@ diesel::table! {
         namespace -> Varchar,
         status -> Int4,
         start_block_number -> Int4,
+        #[max_length = 255]
+        created_by -> Varchar,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -80,6 +64,8 @@ diesel::table! {
         client_id -> Varchar,
         #[max_length = 255]
         endpoint_url -> Varchar,
+        #[max_length = 255]
+        created_by -> Varchar,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -95,7 +81,6 @@ diesel::table! {
 }
 
 diesel::allow_tables_to_appear_in_same_query!(
-    bills,
     events_erc721,
     services,
     services_collections,

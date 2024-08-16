@@ -46,6 +46,9 @@ http:
     - selector: serviceszion.ServicesZION.UnRegisterEndpointForService
       post: /api/serviceszion/unRegisterEndpointForService     
       body: "*"
+    - selector: serviceszion.ServicesZION.UpdateEndpointForService
+      post: /api/serviceszion/updateEndpointForService     
+      body: "*"
 
     - selector: serviceszion.ServicesZION.GetAllCollectionForService
       get: /api/serviceszion/getAllCollectionForService     

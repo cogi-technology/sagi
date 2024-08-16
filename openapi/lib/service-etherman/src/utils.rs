@@ -44,7 +44,6 @@ pub fn get_signature(
     signer.set_rsa_padding(Padding::PKCS1)?;
     signer.update(data.as_bytes())?;
     let signature = signer.sign_to_vec()?;
-    println!("Signature: {:?}", signature);
     Ok(signature)
 }
 

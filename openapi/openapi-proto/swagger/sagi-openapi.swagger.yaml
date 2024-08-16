@@ -1154,6 +1154,26 @@ paths:
             $ref: '#/definitions/serviceszionUnRegisterEndpointForServiceRequest'
       tags:
         - ServicesZION
+  /api/serviceszion/updateEndpointForService:
+    post:
+      operationId: ServicesZION_UpdateEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionUpdateEndpointForServiceeResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionUpdateEndpointForServiceRequest'
+      tags:
+        - ServicesZION
   /api/zionauthorization/getDataRequestForZION:
     get:
       operationId: ZionAuthorization_GetDataRequestForZION
@@ -1940,6 +1960,26 @@ definitions:
       client_id:
         type: string
   serviceszionUnRegisterEndpointForServiceResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionUpdateEndpointForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+  serviceszionUpdateEndpointForServiceeResponse:
     type: object
     properties:
       id:

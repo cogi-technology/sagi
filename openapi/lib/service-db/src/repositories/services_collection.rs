@@ -1,8 +1,8 @@
 use {
     crate::{
         database::Database,
-        models::{ServiceCollection, ServiceError},
-        schema::services_collections,
+        models::{Service, ServiceCollection, ServiceError},
+        schema::{services, services_collections},
     },
     chrono::Local,
     diesel::prelude::*,
@@ -21,10 +21,27 @@ impl ServicesCollection {
         Self { db }
     }
 
-    pub async fn get_all(&self) -> Result<Vec<ServiceCollection>, ServiceError> {
+    pub async fn get_all(
+        &self
+    ) -> Result<Vec<ServiceCollection>, ServiceError> {
         let mut conn = self.db.get_connection().await;
 
         let ret = services_collections::table
+            .select(ServiceCollection::as_select())
+            .load(&mut conn)
+            .await?;
+
+        Ok(ret)
+    }
+
+    pub async fn get_all_with_created_by(
+        &self,
+        created_by: String,
+    ) -> Result<Vec<ServiceCollection>, ServiceError> {
+        let mut conn = self.db.get_connection().await;
+
+        let ret = services_collections::table
+            .filter(services_collections::created_by.eq(created_by))
             .select(ServiceCollection::as_select())
             .load(&mut conn)
             .await?;
@@ -36,14 +53,52 @@ impl ServicesCollection {
         &self,
         id: Option<String>,
         client_id: Option<String>,
+        created_by: String,
     ) -> Result<ServiceCollection, ServiceError> {
         let mut conn = self.db.get_connection().await;
 
         let ret = services_collections::table
+            .filter(services_collections::created_by.eq(created_by))
             .filter(services_collections::id.eq(id.unwrap_or_else(|| "".to_string())))
             .or_filter(
                 services_collections::client_id.eq(client_id.unwrap_or_else(|| "".to_string())),
             )
+            .select(ServiceCollection::as_select())
+            .first(&mut conn)
+            .await?;
+
+        Ok(ret)
+    }
+
+    pub async fn get_service(
+        &self,
+        id: Option<String>,
+        client_id: Option<String>,
+        created_by: String,
+    ) -> Result<Service, ServiceError> {
+        let mut conn = self.db.get_connection().await;
+
+        let ret = services::table
+            .filter(services::created_by.eq(created_by))
+            .filter(services::id.eq(id.unwrap_or_else(|| "".to_string())))
+            .or_filter(services::client_id.eq(client_id.unwrap_or_else(|| "".to_string())))
+            .select(Service::as_select())
+            .first(&mut conn)
+            .await?;
+
+        Ok(ret)
+    }
+
+    pub async fn check_exist_service_collection(
+        &self,
+        id: Option<String>,
+        client_id: Option<String>,
+    ) -> Result<ServiceCollection, ServiceError> {
+        let mut conn = self.db.get_connection().await;
+
+        let ret = services_collections::table
+            .filter(services_collections::client_id.eq(client_id.unwrap_or_else(|| "".to_string())))
+            .or_filter(services_collections::id.eq(id.unwrap_or_else(|| "".to_string())))
             .select(ServiceCollection::as_select())
             .first(&mut conn)
             .await?;
@@ -57,14 +112,37 @@ impl ServicesCollection {
         address: String,
         namespace: String,
         start_block_number: i32,
+        created_by: String,
     ) -> Result<ServiceCollection, ServiceError> {
         let service = self
-            .get(Some("".to_string()), Some(client_id.clone()))
+            .get_service(
+                Some("".to_string()),
+                Some(client_id.clone()),
+                created_by.clone(),
+            )
+            .await
+            .unwrap_or(Service::default());
+
+        if service.client_id == "".to_string() || service.id == "".to_string() {
+            return Err(ServiceError {
+                msg: "Service not available".into(),
+                status: tonic::Code::Unknown as i32,
+            });
+        }
+
+        let service_collection = self
+            .get(
+                Some("".to_string()),
+                Some(client_id.clone()),
+                created_by.clone(),
+            )
             .await
             .unwrap_or(ServiceCollection::default());
-        if service.client_id != "".to_string() && service.address == address.to_string() {
+        if service_collection.client_id != "".to_string()
+            && service_collection.address == address.to_string()
+        {
             return Err(ServiceError {
-                msg: "Collection for Service exists".into(),
+                msg: "Collection for service existence".into(),
                 status: tonic::Code::Unknown as i32,
             });
         }
@@ -76,6 +154,7 @@ impl ServicesCollection {
             namespace: namespace.to_string(),
             status: 1,
             start_block_number: start_block_number,
+            created_by: created_by,
             created_at: Local::now().naive_utc(),
             updated_at: Local::now().naive_utc(),
         };
@@ -93,14 +172,37 @@ impl ServicesCollection {
     pub async fn un_register_service_collection(
         &self,
         client_id: String,
+        created_by: String,
     ) -> Result<ServiceCollection, ServiceError> {
         let service = self
-            .get(Some("".to_string()), Some(client_id.clone()))
+            .get_service(
+                Some("".to_string()),
+                Some(client_id.clone()),
+                created_by.clone(),
+            )
+            .await
+            .unwrap_or(Service::default());
+
+        if service.client_id == "".to_string() || service.id == "".to_string() {
+            return Err(ServiceError {
+                msg: "Service not available".into(),
+                status: tonic::Code::Unknown as i32,
+            });
+        }
+
+        let service_collection = self
+            .get(
+                Some("".to_string()),
+                Some(client_id.clone()),
+                created_by.clone(),
+            )
             .await
             .unwrap_or(ServiceCollection::default());
-        if service.client_id == "".to_string() || service.address == "".to_string() {
+        if service_collection.client_id == "".to_string()
+            || service_collection.address == "".to_string()
+        {
             return Err(ServiceError {
-                msg: "Endpoint for Service not exist".into(),
+                msg: "Endpoint for Service not available".into(),
                 status: tonic::Code::Unknown as i32,
             });
         }
@@ -121,12 +223,12 @@ impl ServicesCollection {
         start_block_number: i32,
     ) -> Result<ServiceCollection, ServiceError> {
         let service = self
-            .get(Some(id.to_string()), Some("".to_string()))
+            .check_exist_service_collection(Some(id.to_string()), Some("".to_string()))
             .await
             .unwrap_or(ServiceCollection::default());
         if service.client_id == "".to_string() || service.address == "".to_string() {
             return Err(ServiceError {
-                msg: "Endpoint for Service not exist".into(),
+                msg: "Endpoint for Service not available".into(),
                 status: tonic::Code::Unknown as i32,
             });
         }
@@ -135,7 +237,10 @@ impl ServicesCollection {
         let ret = diesel::update(
             services_collections::table.filter(services_collections::id.eq(id.clone())),
         )
-        .set((services_collections::start_block_number.eq(start_block_number), services_collections::updated_at.eq(Local::now().naive_utc())))
+        .set((
+            services_collections::start_block_number.eq(start_block_number),
+            services_collections::updated_at.eq(Local::now().naive_utc()),
+        ))
         .returning(ServiceCollection::as_returning())
         .get_result(&mut conn)
         .await?;
