@@ -96,8 +96,6 @@ pub struct TestSendToEndpointsRequest {
     pub client_id: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
     pub payload: ::prost::alloc::string::String,
-    #[prost(string, tag = "4")]
-    pub owner: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -170,8 +168,6 @@ pub mod auth_telegram_actix {
         pub client_id: ::prost::alloc::string::String,
         #[prost(string, tag = "3")]
         pub payload: ::prost::alloc::string::String,
-        #[prost(string, tag = "4")]
-        pub owner: ::prost::alloc::string::String,
     }
     async fn call_send_code_telegram(
         service: ::actix_web::web::Data<dyn AuthTelegram + Sync + Send + 'static>,
@@ -319,7 +315,6 @@ pub mod auth_telegram_actix {
             id: json.id,
             client_id: json.client_id,
             payload: json.payload,
-            owner: json.owner,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.test_send_to_endpoints(request).await?;

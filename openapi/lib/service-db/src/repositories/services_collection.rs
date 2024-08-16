@@ -135,7 +135,7 @@ impl ServicesCollection {
         let ret = diesel::update(
             services_collections::table.filter(services_collections::id.eq(id.clone())),
         )
-        .set(services_collections::start_block_number.eq(start_block_number))
+        .set((services_collections::start_block_number.eq(start_block_number), services_collections::updated_at.eq(Local::now().naive_utc())))
         .returning(ServiceCollection::as_returning())
         .get_result(&mut conn)
         .await?;

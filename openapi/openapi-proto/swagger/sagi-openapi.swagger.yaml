@@ -992,6 +992,27 @@ paths:
             $ref: '#/definitions/serviceszionGetInfoEndpointForServiceRequest'
       tags:
         - ServicesZION
+  /api/serviceszion/getInfoEvents:
+    post:
+      summary: Resend Noti Events
+      operationId: ServicesZION_GetInfoEvents
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionGetInfoEventsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionGetInfoEventsRequest'
+      tags:
+        - ServicesZION
   /api/serviceszion/getInfoService:
     post:
       operationId: ServicesZION_GetInfoService
@@ -1051,6 +1072,26 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/serviceszionRegisterServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/resendNotiEvents:
+    post:
+      operationId: ServicesZION_ResendNotiEvents
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionResendNotiEventsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionResendNotiEventsRequest'
       tags:
         - ServicesZION
   /api/serviceszion/resgiterEndpointForService:
@@ -1203,8 +1244,6 @@ definitions:
       client_id:
         type: string
       payload:
-        type: string
-      owner:
         type: string
     title: Test Endpoints
   authtelegramTestSendToEndpointsResponse:
@@ -1740,12 +1779,54 @@ definitions:
         type: string
       client_id:
         type: string
+  serviceszionGetInfoEventsRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      collection:
+        type: string
+      token_id:
+        type: integer
+        format: int32
+  serviceszionGetInfoEventsResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/serviceszionInfoEvent'
   serviceszionGetInfoServiceRequest:
     type: object
     properties:
       id:
         type: string
       client_id:
+        type: string
+  serviceszionInfoEvent:
+    type: object
+    properties:
+      id:
+        type: string
+      tx:
+        type: string
+      client_id:
+        type: string
+      status:
+        type: string
+      method:
+        type: string
+      collection:
+        type: string
+      token_id:
+        type: integer
+        format: int32
+      created_at:
+        type: string
+      updated_at:
         type: string
   serviceszionInfoService:
     type: object
@@ -1798,6 +1879,18 @@ definitions:
       info:
         type: string
     title: Services
+  serviceszionResendNotiEventsRequest:
+    type: object
+    properties:
+      id:
+        type: string
+  serviceszionResendNotiEventsResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      status:
+        type: string
   serviceszionResgiterEndpointForServiceRequest:
     type: object
     properties:

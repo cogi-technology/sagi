@@ -122,6 +122,38 @@ message UnRegisterCollectionForServiceResponse {
   string updated_at = 6;
 }
 
+message ResendNotiEventsRequest {
+  string id = 1;
+}
+
+message ResendNotiEventsResponse {
+  string id = 1;
+  string status = 2;
+}
+
+message GetInfoEventsRequest {
+  optional string id = 1;
+  optional string client_id = 2;
+  optional string collection = 3;
+  optional int32 token_id = 4;
+}
+
+message GetInfoEventsResponse {
+  repeated InfoEvent data = 1;
+}
+
+message InfoEvent {
+  string id = 1;
+  string tx = 2;
+  string client_id = 3;
+  string status = 4;
+  string method = 5;
+  string collection = 6;
+  int32 token_id = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
 // Define the service for 
 service ServicesZION {
   // Services
@@ -138,4 +170,7 @@ service ServicesZION {
   rpc GetInfoCollectionForService (GeInfoCollectionForServiceRequest) returns (CollectionForService);
   rpc RegisterCollectionForService (RegisterCollectionForServiceRequest) returns (RegisterCollectionForServiceResponse);
   rpc UnRegisterCollectionForService (UnRegisterCollectionForServiceRequest) returns (UnRegisterCollectionForServiceResponse);
+  // Resend Noti Events
+  rpc GetInfoEvents (GetInfoEventsRequest) returns (GetInfoEventsResponse);
+  rpc ResendNotiEvents (ResendNotiEventsRequest) returns (ResendNotiEventsResponse);
 }

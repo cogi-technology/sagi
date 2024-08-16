@@ -166,7 +166,7 @@ impl Etherman {
 
     /*
     event Transfer(address indexed arg0, address indexed arg1, uint256 indexed arg2)
-    https://sepolia.etherscan.io/tx/0x6ad8158ff44cc7ac76b299dc1987747c6ae58bf44be17ea375e7d4125cd12a26
+    https://devnet-explorer.zionx.network/tx/0x6ad8158ff44cc7ac76b299dc1987747c6ae58bf44be17ea375e7d4125cd12a26
     */
     #[tracing::instrument(skip_all, name = "Transfer", level = "warn")]
     async fn on_transfer(
@@ -188,6 +188,13 @@ impl Etherman {
         let (from, to, token_id): (Address, Address, U256) = erc721_contract
             .decode_event("Transfer", log.topics, log.data)
             .unwrap();
+
+        // let owner: Address = erc721_contract
+        //     .method::<_, Address>("ownerOf", token_id)?
+        //     .call()
+        //     .await?;
+
+        // println!("annnnnnn owner:{}", owner);
 
         let mut m = TransferFilter::default();
         m.from = from.clone();
@@ -321,21 +328,33 @@ impl Etherman {
                 processing_block_number = Some(log.block_number.unwrap().as_u64());
 
                 if self
-                    .on_transfer(service_collection.clone(), erc721_contract.clone(), log.clone())
+                    .on_transfer(
+                        service_collection.clone(),
+                        erc721_contract.clone(),
+                        log.clone(),
+                    )
                     .await?
                 {
                     apply += 1;
                     continue;
                 }
                 if self
-                    .on_burn_filter(service_collection.clone(), erc721_contract.clone(), log.clone())
+                    .on_burn_filter(
+                        service_collection.clone(),
+                        erc721_contract.clone(),
+                        log.clone(),
+                    )
                     .await?
                 {
                     apply += 1;
                     continue;
                 }
                 if self
-                    .on_award_item_filter(service_collection.clone(), erc721_contract.clone(), log.clone())
+                    .on_award_item_filter(
+                        service_collection.clone(),
+                        erc721_contract.clone(),
+                        log.clone(),
+                    )
                     .await?
                 {
                     apply += 1;

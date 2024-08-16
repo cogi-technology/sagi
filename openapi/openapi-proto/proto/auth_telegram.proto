@@ -58,7 +58,6 @@ message TestSendToEndpointsRequest {
   string id = 1;
   string client_id = 2;
   string payload = 3;
-  string owner = 4;
 }
 
 message TestSendToEndpointsResponse {

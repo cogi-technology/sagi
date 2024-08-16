@@ -6,7 +6,7 @@ CREATE TABLE events_erc721 (
     method VARCHAR(255) NOT NULL,
     collection VARCHAR(255) NOT NULL,
     client_id VARCHAR(255) NOT NULL,
-    token_id INT NOT NULL,
+    token_id INT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

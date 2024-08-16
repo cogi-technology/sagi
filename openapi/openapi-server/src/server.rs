@@ -38,6 +38,7 @@ pub struct ServerConfig {
     // pub tls_identity: Identity,
     pub grpc_addr: SocketAddr,
     pub openapi_addr: SocketAddr,
+    pub private_key_path: String,
 }
 
 #[derive(Clone)]
@@ -141,7 +142,7 @@ pub async fn run(
     ));
     let authtelegram = Arc::new(AuthTelegramService::new(telegram_auth_config.clone()));
     let zionauthorization = Arc::new(ZionAuthorizationService::new(telegram_auth_config.clone()));
-    let services_zion = Arc::new(ServicesZionService::new(db.clone()));
+    let services_zion = Arc::new(ServicesZionService::new(db.clone(), server_config.private_key_path.clone()));
 
     let router = Router {
         authtelegram,

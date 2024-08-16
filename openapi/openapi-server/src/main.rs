@@ -45,7 +45,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let db: Arc<Database> = Arc::new(Database::new(c.db_url));
     let etherman: Arc<Etherman> = Arc::new(Etherman::init(db.clone(), "test".into(), c.etherman).await?);
     // webhoood
-    let webhood: Arc<Webhood> = Arc::new(Webhood::init(db.clone(), c.private_key_path).await?);
+    let webhood: Arc<Webhood> = Arc::new(Webhood::init(db.clone(), c.private_key_path.clone()).await?);
     //
 
     let server_config = ServerConfig {
@@ -54,6 +54,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // tls_identity: identity,
         grpc_addr: c.grpc_listen,
         openapi_addr: c.openapi_listen,
+        private_key_path: c.private_key_path,
     };
     info!("Started at {}", c.grpc_listen);
     tokio::select! {

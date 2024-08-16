@@ -59,6 +59,13 @@ http:
       post: /api/serviceszion/unRegisterCollectionForService     
       body: "*"
 
+    - selector: serviceszion.ServicesZION.GetInfoEvents
+      post: /api/serviceszion/getInfoEvents     
+      body: "*"
+    - selector: serviceszion.ServicesZION.ResendNotiEvents
+      post: /api/serviceszion/resendNotiEvents     
+      body: "*"
+
     - selector: erc20.ERC20.Deploy
       post: /api/erc20/deploy
       body: "*"

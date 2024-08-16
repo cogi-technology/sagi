@@ -55,40 +55,40 @@ pub async fn send_request_json<T: Serialize + DeserializeOwned, U: Serialize>(
     }
 }
 
-pub async fn send_request_text<U>(
-    client: &Client,
-    method: Method,
-    url: &str,
-    body: Option<&U>,
-    headers: Option<HashMap<String, String>>,
-) -> Result<Response<String>>
-where
-    U: Serialize,
-{
-    let mut request: RequestBuilder = client.request(method, url);
+// pub async fn send_request_text<U>(
+//     client: &Client,
+//     method: Method,
+//     url: &str,
+//     body: Option<&U>,
+//     headers: Option<HashMap<String, String>>,
+// ) -> Result<Response<String>>
+// where
+//     U: Serialize,
+// {
+//     let mut request: RequestBuilder = client.request(method, url);
 
-    // Set the body if provided
-    if let Some(b) = body {
-        request = request.json(b);
-    }
+//     // Set the body if provided
+//     if let Some(b) = body {
+//         request = request.json(b);
+//     }
 
-    // Set headers if provided
-    if let Some(h) = headers {
-        for (key, value) in h {
-            request = request.header(&key, &value);
-        }
-    }
+//     // Set headers if provided
+//     if let Some(h) = headers {
+//         for (key, value) in h {
+//             request = request.header(&key, &value);
+//         }
+//     }
 
-    let response = match request.send().await {
-        Ok(response) => response,
-        Err(e) => return Err(into_anyhow(e.into())),
-    };
+//     let response = match request.send().await {
+//         Ok(response) => response,
+//         Err(e) => return Err(into_anyhow(e.into())),
+//     };
 
-    match response.text().await {
-        Ok(response) => Ok(Response::new(response)),
-        Err(e) => Err(into_anyhow(e.into())),
-    }
-}
+//     match response.text().await {
+//         Ok(response) => Ok(Response::new(response)),
+//         Err(e) => Err(into_anyhow(e.into())),
+//     }
+// }
 
 pub async fn init_contract_wallet(
     header_metadata: &tonic::metadata::MetadataMap,

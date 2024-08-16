@@ -219,6 +219,65 @@ pub struct UnRegisterCollectionForServiceResponse {
     #[prost(string, tag = "6")]
     pub updated_at: ::prost::alloc::string::String,
 }
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ResendNotiEventsRequest {
+    #[prost(string, tag = "1")]
+    pub id: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ResendNotiEventsResponse {
+    #[prost(string, tag = "1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
+    pub status: ::prost::alloc::string::String,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GetInfoEventsRequest {
+    #[prost(string, optional, tag = "1")]
+    pub id: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, optional, tag = "2")]
+    pub client_id: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, optional, tag = "3")]
+    pub collection: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(int32, optional, tag = "4")]
+    pub token_id: ::core::option::Option<i32>,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GetInfoEventsResponse {
+    #[prost(message, repeated, tag = "1")]
+    pub data: ::prost::alloc::vec::Vec<InfoEvent>,
+}
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct InfoEvent {
+    #[prost(string, tag = "1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
+    pub tx: ::prost::alloc::string::String,
+    #[prost(string, tag = "3")]
+    pub client_id: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
+    pub status: ::prost::alloc::string::String,
+    #[prost(string, tag = "5")]
+    pub method: ::prost::alloc::string::String,
+    #[prost(string, tag = "6")]
+    pub collection: ::prost::alloc::string::String,
+    #[prost(int32, tag = "7")]
+    pub token_id: i32,
+    #[prost(string, tag = "8")]
+    pub created_at: ::prost::alloc::string::String,
+    #[prost(string, tag = "9")]
+    pub updated_at: ::prost::alloc::string::String,
+}
 pub mod services_zion_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
     use super::*;
@@ -298,6 +357,26 @@ pub mod services_zion_actix {
         pub client_id: ::prost::alloc::string::String,
         #[prost(string, tag = "2")]
         pub address: ::prost::alloc::string::String,
+    }
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct GetInfoEventsJson {
+        #[prost(string, optional, tag = "1")]
+        pub id: ::core::option::Option<::prost::alloc::string::String>,
+        #[prost(string, optional, tag = "2")]
+        pub client_id: ::core::option::Option<::prost::alloc::string::String>,
+        #[prost(string, optional, tag = "3")]
+        pub collection: ::core::option::Option<::prost::alloc::string::String>,
+        #[prost(int32, optional, tag = "4")]
+        pub token_id: ::core::option::Option<i32>,
+    }
+    #[actix_prost_macros::serde(rename_all = "snake_case")]
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct ResendNotiEventsJson {
+        #[prost(string, tag = "1")]
+        pub id: ::prost::alloc::string::String,
     }
     async fn call_register_service(
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
@@ -541,6 +620,55 @@ pub mod services_zion_actix {
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
+    async fn call_get_info_events(
+        service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
+    ) -> Result<::actix_web::web::Json<GetInfoEventsResponse>, ::actix_prost::Error> {
+        let mut payload = payload.into_inner();
+        let json = <::actix_web::web::Json<
+            GetInfoEventsJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
+            .into_inner();
+        let request = GetInfoEventsRequest {
+            id: json.id,
+            client_id: json.client_id,
+            collection: json.collection,
+            token_id: json.token_id,
+        };
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service.get_info_events(request).await?;
+        let response = response.into_inner();
+        Ok(::actix_web::web::Json(response))
+    }
+    async fn call_resend_noti_events(
+        service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
+        http_request: ::actix_web::HttpRequest,
+        payload: ::actix_web::web::Payload,
+    ) -> Result<::actix_web::web::Json<ResendNotiEventsResponse>, ::actix_prost::Error> {
+        let mut payload = payload.into_inner();
+        let json = <::actix_web::web::Json<
+            ResendNotiEventsJson,
+        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+            .await
+            .map_err(|err| ::actix_prost::Error::from_actix(
+                err,
+                ::tonic::Code::InvalidArgument,
+            ))?
+            .into_inner();
+        let request = ResendNotiEventsRequest {
+            id: json.id,
+        };
+        let request = ::actix_prost::new_request(request, &http_request);
+        let response = service.resend_noti_events(request).await?;
+        let response = response.into_inner();
+        Ok(::actix_web::web::Json(response))
+    }
     pub fn route_services_zion(
         config: &mut ::actix_web::web::ServiceConfig,
         service: Arc<dyn ServicesZion + Send + Sync + 'static>,
@@ -600,6 +728,16 @@ pub mod services_zion_actix {
             .route(
                 "/api/serviceszion/unRegisterCollectionForService",
                 ::actix_web::web::post().to(call_un_register_collection_for_service),
+            );
+        config
+            .route(
+                "/api/serviceszion/getInfoEvents",
+                ::actix_web::web::post().to(call_get_info_events),
+            );
+        config
+            .route(
+                "/api/serviceszion/resendNotiEvents",
+                ::actix_web::web::post().to(call_resend_noti_events),
             );
     }
 }
@@ -905,6 +1043,45 @@ pub mod services_zion_client {
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
+        /// Resend Noti Events
+        pub async fn get_info_events(
+            &mut self,
+            request: impl tonic::IntoRequest<super::GetInfoEventsRequest>,
+        ) -> Result<tonic::Response<super::GetInfoEventsResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/serviceszion.ServicesZION/GetInfoEvents",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        pub async fn resend_noti_events(
+            &mut self,
+            request: impl tonic::IntoRequest<super::ResendNotiEventsRequest>,
+        ) -> Result<tonic::Response<super::ResendNotiEventsResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/serviceszion.ServicesZION/ResendNotiEvents",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -979,6 +1156,15 @@ pub mod services_zion_server {
             tonic::Response<super::UnRegisterCollectionForServiceResponse>,
             tonic::Status,
         >;
+        /// Resend Noti Events
+        async fn get_info_events(
+            &self,
+            request: tonic::Request<super::GetInfoEventsRequest>,
+        ) -> Result<tonic::Response<super::GetInfoEventsResponse>, tonic::Status>;
+        async fn resend_noti_events(
+            &self,
+            request: tonic::Request<super::ResendNotiEventsRequest>,
+        ) -> Result<tonic::Response<super::ResendNotiEventsResponse>, tonic::Status>;
     }
     /// Define the service for
     #[derive(Debug)]
@@ -1494,6 +1680,86 @@ pub mod services_zion_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = UnRegisterCollectionForServiceSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/serviceszion.ServicesZION/GetInfoEvents" => {
+                    #[allow(non_camel_case_types)]
+                    struct GetInfoEventsSvc<T: ServicesZion>(pub Arc<T>);
+                    impl<
+                        T: ServicesZion,
+                    > tonic::server::UnaryService<super::GetInfoEventsRequest>
+                    for GetInfoEventsSvc<T> {
+                        type Response = super::GetInfoEventsResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::GetInfoEventsRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).get_info_events(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = GetInfoEventsSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/serviceszion.ServicesZION/ResendNotiEvents" => {
+                    #[allow(non_camel_case_types)]
+                    struct ResendNotiEventsSvc<T: ServicesZion>(pub Arc<T>);
+                    impl<
+                        T: ServicesZion,
+                    > tonic::server::UnaryService<super::ResendNotiEventsRequest>
+                    for ResendNotiEventsSvc<T> {
+                        type Response = super::ResendNotiEventsResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::ResendNotiEventsRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).resend_noti_events(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = ResendNotiEventsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

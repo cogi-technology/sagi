@@ -65,11 +65,11 @@ impl Webhood {
     #[tracing::instrument(skip_all, name = "heartbeat_event", level = "warn")]
     pub async fn heartbeat_event(&self) -> Result<()> {
         let file_name = self.private_key_path.clone();
+        let client = ClientReqwest::new();
+        let private_key = load_private_key_from_file(&file_name).unwrap();
         loop {
             // get all contract
-            let client = ClientReqwest::new();
             let m = self.service_webhood_db.get_all().await?;
-            let private_key = load_private_key_from_file(&file_name).unwrap();
             for s in m {
                 let lst_events = self
                     .event_db
@@ -89,11 +89,10 @@ impl Webhood {
                     let body = TestSendToEndpointsRequest {
                         id: e.id.clone(),
                         payload: e.payload.clone(),
-                        client_id: s.client_id.clone(),
-                        owner: "".to_string(),
+                        client_id: s.client_id.clone()
                     };
                     // create signature
-                    let data = format!("{}{}", e.id.clone(), s.client_id.clone());
+                    let data: String = format!("{}{}", e.id.clone(), s.client_id.clone());
                     let signature = get_signature(&data, private_key.clone())?;
                     let s: String = signature
                         .iter()
