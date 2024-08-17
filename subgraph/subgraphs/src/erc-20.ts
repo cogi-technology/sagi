@@ -1,4 +1,4 @@
-import { log } from "@graphprotocol/graph-ts"
+import { log, dataSource } from "@graphprotocol/graph-ts"
 import {
   Approval as ApprovalEvent,
   OwnershipTransferred as OwnershipTransferredEvent,

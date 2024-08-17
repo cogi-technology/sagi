@@ -17,10 +17,11 @@ run-graph-node:
 
 down-graph-node:
 	cd ./subgraphs && \
+		npm run remove-local && \
 		docker compose down && \
 		sudo rm -rf data
 
 subgraph-deploy:
 	cd ./subgraphs && \
-		graph create --node http://localhost:8020/ subgraphs && \
-		graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 subgraphs
+		npm run create-local && \
+		npm run deploy-local
