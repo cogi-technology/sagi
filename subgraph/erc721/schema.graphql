@@ -1,0 +1,137 @@
+type AwardItem @entity(immutable: true) {
+  id: Bytes!
+  recipient: Bytes! # address
+  cid: String! # string
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  collection: Collection!
+  nft: NFT!
+}
+
+type Burn @entity(immutable: true) {
+  id: Bytes!
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  collection: Collection!
+  nft: NFT!
+}
+
+type Transfer @entity(immutable: true) {
+  id: Bytes!
+  from: Bytes! # address
+  to: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  collection: Collection!
+  nft: NFT!
+}
+
+# Union type to represent any of the transaction types
+union Transaction = AwardItem | Burn | Transfer
+
+type Collection @entity {
+  "ID (address)"
+  id: ID!
+
+  "Name"
+  name: String!
+
+  "Symbol"
+  symbol: String!
+
+  "List of NFTs"
+  nfts: [NFT!]! @derivedFrom(field: "collection")
+}
+
+
+type Metadata @entity {
+  "ID (cid)"
+  id: ID!
+
+  "Name"
+  name: String!
+
+  "Description"
+  description: String!
+
+  "Image"
+  image: String!
+
+  "List of attribute"
+  attributes: [MetadataAttribute!]! @derivedFrom(field: "metadata")
+
+  "NFT"
+  nft: NFT
+}
+
+type MetadataAttribute @entity {
+  "Metadata + incr"
+  id: ID!
+
+  "display_type"
+  display_type: String!
+
+  "trait_type"
+  trait_type: String!
+
+  "value"
+  value: String!
+
+  "Metadata (cid)"
+  metadata: Metadata!
+}
+
+type NFT @entity {
+  "CollectionAddress + tokenId"
+  id: ID!
+
+  "tokenId"
+  tokenId: BigInt!
+
+  "Collection address"
+  collection: Collection!
+
+  "Metadata cid"
+  metadata: Metadata!
+
+  "Metadata Name"
+  metadataName: String!
+
+  "Metadata Type"
+  metadataType: String
+
+  "Metadata Grade"
+  metadataGrade: Int
+
+  "Owner"
+  owner: User!
+
+  "Updated at"
+  updatedAt: BigInt!
+
+  "Award items associated with this NFT"
+  awardItems: [AwardItem!]! @derivedFrom(field: "nft")
+
+  "Burns associated with this NFT"
+  burns: [Burn!]! @derivedFrom(field: "nft")
+
+  "Transfers associated with this NFT"
+  transfers: [Transfer!]! @derivedFrom(field: "nft")
+}
+
+type User @entity {
+  "User address"
+  id: ID!
+
+  "Number of tokens"
+  numberTokens: BigInt!
+
+  "NFTs"
+  nfts: [NFT!]! @derivedFrom(field: "owner")
+}

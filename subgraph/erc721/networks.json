@@ -1,0 +1,8 @@
+{
+  "https://devnet-rpc.zionx.network": {
+    "erc721": {
+      "address": "0x4289a6df97c02222755b0b24ec1832cfedbac50f",
+      "startBlock": 1109
+    }
+  }
+}
