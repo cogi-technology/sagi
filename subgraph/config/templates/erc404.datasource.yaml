@@ -1,6 +1,6 @@
 kind: ethereum
 name: erc404
-network: {{network}}
+network: zionx
 source:
   address: "{{address}}"
   abi: erc404

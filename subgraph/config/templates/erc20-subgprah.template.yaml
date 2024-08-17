@@ -1,0 +1,30 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  {{#each configs}}
+    - kind: ethereum
+      name: {{name}}
+      network: zionx
+      source:
+        address: "{{address}}"
+        abi: erc20
+        startBlock: {{startBlock}}
+      mapping:
+        kind: ethereum/events
+        apiVersion: 0.0.7
+        language: wasm/assemblyscript
+        entities:
+          - User
+          - Collection
+          - Transfer
+        abis:
+          - name: erc20
+            file: ./abis/erc20.json
+        eventHandlers:
+          - event: Transfer(indexed address,indexed address,uint256)
+            handler: handleTransfer
+        file: ./src/erc-20.ts
+  {{/each}}

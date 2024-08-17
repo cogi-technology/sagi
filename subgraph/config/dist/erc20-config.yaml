@@ -1,0 +1,6 @@
+- name: TestToken1
+  address: "0xf221a7ba59fa2fbb64e71ff9c1b662ea48dfea0e"
+  startBlock: 1141
+- name: TestToken2
+  address: "0x06C3B673eA3fb4567630BD1d35441454cbFe32Bf"
+  startBlock: 1154
