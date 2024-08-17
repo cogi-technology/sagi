@@ -12,12 +12,12 @@ http:
     - selector: authtelegram.AuthTelegram.LogOutTelegram
       post: /api/authtelegram/logOutTelegram
       body: "*"
-    - selector: authtelegram.AuthTelegram.SignInTelegramAsBot
-      post: /api/authtelegram/signInTelegramAsBot
-      body: "*"
-    - selector: authtelegram.AuthTelegram.LogOutTelegramAsBot
-      post: /api/authtelegram/logOutTelegramAsBot
-      body: "*"
+    # - selector: authtelegram.AuthTelegram.SignInTelegramAsBot
+    #   post: /api/authtelegram/signInTelegramAsBot
+    #   body: "*"
+    # - selector: authtelegram.AuthTelegram.LogOutTelegramAsBot
+    #   post: /api/authtelegram/logOutTelegramAsBot
+    #   body: "*"
 
     - selector: authtelegram.AuthTelegram.TestSendToEndpoints
       post: /api/authtelegram/testSendToEndpoints     

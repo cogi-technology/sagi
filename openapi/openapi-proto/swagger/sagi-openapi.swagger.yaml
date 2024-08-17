@@ -34,26 +34,6 @@ paths:
             $ref: '#/definitions/authtelegramLogOutTelegramRequest'
       tags:
         - AuthTelegram
-  /api/authtelegram/logOutTelegramAsBot:
-    post:
-      operationId: AuthTelegram_LogOutTelegramAsBot
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/authtelegramLogOutTelegramAsBotResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/authtelegramLogOutTelegramAsbotRequest'
-      tags:
-        - AuthTelegram
   /api/authtelegram/sendCodeTelegram:
     post:
       operationId: AuthTelegram_SendCodeTelegram
@@ -92,26 +72,6 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/authtelegramSignInTelegramRequest'
-      tags:
-        - AuthTelegram
-  /api/authtelegram/signInTelegramAsBot:
-    post:
-      operationId: AuthTelegram_SignInTelegramAsBot
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/authtelegramSignInTelegramAsBotResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/authtelegramSignInTelegramAsBotRequest'
       tags:
         - AuthTelegram
   /api/authtelegram/testSendToEndpoints:
@@ -1196,11 +1156,6 @@ definitions:
         type: string
       message:
         type: string
-  authtelegramLogOutTelegramAsbotRequest:
-    type: object
-    properties:
-      sessionUuid:
-        type: string
   authtelegramLogOutTelegramRequest:
     type: object
     properties:
@@ -1225,11 +1180,6 @@ definitions:
       phoneNumber:
         type: string
       sessionUuid:
-        type: string
-  authtelegramSignInTelegramAsBotRequest:
-    type: object
-    properties:
-      tokenAuth:
         type: string
   authtelegramSignInTelegramAsBotResponse:
     type: object

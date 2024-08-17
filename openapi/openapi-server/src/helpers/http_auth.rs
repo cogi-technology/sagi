@@ -38,7 +38,7 @@ fn base64_url_to_base64(base64_url: &str) -> String {
     base64_with_padding
 }
 
-// fn is_file_exists(path: &PathFile) -> bool {
+// pub fn is_file_exists(path: &PathFile) -> bool {
 //     path.exists() && path.is_file()
 // }
 

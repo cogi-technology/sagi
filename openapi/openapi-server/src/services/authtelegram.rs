@@ -1,5 +1,6 @@
 use {
     crate::{
+        cache::SESSION_CACHE,
         config::TelegramAuthConfig,
         entity::telegram::LoginWidgetData,
         error::{into_anyhow, Result},
@@ -8,11 +9,13 @@ use {
     chrono::Utc,
     grammers_client::{Client, Config, SignInError},
     grammers_session::Session,
+    jsonwebtoken::TokenData,
     openapi_logger::{debug, warn},
     openapi_proto::authtelegram_service::{auth_telegram_server::AuthTelegram, *},
     std::fs,
     tonic::{Request, Response, Status},
     uuid::Uuid,
+    zion_aa::types::jwt::JWTPayload,
 };
 
 #[derive(Debug, Clone)]
@@ -186,10 +189,16 @@ impl AuthTelegram for AuthTelegramService {
             //
         }
 
+        // Save the session
+        let parsed_token: TokenData<JWTPayload> =
+            zion_aa::utils::decode_jwt(&jwt).map_err(|e| into_anyhow(e.into()))?;
+        SESSION_CACHE
+            .write()
+            .insert(jwt.to_string(), (parsed_token.claims.exp, session_uuid.clone()));
         // Get JWT
         Ok(Response::new(SignInTelegramResponse {
             jwt: jwt.to_string(),
-            session_uuid,
+            session_uuid: session_uuid.clone(),
         }))
     }
     async fn log_out_telegram(

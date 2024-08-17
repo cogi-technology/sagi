@@ -146,6 +146,7 @@ pub async fn get_data_request_for_zion_logic(
 
     JWT_CACHE
         .write()
+        // .insert(token.to_string(), (data.clone(), parsed_token.claims.exp));
         .insert(token.to_string(), (data.clone(), parsed_token.claims.exp));
 
     Ok((data, parsed_token))

@@ -143,20 +143,6 @@ pub mod auth_telegram_actix {
         #[prost(string, tag = "1")]
         pub session_uuid: ::prost::alloc::string::String,
     }
-    #[actix_prost_macros::serde(rename_all = "snake_case")]
-    #[allow(clippy::derive_partial_eq_without_eq)]
-    #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct SignInTelegramAsBotJson {
-        #[prost(string, tag = "1")]
-        pub token_auth: ::prost::alloc::string::String,
-    }
-    #[actix_prost_macros::serde(rename_all = "snake_case")]
-    #[allow(clippy::derive_partial_eq_without_eq)]
-    #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct LogOutTelegramAsBotJson {
-        #[prost(string, tag = "2")]
-        pub session_uuid: ::prost::alloc::string::String,
-    }
     /// Test Endpoints
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -241,58 +227,6 @@ pub mod auth_telegram_actix {
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
-    async fn call_sign_in_telegram_as_bot(
-        service: ::actix_web::web::Data<dyn AuthTelegram + Sync + Send + 'static>,
-        http_request: ::actix_web::HttpRequest,
-        payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<SignInTelegramAsBotResponse>,
-        ::actix_prost::Error,
-    > {
-        let mut payload = payload.into_inner();
-        let json = <::actix_web::web::Json<
-            SignInTelegramAsBotJson,
-        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
-            .await
-            .map_err(|err| ::actix_prost::Error::from_actix(
-                err,
-                ::tonic::Code::InvalidArgument,
-            ))?
-            .into_inner();
-        let request = SignInTelegramAsBotRequest {
-            token_auth: json.token_auth,
-        };
-        let request = ::actix_prost::new_request(request, &http_request);
-        let response = service.sign_in_telegram_as_bot(request).await?;
-        let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
-    }
-    async fn call_log_out_telegram_as_bot(
-        service: ::actix_web::web::Data<dyn AuthTelegram + Sync + Send + 'static>,
-        http_request: ::actix_web::HttpRequest,
-        payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<LogOutTelegramAsBotResponse>,
-        ::actix_prost::Error,
-    > {
-        let mut payload = payload.into_inner();
-        let json = <::actix_web::web::Json<
-            LogOutTelegramAsBotJson,
-        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
-            .await
-            .map_err(|err| ::actix_prost::Error::from_actix(
-                err,
-                ::tonic::Code::InvalidArgument,
-            ))?
-            .into_inner();
-        let request = LogOutTelegramAsbotRequest {
-            session_uuid: json.session_uuid,
-        };
-        let request = ::actix_prost::new_request(request, &http_request);
-        let response = service.log_out_telegram_as_bot(request).await?;
-        let response = response.into_inner();
-        Ok(::actix_web::web::Json(response))
-    }
     async fn call_test_send_to_endpoints(
         service: ::actix_web::web::Data<dyn AuthTelegram + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
@@ -340,16 +274,6 @@ pub mod auth_telegram_actix {
             .route(
                 "/api/authtelegram/logOutTelegram",
                 ::actix_web::web::post().to(call_log_out_telegram),
-            );
-        config
-            .route(
-                "/api/authtelegram/signInTelegramAsBot",
-                ::actix_web::web::post().to(call_sign_in_telegram_as_bot),
-            );
-        config
-            .route(
-                "/api/authtelegram/logOutTelegramAsBot",
-                ::actix_web::web::post().to(call_log_out_telegram_as_bot),
             );
         config
             .route(
