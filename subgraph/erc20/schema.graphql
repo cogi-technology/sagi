@@ -1,0 +1,28 @@
+type Transfer @entity(immutable: true) {
+  id: Bytes!
+  from: User! # address
+  to: User! # address
+  value: BigInt! # uint256
+  collection: Collection! # Collection
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type User @entity {
+  id: ID!
+
+  "User address"
+  address: Bytes!
+}
+
+type Collection @entity {
+  "ID (address)"
+  id: ID!
+
+  "Name"
+  name: String!
+
+  "Symbol"
+  symbol: String!
+}
