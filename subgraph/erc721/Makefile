@@ -8,13 +8,13 @@ subgraph-build:
 subgraph-test: 
 	npm test -d
 
-run-graph-node:
-	sudo rm -rf data && \
-	docker compose up -d
-	
 subgraph-deploy:
 	npm run create-local && \
 	npm run deploy-local
+
+run-graph-node:
+	sudo rm -rf data && \
+	docker compose up -d
 
 down-graph-node:
 	npm run remove-local && \

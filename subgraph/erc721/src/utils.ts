@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
 import { Address, Bytes, ipfs, json, JSONValue, Value } from '@graphprotocol/graph-ts'
-import { erc721 } from '../generated/erc721/erc721'
+import { erc721 } from '../fix-generated/erc721/erc721'
 import { IMetadata, IMetadataAttribute } from './types'
 import { Metadata, MetadataAttribute } from '../generated/schema'
 
@@ -24,15 +24,26 @@ export function fetchSymbol(address: Address): string {
 
 export function fetchMetadata(cid: string): Metadata | null {
     // ipfs.map(cid, "processIpfsMetadata", Value.fromString(cid), ['json'])
-    processIpfsMetadata(null, Value.fromString(cid))
+    let bytes = ipfs.cat(cid)
+    if (!bytes) {
+        return null
+    }
+    let value = json.fromBytes(bytes)
+    let metadata = processIpfsMetadata(value, Value.fromString(cid))
 
-    return Metadata.load(cid)
+    return metadata
 }
 
-export function processIpfsMetadata(value: JSONValue | null, userData: Value): void {
+export function processIpfsMetadata(value: JSONValue, userData: Value): Metadata {
     let cid = userData.toString()
-    let imetadata = IMetadata.default(cid) // IMetadata.from(cid, value)
-    let metadata = new Metadata(cid)
+    let imetadata = IMetadata.from(cid, value) //IMetadata.default(cid) // 
+    let metadata = Metadata.load(cid);
+
+    if (metadata) {
+        return metadata
+    }
+
+    metadata = new Metadata(cid)
 
     for (let i = 0; i < imetadata.attributes.length; i++) {
         let metadataAttribute = imetadata.attributes[i].trait_type === '' ? MetadataAttribute.load(cid + '-' + i.toString()) : MetadataAttribute.load(cid + '-' + (imetadata.attributes[i].trait_type as string).toLowerCase())
@@ -63,4 +74,6 @@ export function processIpfsMetadata(value: JSONValue | null, userData: Value): v
     metadata.description = imetadata.description
     metadata.image = imetadata.image
     metadata.save()
+
+    return metadata
 }

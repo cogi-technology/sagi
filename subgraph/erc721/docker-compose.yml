@@ -21,6 +21,7 @@ services:
       ipfs: "ipfs:5001"
       ethereum: "zionx:https://devnet-rpc.zionx.network"
       GRAPH_LOG: info
+      GRAPH_ALLOW_NON_DETERMINISTIC_IPFS: true
   ipfs:
     image: ipfs/kubo:v0.17.0
     ports:

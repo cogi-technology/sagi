@@ -78,16 +78,17 @@ export class IMetadata {
                 }
             }
         }
-        assert(obj.get('name') != null, `Invalid metadata.name ${cid}`)
-        assert(obj.get('description') != null, `Invalid metadata.description ${cid}`)
-        assert(obj.get('image') != null, `Invalid metadata.image ${cid}`)
+        // assert(obj.get('name') != null, `Invalid metadata.name ${cid}`)
+        // assert(obj.get('description') != null, `Invalid metadata.description ${cid}`)
+        // assert(obj.get('image') != null, `Invalid metadata.image ${cid}`)
 
         let v = obj.get('name') as JSONValue
-        let name = changetype<string>(v.data as u32)
+        let name = !v.isNull() ? changetype<string>(v.data as u32) : ""
         v = obj.get('description') as JSONValue
-        let description = changetype<string>(v.data as u32)
+        let description = !v.isNull() ? changetype<string>(v.data as u32) : ""
         v = obj.get('image') as JSONValue
-        let image = changetype<string>(v.data as u32)
+        let image = !v.isNull() ? changetype<string>(v.data as u32) : ""
+
         return new IMetadata(cid, name, description, image, attributes)
     }
 }
@@ -96,6 +97,16 @@ export class IMetadataAttribute {
     display_type: string
     trait_type: string
     value: string
+
+    constructor(
+        display_type: string = "",
+        trait_type: string = "",
+        value: string = "",
+    ) {
+        this.display_type = display_type
+        this.trait_type = trait_type
+        this.value = value
+    }
 
     static default(): IMetadataAttribute {
         return {

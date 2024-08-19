@@ -3,7 +3,7 @@ import {
   AwardItem as AwardItemEvent,
   Burn as BurnEvent,
   Transfer as TransferEvent
-} from "../generated/erc721/erc721"
+} from "../fix-generated/erc721/erc721"
 import {
   AwardItem,
   Burn,
@@ -13,7 +13,7 @@ import {
   NFT,
   Transfer,
   User
-} from "../generated/schema"
+} from "../fix-generated/schema"
 import { fetchMetadata, fetchName, fetchSymbol } from "./utils"
 import { IMetadata } from "./types"
 
@@ -58,13 +58,11 @@ function loadToken(address: Address, tokenId: BigInt, cid: string = ""): NFT {
   const collection = loadCollection(address)
   let token = new NFT(_tid)
   let metadata = fetchMetadata(cid) // //IMetadata.default(cid) //
-  let metadataType = MetadataAttribute.load(cid + '-type')
-  let metadataGrade = MetadataAttribute.load(cid + '-grade')
-
   // check metadata exists
   assert(metadata != null, 'fetchMetadata failed')
-  // assert(metadataType != null, 'load MetadataType failed')
-  // assert(metadataGrade != null, 'load MetadataGrade failed')
+
+  let metadataType = MetadataAttribute.load(cid + '-type')
+  let metadataGrade = MetadataAttribute.load(cid + '-grade')
 
   // save token entity
   token.tokenId = tokenId
@@ -78,32 +76,6 @@ function loadToken(address: Address, tokenId: BigInt, cid: string = ""): NFT {
   token.save()
 
   return token
-}
-
-export function handleMetadata(content: Bytes): void {
-  let cid = dataSource.stringParam()
-
-  let tokenMetadata = new Metadata(cid)
-  log.info("[+] loadToken::handleMetadata: {}", [dataSource.stringParam()])
-
-  const value = json.fromBytes(content).toObject()
-  if (value) {
-    const image = value.get('image')
-    const name = value.get('name')
-    const description = value.get('description')
-    const externalURL = value.get('external_url')
-
-    let imetadata = IMetadata.from(cid, value)
-
-    if (name && image && description && externalURL) {
-      tokenMetadata.name = name.toString()
-      tokenMetadata.image = image.toString()
-      tokenMetadata.externalURL = externalURL.toString()
-      tokenMetadata.description = description.toString()
-    }
-
-    tokenMetadata.save()
-  }
 }
 
 export function handleAwardItem(event: AwardItemEvent): void {
@@ -140,10 +112,14 @@ export function handleBurn(event: BurnEvent): void {
   let collection = loadCollection(event.address)
   let nft = loadToken(Address.fromString(collection.id), event.params.tokenId);
   let old_owner = User.load(nft.owner)!;
+  let zero_address = loadUser(ZERO_ADDRESS);
 
-  nft.owner = ZERO_ADDRESS.toHex()
+  nft.owner = zero_address.id
   nft.updatedAt = event.block.timestamp
   nft.save()
+
+  zero_address.numberTokens = zero_address.numberTokens.plus(ONE_BI)
+  zero_address.save()
 
   old_owner.numberTokens = old_owner.numberTokens.minus(ONE_BI)
   old_owner.save()
