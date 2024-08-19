@@ -2,7 +2,7 @@ use {
     crate::{
         database::Database,
         models::{Service, ServiceCollection, ServiceError},
-        schema::{services, services_collections},
+        schema::{services, service_collection},
     },
     chrono::Local,
     diesel::prelude::*,
@@ -26,7 +26,7 @@ impl ServicesCollection {
     ) -> Result<Vec<ServiceCollection>, ServiceError> {
         let mut conn = self.db.get_connection().await;
 
-        let ret = services_collections::table
+        let ret = service_collection::table
             .select(ServiceCollection::as_select())
             .load(&mut conn)
             .await?;
@@ -40,8 +40,8 @@ impl ServicesCollection {
     ) -> Result<Vec<ServiceCollection>, ServiceError> {
         let mut conn = self.db.get_connection().await;
 
-        let ret = services_collections::table
-            .filter(services_collections::created_by.eq(created_by))
+        let ret = service_collection::table
+            .filter(service_collection::created_by.eq(created_by))
             .select(ServiceCollection::as_select())
             .load(&mut conn)
             .await?;
@@ -57,11 +57,11 @@ impl ServicesCollection {
     ) -> Result<ServiceCollection, ServiceError> {
         let mut conn = self.db.get_connection().await;
 
-        let ret = services_collections::table
-            .filter(services_collections::created_by.eq(created_by))
-            .filter(services_collections::id.eq(id.unwrap_or_else(|| "".to_string())))
+        let ret = service_collection::table
+            .filter(service_collection::created_by.eq(created_by))
+            .filter(service_collection::id.eq(id.unwrap_or_else(|| "".to_string())))
             .or_filter(
-                services_collections::client_id.eq(client_id.unwrap_or_else(|| "".to_string())),
+                service_collection::client_id.eq(client_id.unwrap_or_else(|| "".to_string())),
             )
             .select(ServiceCollection::as_select())
             .first(&mut conn)
@@ -96,9 +96,9 @@ impl ServicesCollection {
     ) -> Result<ServiceCollection, ServiceError> {
         let mut conn = self.db.get_connection().await;
 
-        let ret = services_collections::table
-            .filter(services_collections::client_id.eq(client_id.unwrap_or_else(|| "".to_string())))
-            .or_filter(services_collections::id.eq(id.unwrap_or_else(|| "".to_string())))
+        let ret = service_collection::table
+            .filter(service_collection::client_id.eq(client_id.unwrap_or_else(|| "".to_string())))
+            .or_filter(service_collection::id.eq(id.unwrap_or_else(|| "".to_string())))
             .select(ServiceCollection::as_select())
             .first(&mut conn)
             .await?;
@@ -160,7 +160,7 @@ impl ServicesCollection {
         };
 
         let mut conn = self.db.get_connection().await;
-        let ret = diesel::insert_into(services_collections::table)
+        let ret = diesel::insert_into(service_collection::table)
             .values(new_service)
             .returning(ServiceCollection::as_returning())
             .get_result(&mut conn)
@@ -208,7 +208,7 @@ impl ServicesCollection {
         }
         let mut conn = self.db.get_connection().await;
         let ret = diesel::delete(
-            services_collections::table.filter(services_collections::client_id.eq(client_id)),
+            service_collection::table.filter(service_collection::client_id.eq(client_id)),
         )
         .returning(ServiceCollection::as_returning())
         .get_result(&mut conn)
@@ -235,11 +235,11 @@ impl ServicesCollection {
 
         let mut conn = self.db.get_connection().await;
         let ret = diesel::update(
-            services_collections::table.filter(services_collections::id.eq(id.clone())),
+            service_collection::table.filter(service_collection::id.eq(id.clone())),
         )
         .set((
-            services_collections::start_block_number.eq(start_block_number),
-            services_collections::updated_at.eq(Local::now().naive_utc()),
+            service_collection::start_block_number.eq(start_block_number),
+            service_collection::updated_at.eq(Local::now().naive_utc()),
         ))
         .returning(ServiceCollection::as_returning())
         .get_result(&mut conn)

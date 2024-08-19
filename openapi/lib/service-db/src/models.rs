@@ -98,9 +98,9 @@ impl Default for Service {
 }
 
 #[derive(Queryable, Selectable, Insertable, AsChangeset, Debug, PartialEq)]
-#[diesel(table_name = crate::schema::services_webhood)]
+#[diesel(table_name = crate::schema::service_webhood_collection)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct ServiceWebhood {
+pub struct ServiceWebhoodCollection {
     pub id: String,
     pub client_id: String,
     pub endpoint_url: String,
@@ -109,7 +109,7 @@ pub struct ServiceWebhood {
     pub updated_at: NaiveDateTime,
 }
 
-impl Default for ServiceWebhood {
+impl Default for ServiceWebhoodCollection {
     fn default() -> Self {
         Self {
             id: Default::default(),
@@ -123,7 +123,7 @@ impl Default for ServiceWebhood {
 }
 
 #[derive(Queryable, Selectable, Insertable, AsChangeset, Debug, PartialEq, Clone)]
-#[diesel(table_name = crate::schema::services_collections)]
+#[diesel(table_name = crate::schema::service_collection)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct ServiceCollection {
     pub id: String,
@@ -195,6 +195,98 @@ impl Default for EventErc721 {
             collection: "".into(),
             client_id: "".into(),
             token_id: None,
+            status: StatusEvent::Sent.as_str().to_string(),
+            created_at: Local::now().naive_utc(),
+            updated_at: Local::now().naive_utc(),
+        }
+    }
+}
+
+// Token 
+#[derive(Queryable, Selectable, Insertable, AsChangeset, Debug, PartialEq)]
+#[diesel(table_name = crate::schema::service_webhood_token)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct ServiceWebhoodToken {
+    pub id: String,
+    pub client_id: String,
+    pub endpoint_url: String,
+    pub to_transfer: String,
+    pub created_by: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+impl Default for ServiceWebhoodToken {
+    fn default() -> Self {
+        Self {
+            id: Default::default(),
+            client_id: "".into(),
+            endpoint_url: "".into(),
+            to_transfer: "".into(),
+            created_by: "".into(),
+            created_at: Local::now().naive_utc(),
+            updated_at: Local::now().naive_utc(),
+        }
+    }
+}
+
+#[derive(Queryable, Selectable, Insertable, AsChangeset, Debug, PartialEq, Clone)]
+#[diesel(table_name = crate::schema::service_token)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct ServiceToken {
+    pub id: String,
+    pub client_id: String,
+    pub address: String,
+    pub namespace: String,
+    pub status: i32,
+    pub start_block_number: i32,
+    pub created_by: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+impl Default for ServiceToken {
+    fn default() -> Self {
+        Self {
+            id: Default::default(),
+            client_id: "".into(),
+            address: "".into(),
+            namespace: "".into(),
+            status: 1,
+            start_block_number: 1,
+            created_by: "".into(),
+            created_at: Local::now().naive_utc(),
+            updated_at: Local::now().naive_utc(),
+        }
+    }
+}
+
+#[derive(Queryable, Selectable, Insertable, AsChangeset, Debug, PartialEq)]
+#[diesel(table_name = crate::schema::events_erc20)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct EventErc20 {
+    pub id: String,
+    pub payload: String,
+    pub txhash: String,
+    pub status: String,
+    pub method: String,
+    pub collection: String,
+    pub client_id: String,
+    pub amount: f64,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+impl Default for EventErc20 {
+    fn default() -> Self {
+        Self {
+            id: Default::default(),
+            payload: "".into(),
+            txhash: "".into(),
+            method: "".into(),
+            collection: "".into(),
+            client_id: "".into(),
+            amount: 0.0,
             status: StatusEvent::Sent.as_str().to_string(),
             created_at: Local::now().naive_utc(),
             updated_at: Local::now().naive_utc(),

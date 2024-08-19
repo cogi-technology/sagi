@@ -1,2 +1,2 @@
 -- This file should undo anything in `up.sql`
-DROP TABLE services_webhood;
+DROP TABLE service_webhood_collection;

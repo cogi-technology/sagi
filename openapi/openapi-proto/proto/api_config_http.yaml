@@ -35,19 +35,19 @@ http:
     - selector: serviceszion.ServicesZION.GetAllServices
       get: /api/serviceszion/getAllServices 
 
-    - selector: serviceszion.ServicesZION.GetAllEndpointForService
-      get: /api/serviceszion/getAllEndpointForService     
-    - selector: serviceszion.ServicesZION.GetInfoEndpointForService
-      post: /api/serviceszion/getInfoEndpointForService     
+    - selector: serviceszion.ServicesZION.GetAllNFTEndpointForService
+      get: /api/serviceszion/getAllNFTEndpointForService     
+    - selector: serviceszion.ServicesZION.GetInfoNFTEndpointForService
+      post: /api/serviceszion/getInfoNFTEndpointForService     
       body: "*"
-    - selector: serviceszion.ServicesZION.ResgiterEndpointForService
-      post: /api/serviceszion/resgiterEndpointForService     
+    - selector: serviceszion.ServicesZION.ResgiterNFTEndpointForService
+      post: /api/serviceszion/resgiterNFTEndpointForService     
       body: "*"
-    - selector: serviceszion.ServicesZION.UnRegisterEndpointForService
-      post: /api/serviceszion/unRegisterEndpointForService     
+    - selector: serviceszion.ServicesZION.UnRegisterNFTEndpointForService
+      post: /api/serviceszion/unRegisterNFTEndpointForService     
       body: "*"
-    - selector: serviceszion.ServicesZION.UpdateEndpointForService
-      post: /api/serviceszion/updateEndpointForService     
+    - selector: serviceszion.ServicesZION.UpdateNFTEndpointForService
+      post: /api/serviceszion/updateNFTEndpointForService     
       body: "*"
 
     - selector: serviceszion.ServicesZION.GetAllCollectionForService
@@ -62,11 +62,45 @@ http:
       post: /api/serviceszion/unRegisterCollectionForService     
       body: "*"
 
-    - selector: serviceszion.ServicesZION.GetInfoEvents
-      post: /api/serviceszion/getInfoEvents     
+    - selector: serviceszion.ServicesZION.GetInfoNFTEvents
+      post: /api/serviceszion/getInfoNFTEvents     
       body: "*"
-    - selector: serviceszion.ServicesZION.ResendNotiEvents
-      post: /api/serviceszion/resendNotiEvents     
+    - selector: serviceszion.ServicesZION.ResendNotiNFTEvents
+      post: /api/serviceszion/resendNotiNFTEvents     
+      body: "*"
+
+    - selector: serviceszion.ServicesZION.GetAllTokenEndpointForService
+      get: /api/serviceszion/getAllTokenEndpointForService     
+    - selector: serviceszion.ServicesZION.GetInfoTokenEndpointForService
+      post: /api/serviceszion/getInfoTokenEndpointForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.ResgiterTokenEndpointForService
+      post: /api/serviceszion/resgiterTokenEndpointForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.UnRegisterTokenEndpointForService
+      post: /api/serviceszion/unRegisterTokenEndpointForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.UpdateTokenEndpointForService
+      post: /api/serviceszion/updateTokenEndpointForService     
+      body: "*"
+
+    - selector: serviceszion.ServicesZION.GetAllTokenForService
+      get: /api/serviceszion/getAllTokenForService     
+    - selector: serviceszion.ServicesZION.GetInfoTokenForService
+      post: /api/serviceszion/getInfoTokenForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.RegisterTokenForService
+      post: /api/serviceszion/registerTokenForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.UnRegisterTokenForService
+      post: /api/serviceszion/unRegisterTokenForService     
+      body: "*"
+
+    - selector: serviceszion.ServicesZION.GetInfoTokenEvents
+      post: /api/serviceszion/getInfoTokenEvents     
+      body: "*"
+    - selector: serviceszion.ServicesZION.ResendNotiTokenEvents
+      post: /api/serviceszion/resendNotiTokenEvents     
       body: "*"
 
     - selector: erc20.ERC20.Deploy

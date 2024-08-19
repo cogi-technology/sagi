@@ -34,26 +34,6 @@ paths:
             $ref: '#/definitions/authtelegramLogOutTelegramRequest'
       tags:
         - AuthTelegram
-  /api/authtelegram/logOutTelegramAsBot:
-    post:
-      operationId: AuthTelegram_LogOutTelegramAsBot
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/authtelegramLogOutTelegramAsBotResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/authtelegramLogOutTelegramAsbotRequest'
-      tags:
-        - AuthTelegram
   /api/authtelegram/sendCodeTelegram:
     post:
       operationId: AuthTelegram_SendCodeTelegram
@@ -92,26 +72,6 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/authtelegramSignInTelegramRequest'
-      tags:
-        - AuthTelegram
-  /api/authtelegram/signInTelegramAsBot:
-    post:
-      operationId: AuthTelegram_SignInTelegramAsBot
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/authtelegramSignInTelegramAsBotResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/authtelegramSignInTelegramAsBotRequest'
       tags:
         - AuthTelegram
   /api/authtelegram/testSendToEndpoints:
@@ -923,15 +883,15 @@ paths:
             $ref: '#/definitions/rpcStatus'
       tags:
         - ServicesZION
-  /api/serviceszion/getAllEndpointForService:
+  /api/serviceszion/getAllNFTEndpointForService:
     get:
       summary: Services with endpoints
-      operationId: ServicesZION_GetAllEndpointForService
+      operationId: ServicesZION_GetAllNFTEndpointForService
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/serviceszionGetAllEndpointForServiceResponse'
+            $ref: '#/definitions/serviceszionGetAllNFTEndpointForServiceResponse'
         default:
           description: An unexpected error response.
           schema:
@@ -946,6 +906,36 @@ paths:
           description: A successful response.
           schema:
             $ref: '#/definitions/serviceszionGetAllServicesResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getAllTokenEndpointForService:
+    get:
+      summary: Services with endpoints
+      operationId: ServicesZION_GetAllTokenEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionGetAllTokenEndpointForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getAllTokenForService:
+    get:
+      summary: Services with Tokens
+      operationId: ServicesZION_GetAllTokenForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionGetAllTokenForServiceResponse'
         default:
           description: An unexpected error response.
           schema:
@@ -972,9 +962,9 @@ paths:
             $ref: '#/definitions/serviceszionGeInfoCollectionForServiceRequest'
       tags:
         - ServicesZION
-  /api/serviceszion/getInfoEndpointForService:
+  /api/serviceszion/getInfoNFTEndpointForService:
     post:
-      operationId: ServicesZION_GetInfoEndpointForService
+      operationId: ServicesZION_GetInfoNFTEndpointForService
       responses:
         "200":
           description: A successful response.
@@ -989,18 +979,18 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/serviceszionGetInfoEndpointForServiceRequest'
+            $ref: '#/definitions/serviceszionGetInfoNFTEndpointForServiceRequest'
       tags:
         - ServicesZION
-  /api/serviceszion/getInfoEvents:
+  /api/serviceszion/getInfoNFTEvents:
     post:
       summary: Resend Noti Events
-      operationId: ServicesZION_GetInfoEvents
+      operationId: ServicesZION_GetInfoNFTEvents
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/serviceszionGetInfoEventsResponse'
+            $ref: '#/definitions/serviceszionGetInfoNFTEventsResponse'
         default:
           description: An unexpected error response.
           schema:
@@ -1010,7 +1000,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/serviceszionGetInfoEventsRequest'
+            $ref: '#/definitions/serviceszionGetInfoNFTEventsRequest'
       tags:
         - ServicesZION
   /api/serviceszion/getInfoService:
@@ -1031,6 +1021,67 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/serviceszionGetInfoServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getInfoTokenEndpointForService:
+    post:
+      operationId: ServicesZION_GetInfoTokenEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionEndpointForService'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionGetInfoTokenEndpointForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getInfoTokenEvents:
+    post:
+      summary: Resend Noti Events
+      operationId: ServicesZION_GetInfoTokenEvents
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionGetInfoTokenEventsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionGetInfoTokenEventsRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getInfoTokenForService:
+    post:
+      operationId: ServicesZION_GetInfoTokenForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionTokenForService'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionGeInfoTokenForServiceRequest'
       tags:
         - ServicesZION
   /api/serviceszion/registerCollectionForService:
@@ -1074,14 +1125,14 @@ paths:
             $ref: '#/definitions/serviceszionRegisterServiceRequest'
       tags:
         - ServicesZION
-  /api/serviceszion/resendNotiEvents:
+  /api/serviceszion/registerTokenForService:
     post:
-      operationId: ServicesZION_ResendNotiEvents
+      operationId: ServicesZION_RegisterTokenForService
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/serviceszionResendNotiEventsResponse'
+            $ref: '#/definitions/serviceszionRegisterTokenForServiceResponse'
         default:
           description: An unexpected error response.
           schema:
@@ -1091,17 +1142,17 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/serviceszionResendNotiEventsRequest'
+            $ref: '#/definitions/serviceszionRegisterTokenForServiceRequest'
       tags:
         - ServicesZION
-  /api/serviceszion/resgiterEndpointForService:
+  /api/serviceszion/resendNotiNFTEvents:
     post:
-      operationId: ServicesZION_ResgiterEndpointForService
+      operationId: ServicesZION_ResendNotiNFTEvents
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/serviceszionResgiterEndpointForServiceResponse'
+            $ref: '#/definitions/serviceszionResendNotiNFTEventsResponse'
         default:
           description: An unexpected error response.
           schema:
@@ -1111,7 +1162,67 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/serviceszionResgiterEndpointForServiceRequest'
+            $ref: '#/definitions/serviceszionResendNotiNFTEventsRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/resendNotiTokenEvents:
+    post:
+      operationId: ServicesZION_ResendNotiTokenEvents
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionResendNotiTokenEventsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionResendNotiTokenEventsRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/resgiterNFTEndpointForService:
+    post:
+      operationId: ServicesZION_ResgiterNFTEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionResgiterNFTEndpointForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionResgiterNFTEndpointForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/resgiterTokenEndpointForService:
+    post:
+      operationId: ServicesZION_ResgiterTokenEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionResgiterTokenEndpointForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionResgiterTokenEndpointForServiceRequest'
       tags:
         - ServicesZION
   /api/serviceszion/unRegisterCollectionForService:
@@ -1134,14 +1245,14 @@ paths:
             $ref: '#/definitions/serviceszionUnRegisterCollectionForServiceRequest'
       tags:
         - ServicesZION
-  /api/serviceszion/unRegisterEndpointForService:
+  /api/serviceszion/unRegisterNFTEndpointForService:
     post:
-      operationId: ServicesZION_UnRegisterEndpointForService
+      operationId: ServicesZION_UnRegisterNFTEndpointForService
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/serviceszionUnRegisterEndpointForServiceResponse'
+            $ref: '#/definitions/serviceszionUnRegisterNFTEndpointForServiceResponse'
         default:
           description: An unexpected error response.
           schema:
@@ -1151,7 +1262,87 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/serviceszionUnRegisterEndpointForServiceRequest'
+            $ref: '#/definitions/serviceszionUnRegisterNFTEndpointForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/unRegisterTokenEndpointForService:
+    post:
+      operationId: ServicesZION_UnRegisterTokenEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionUnRegisterTokenEndpointForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionUnRegisterTokenEndpointForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/unRegisterTokenForService:
+    post:
+      operationId: ServicesZION_UnRegisterTokenForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionUnRegisterTokenForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionUnRegisterTokenForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/updateNFTEndpointForService:
+    post:
+      operationId: ServicesZION_UpdateNFTEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionUpdateNFTEndpointForServiceeResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionUpdateNFTEndpointForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/updateTokenEndpointForService:
+    post:
+      operationId: ServicesZION_UpdateTokenEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionUpdateTokenEndpointForServiceeResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionUpdateTokenEndpointForServiceRequest'
       tags:
         - ServicesZION
   /api/zionauthorization/getDataRequestForZION:
@@ -1175,11 +1366,6 @@ definitions:
       sessionUuid:
         type: string
       message:
-        type: string
-  authtelegramLogOutTelegramAsbotRequest:
-    type: object
-    properties:
-      sessionUuid:
         type: string
   authtelegramLogOutTelegramRequest:
     type: object
@@ -1205,11 +1391,6 @@ definitions:
       phoneNumber:
         type: string
       sessionUuid:
-        type: string
-  authtelegramSignInTelegramAsBotRequest:
-    type: object
-    properties:
-      tokenAuth:
         type: string
   authtelegramSignInTelegramAsBotResponse:
     type: object
@@ -1244,8 +1425,6 @@ definitions:
       client_id:
         type: string
       payload:
-        type: string
-      owner:
         type: string
     title: Test Endpoints
   authtelegramTestSendToEndpointsResponse:
@@ -1743,7 +1922,29 @@ definitions:
         type: string
       updated_at:
         type: string
+  serviceszionEndpointForServiceToken:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      to_transfer:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
   serviceszionGeInfoCollectionForServiceRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+  serviceszionGeInfoTokenForServiceRequest:
     type: object
     properties:
       id:
@@ -1758,7 +1959,7 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/serviceszionCollectionForService'
-  serviceszionGetAllEndpointForServiceResponse:
+  serviceszionGetAllNFTEndpointForServiceResponse:
     type: object
     properties:
       data:
@@ -1774,14 +1975,30 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/serviceszionInfoService'
-  serviceszionGetInfoEndpointForServiceRequest:
+  serviceszionGetAllTokenEndpointForServiceResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/serviceszionEndpointForServiceToken'
+  serviceszionGetAllTokenForServiceResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/serviceszionTokenForService'
+  serviceszionGetInfoNFTEndpointForServiceRequest:
     type: object
     properties:
       id:
         type: string
       client_id:
         type: string
-  serviceszionGetInfoEventsRequest:
+  serviceszionGetInfoNFTEventsRequest:
     type: object
     properties:
       id:
@@ -1791,15 +2008,16 @@ definitions:
       collection:
         type: string
       token_id:
-        type: string
-  serviceszionGetInfoEventsResponse:
+        type: integer
+        format: int32
+  serviceszionGetInfoNFTEventsResponse:
     type: object
     properties:
       data:
         type: array
         items:
           type: object
-          $ref: '#/definitions/serviceszionInfoEvent'
+          $ref: '#/definitions/serviceszionInfoEventNFT'
   serviceszionGetInfoServiceRequest:
     type: object
     properties:
@@ -1807,12 +2025,41 @@ definitions:
         type: string
       client_id:
         type: string
-  serviceszionInfoEvent:
+  serviceszionGetInfoTokenEndpointForServiceRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+  serviceszionGetInfoTokenEventsRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      Token:
+        type: string
+      token_id:
+        type: integer
+        format: int32
+  serviceszionGetInfoTokenEventsResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/serviceszionInfoEventToken'
+  serviceszionInfoEventNFT:
     type: object
     properties:
       id:
         type: string
       tx:
+        type: string
+      client_id:
         type: string
       status:
         type: string
@@ -1821,7 +2068,30 @@ definitions:
       collection:
         type: string
       token_id:
+        type: integer
+        format: int32
+      created_at:
         type: string
+      updated_at:
+        type: string
+  serviceszionInfoEventToken:
+    type: object
+    properties:
+      id:
+        type: string
+      tx:
+        type: string
+      client_id:
+        type: string
+      status:
+        type: string
+      method:
+        type: string
+      Token:
+        type: string
+      amount:
+        type: number
+        format: float
       created_at:
         type: string
       updated_at:
@@ -1877,26 +2147,68 @@ definitions:
       info:
         type: string
     title: Services
-  serviceszionResendNotiEventsRequest:
+  serviceszionRegisterTokenForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      address:
+        type: string
+      namespace:
+        type: string
+      start_block_number:
+        type: integer
+        format: int32
+  serviceszionRegisterTokenForServiceResponse:
     type: object
     properties:
       id:
         type: string
-  serviceszionResendNotiEventsResponse:
+      client_id:
+        type: string
+      address:
+        type: string
+      namespace:
+        type: string
+      start_block_number:
+        type: integer
+        format: int32
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionResendNotiNFTEventsRequest:
+    type: object
+    properties:
+      id:
+        type: string
+  serviceszionResendNotiNFTEventsResponse:
     type: object
     properties:
       id:
         type: string
       status:
         type: string
-  serviceszionResgiterEndpointForServiceRequest:
+  serviceszionResendNotiTokenEventsRequest:
+    type: object
+    properties:
+      id:
+        type: string
+  serviceszionResendNotiTokenEventsResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+  serviceszionResgiterNFTEndpointForServiceRequest:
     type: object
     properties:
       client_id:
         type: string
       endpoint_url:
         type: string
-  serviceszionResgiterEndpointForServiceResponse:
+  serviceszionResgiterNFTEndpointForServiceResponse:
     type: object
     properties:
       id:
@@ -1904,6 +2216,39 @@ definitions:
       client_id:
         type: string
       endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionResgiterTokenEndpointForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+  serviceszionResgiterTokenEndpointForServiceResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionTokenForService:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      address:
         type: string
       created_at:
         type: string
@@ -1932,12 +2277,93 @@ definitions:
         type: string
       updated_at:
         type: string
-  serviceszionUnRegisterEndpointForServiceRequest:
+  serviceszionUnRegisterNFTEndpointForServiceRequest:
     type: object
     properties:
       client_id:
         type: string
-  serviceszionUnRegisterEndpointForServiceResponse:
+  serviceszionUnRegisterNFTEndpointForServiceResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionUnRegisterTokenEndpointForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+  serviceszionUnRegisterTokenEndpointForServiceResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionUnRegisterTokenForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      address:
+        type: string
+  serviceszionUnRegisterTokenForServiceResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      address:
+        type: string
+      start_block_number:
+        type: integer
+        format: int32
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionUpdateNFTEndpointForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+  serviceszionUpdateNFTEndpointForServiceeResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionUpdateTokenEndpointForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+  serviceszionUpdateTokenEndpointForServiceeResponse:
     type: object
     properties:
       id:

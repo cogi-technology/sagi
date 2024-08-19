@@ -28,18 +28,18 @@ message InfoService {
   string updated_at = 5;
 }
 
-// Services with endpoints
-message GetAllEndpointForServiceRequest {}
-message GetAllEndpointForServiceResponse {
-  repeated EndpointForService data = 1;
+// Services with NFT endpoints 
+message GetAllNFTEndpointForServiceRequest {}
+message GetAllNFTEndpointForServiceResponse {
+  repeated NFTEndpointForService data = 1;
 }
 
-message GetInfoEndpointForServiceRequest {
+message GetInfoNFTEndpointForServiceRequest {
   optional string id = 1;
   optional string client_id = 2;
 }
 
-message EndpointForService {
+message NFTEndpointForService {
   string id = 1;
   string client_id = 2;
   string endpoint_url = 3;
@@ -47,12 +47,12 @@ message EndpointForService {
   string updated_at = 5;
 }
 
-message ResgiterEndpointForServiceRequest {
+message ResgiterNFTEndpointForServiceRequest {
   string client_id = 1;
   string endpoint_url = 2;
 }
 
-message ResgiterEndpointForServiceResponse {
+message ResgiterNFTEndpointForServiceResponse {
   string id = 1;
   string client_id = 2;
   string endpoint_url = 3;
@@ -60,11 +60,11 @@ message ResgiterEndpointForServiceResponse {
   string updated_at = 5;
 }
 
-message UnRegisterEndpointForServiceRequest {
+message UnRegisterNFTEndpointForServiceRequest {
   string client_id = 1;
 }
 
-message UnRegisterEndpointForServiceResponse {
+message UnRegisterNFTEndpointForServiceResponse {
   string id = 1;
   string client_id = 2;
   string endpoint_url = 3;
@@ -73,12 +73,12 @@ message UnRegisterEndpointForServiceResponse {
 }
 
 
-message UpdateEndpointForServiceRequest {
+message UpdateNFTEndpointForServiceRequest {
   string client_id = 1;
   string endpoint_url = 2;
 }
 
-message UpdateEndpointForServiceeResponse {
+message UpdateNFTEndpointForServiceeResponse {
   string id = 1;
   string client_id = 2;
   string endpoint_url = 3;
@@ -136,27 +136,27 @@ message UnRegisterCollectionForServiceResponse {
   string updated_at = 6;
 }
 
-message ResendNotiEventsRequest {
+message ResendNotiNFTEventsRequest {
   string id = 1;
 }
 
-message ResendNotiEventsResponse {
+message ResendNotiNFTEventsResponse {
   string id = 1;
   string status = 2;
 }
 
-message GetInfoEventsRequest {
+message GetInfoNFTEventsRequest {
   optional string id = 1;
   optional string client_id = 2;
   optional string collection = 3;
   optional int32 token_id = 4;
 }
 
-message GetInfoEventsResponse {
-  repeated InfoEvent data = 1;
+message GetInfoNFTEventsResponse {
+  repeated InfoEventNFT data = 1;
 }
 
-message InfoEvent {
+message InfoEventNFT {
   string id = 1;
   string tx = 2;
   string client_id = 3;
@@ -168,6 +168,147 @@ message InfoEvent {
   string updated_at = 9;
 }
 
+// Services with endpoints Token
+message GetAllTokenEndpointForServiceRequest {}
+message GetAllTokenEndpointForServiceResponse {
+  repeated TokenEndpointForService data = 1;
+}
+
+message GetInfoTokenEndpointForServiceRequest {
+  optional string id = 1;
+  optional string client_id = 2;
+}
+
+message TokenEndpointForService {
+  string id = 1;
+  string client_id = 2;
+  string endpoint_url = 3;
+  string to_transfer = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+message ResgiterTokenEndpointForServiceRequest {
+  string client_id = 1;
+  string endpoint_url = 2;
+}
+
+message ResgiterTokenEndpointForServiceResponse {
+  string id = 1;
+  string client_id = 2;
+  string endpoint_url = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}
+
+message UnRegisterTokenEndpointForServiceRequest {
+  string client_id = 1;
+}
+
+message UnRegisterTokenEndpointForServiceResponse {
+  string id = 1;
+  string client_id = 2;
+  string endpoint_url = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}
+
+
+message UpdateTokenEndpointForServiceRequest {
+  string client_id = 1;
+  string endpoint_url = 2;
+}
+
+message UpdateTokenEndpointForServiceeResponse {
+  string id = 1;
+  string client_id = 2;
+  string endpoint_url = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}
+
+// Services with Tokens
+message GetAllTokenForServiceRequest {}
+message GetAllTokenForServiceResponse {
+  repeated TokenForService data = 1;
+}
+
+message GeInfoTokenForServiceRequest {
+  optional string id = 1;
+  optional string client_id = 2;
+}
+
+message TokenForService {
+  string id = 1;
+  string client_id = 2;
+  string address = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}
+
+message RegisterTokenForServiceRequest {
+  string client_id = 1;
+  string address = 2;
+  string namespace = 3;
+  int32 start_block_number = 4;
+}
+
+message RegisterTokenForServiceResponse {
+  string id = 1;
+  string client_id = 2;
+  string address = 3;
+  string namespace = 4;
+  int32 start_block_number = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message UnRegisterTokenForServiceRequest {
+  string client_id = 1;
+  string address = 2;
+}
+
+message UnRegisterTokenForServiceResponse {
+  string id = 1;
+  string client_id = 2;
+  string address = 3;
+  int32 start_block_number = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+message ResendNotiTokenEventsRequest {
+  string id = 1;
+}
+
+message ResendNotiTokenEventsResponse {
+  string id = 1;
+  string status = 2;
+}
+
+message GetInfoTokenEventsRequest {
+  optional string id = 1;
+  optional string client_id = 2;
+  optional string Token = 3;
+  optional int32 token_id = 4;
+}
+
+message GetInfoTokenEventsResponse {
+  repeated InfoEventToken data = 1;
+}
+
+message InfoEventToken {
+  string id = 1;
+  string tx = 2;
+  string client_id = 3;
+  string status = 4;
+  string method = 5;
+  string Token = 6;
+  float amount = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
 // Define the service for 
 service ServicesZION {
   // Services
@@ -175,17 +316,33 @@ service ServicesZION {
   rpc GetAllServices (GetAllServicesRequest) returns (GetAllServicesResponse);
   rpc GetInfoService (GetInfoServiceRequest) returns (InfoService);
     // Services with endpoints
-  rpc GetAllEndpointForService (GetAllEndpointForServiceRequest) returns (GetAllEndpointForServiceResponse);
-  rpc GetInfoEndpointForService (GetInfoEndpointForServiceRequest) returns (EndpointForService);
-  rpc ResgiterEndpointForService (ResgiterEndpointForServiceRequest) returns (ResgiterEndpointForServiceResponse);
-  rpc UnRegisterEndpointForService (UnRegisterEndpointForServiceRequest) returns (UnRegisterEndpointForServiceResponse);
-  rpc UpdateEndpointForService (UpdateEndpointForServiceRequest) returns (UpdateEndpointForServiceeResponse);
+  rpc GetAllNFTEndpointForService (GetAllNFTEndpointForServiceRequest) returns (GetAllNFTEndpointForServiceResponse);
+  rpc GetInfoNFTEndpointForService (GetInfoNFTEndpointForServiceRequest) returns (NFTEndpointForService);
+  rpc ResgiterNFTEndpointForService (ResgiterNFTEndpointForServiceRequest) returns (ResgiterNFTEndpointForServiceResponse);
+  rpc UnRegisterNFTEndpointForService (UnRegisterNFTEndpointForServiceRequest) returns (UnRegisterNFTEndpointForServiceResponse);
+  rpc UpdateNFTEndpointForService (UpdateNFTEndpointForServiceRequest) returns (UpdateNFTEndpointForServiceeResponse);
   // Services with Collections
   rpc GetAllCollectionForService (GetAllCollectionForServiceRequest) returns (GetAllCollectionForServiceResponse);
   rpc GetInfoCollectionForService (GeInfoCollectionForServiceRequest) returns (CollectionForService);
   rpc RegisterCollectionForService (RegisterCollectionForServiceRequest) returns (RegisterCollectionForServiceResponse);
   rpc UnRegisterCollectionForService (UnRegisterCollectionForServiceRequest) returns (UnRegisterCollectionForServiceResponse);
   // Resend Noti Events
-  rpc GetInfoEvents (GetInfoEventsRequest) returns (GetInfoEventsResponse);
-  rpc ResendNotiEvents (ResendNotiEventsRequest) returns (ResendNotiEventsResponse);
+  rpc GetInfoNFTEvents (GetInfoNFTEventsRequest) returns (GetInfoNFTEventsResponse);
+  rpc ResendNotiNFTEvents (ResendNotiNFTEventsRequest) returns (ResendNotiNFTEventsResponse);
+  // 
+  // Services with endpoints
+  rpc GetAllTokenEndpointForService (GetAllTokenEndpointForServiceRequest) returns (GetAllTokenEndpointForServiceResponse);
+  rpc GetInfoTokenEndpointForService (GetInfoTokenEndpointForServiceRequest) returns (TokenEndpointForService);
+  rpc ResgiterTokenEndpointForService (ResgiterTokenEndpointForServiceRequest) returns (ResgiterTokenEndpointForServiceResponse);
+  rpc UnRegisterTokenEndpointForService (UnRegisterTokenEndpointForServiceRequest) returns (UnRegisterTokenEndpointForServiceResponse);
+  rpc UpdateTokenEndpointForService (UpdateTokenEndpointForServiceRequest) returns (UpdateTokenEndpointForServiceeResponse);
+  // Services with Tokens
+  rpc GetAllTokenForService (GetAllTokenForServiceRequest) returns (GetAllTokenForServiceResponse);
+  rpc GetInfoTokenForService (GeInfoTokenForServiceRequest) returns (TokenForService);
+  rpc RegisterTokenForService (RegisterTokenForServiceRequest) returns (RegisterTokenForServiceResponse);
+  rpc UnRegisterTokenForService (UnRegisterTokenForServiceRequest) returns (UnRegisterTokenForServiceResponse);
+  // Resend Noti Events
+  rpc GetInfoTokenEvents (GetInfoTokenEventsRequest) returns (GetInfoTokenEventsResponse);
+  rpc ResendNotiTokenEvents (ResendNotiTokenEventsRequest) returns (ResendNotiTokenEventsResponse);
+  // 
 }
