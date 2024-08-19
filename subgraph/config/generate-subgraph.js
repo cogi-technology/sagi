@@ -20,20 +20,10 @@ function main() {
         return;
     }
 
-    // Define the directory you want to create
-    const dirPath = path.join(__dirname, 'generated');
-
-    // Create the directory
-    fs.mkdir(dirPath, { recursive: true }, (err) => {
-        if (err) {
-            return console.error(`Error creating directory: ${err.message}`);
-        }
-    });
-
     // Process each individual YAML template
     arguments.forEach((dataSource) => {
         const configs = yaml.load(fs.readFileSync(__dirname + `/dist/${dataSource}-config.yaml`, 'utf8'));
-        const subgraphYaml = processTemplate(__dirname + `/templates/${dataSource}-subgprah.template.yaml`, { configs });
+        const subgraphYaml = processTemplate(__dirname + `/templates/${dataSource}-subgraph.template.yaml`, { configs });
         fs.writeFileSync(__dirname + `/../${dataSource}/subgraph.yaml`, subgraphYaml);
     });
 }

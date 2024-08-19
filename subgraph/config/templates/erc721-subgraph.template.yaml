@@ -1,0 +1,41 @@
+specVersion: 1.0.0
+features:
+  - fullTextSearch
+  - ipfsOnEthereumContracts
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  {{#each configs}}
+    - kind: ethereum
+      name: {{name}}
+      network: zionx
+      source:
+        address: "{{address}}"
+        abi: erc721
+        startBlock: {{{startBlock}}}
+      mapping:
+        kind: ethereum/events
+        apiVersion: 0.0.7
+        language: wasm/assemblyscript
+        entities:
+          - Collection
+          - Metadata
+          - MetadataAttribute
+          - NFT
+          - AwardItem
+          - Burn
+          - Transfer
+        abis:
+          - name: erc721
+            file: ./abis/erc721.json
+        eventHandlers:
+          - event: AwardItem(address,string,uint256)
+            handler: handleAwardItem
+          - event: Burn(uint256)
+            handler: handleBurn
+          - event: Transfer(indexed address,indexed address,indexed uint256)
+            handler: handleTransfer
+        file: ./src/erc-721.ts
+  {{/each}}
