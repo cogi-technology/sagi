@@ -1,0 +1,98 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0x71464066273bEdA5EC23a2A063eff4A575fDb0b8",
+      "txHash": "0xc3334e294232fc728c8a5f2cba4702f5874046bc920c304c5aff37a32b272bb1",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x4d612BBAe8d4E6fd1bDEFB1d0593b539818d627e",
+      "txHash": "0x936d6ffbb90f23e40222ef9ea51352b79b6f22d7015abcd35b72ccbae56370bd",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "acec837d1049e598d73a1eb865bcb1ce91322ac3ff246b666f8965b49c509849": {
+      "address": "0xA976054E1D9Ea48A07892a5aEE066FF7eEC3F396",
+      "txHash": "0x0de069ccdcf869243349a0615b5f517c5e0f3d6ff08ed5efd9b2f66a9e12546a",
+      "layout": {
+        "solcVersion": "0.8.24",
+        "storage": [
+          {
+            "label": "unlockTime",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256",
+            "contract": "LockUpgradeable",
+            "src": "contracts/LockUpgradeable.sol:10"
+          },
+          {
+            "label": "owner",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address_payable",
+            "contract": "LockUpgradeable",
+            "src": "contracts/LockUpgradeable.sol:11"
+          }
+        ],
+        "types": {
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)10_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_address_payable": {
+            "label": "address payable",
+            "numberOfBytes": "20"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

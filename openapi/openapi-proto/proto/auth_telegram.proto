@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package authtelegram;
+
+option go_package = "example.com/project/protos/fizz";
+
+// Define messages for the requests and responses for AuthTelegram
+message SendCodeTelegramRequest {
+  string phoneNumber = 1;
+}
+
+message SendCodeTelegramResponse {
+  string phoneNumber = 1;
+  string sessionUuid = 2;
+}
+
+message SignInTelegramRequest {
+  string phoneNumber = 1;
+  string sessionUuid = 2;
+  string code = 3;
+  optional string code2Fa = 4;
+}
+
+message SignInTelegramResponse {
+  string jwt = 1;
+  string sessionUuid = 2;
+}
+
+message LogOutTelegramRequest {
+  string sessionUuid = 1;
+}
+
+message LogOutTelegramResponse {
+  string sessionUuid = 1;
+  string message = 2;
+}
+
+message SignInTelegramAsBotRequest {
+  string tokenAuth = 1;
+}
+
+message SignInTelegramAsBotResponse {
+  string jwt = 1;
+  string sessionUuid = 2;
+}
+
+message LogOutTelegramAsbotRequest {
+  string sessionUuid = 2;
+}
+
+message LogOutTelegramAsBotResponse {
+  string sessionUuid = 2;
+  string message = 4;
+}
+
+// Test Endpoints
+message TestSendToEndpointsRequest {
+  string id = 1;
+  string client_id = 2;
+  string payload = 3;
+}
+
+message TestSendToEndpointsResponse {
+  string id = 1;
+  string code = 2;
+  string description = 3;
+  string additionalInfo = 4;
+}
+
+// Define the service for 
+service AuthTelegram {
+  rpc SendCodeTelegram (SendCodeTelegramRequest) returns (SendCodeTelegramResponse);
+  rpc SignInTelegram (SignInTelegramRequest) returns (SignInTelegramResponse);
+  rpc LogOutTelegram (LogOutTelegramRequest) returns (LogOutTelegramResponse);
+  rpc SignInTelegramAsBot (SignInTelegramAsBotRequest) returns (SignInTelegramAsBotResponse);
+  rpc LogOutTelegramAsBot (LogOutTelegramAsbotRequest) returns (LogOutTelegramAsBotResponse);
+  rpc TestSendToEndpoints (TestSendToEndpointsRequest) returns (TestSendToEndpointsResponse);
+}

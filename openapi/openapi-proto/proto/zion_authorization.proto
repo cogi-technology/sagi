@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package zionauthorization;
+
+option go_package = "example.com/project/protos/fizz";
+
+message GetDataRequestForZionRequest {}
+message GetDataRequestForZionResponse {
+  string salt = 1;
+  ProofPoints proof = 2;
+  string ephemeralKeyPair = 3;
+  repeated string beneficiaries = 4;
+}
+
+message ProofPoints {
+  string protocol = 1;
+  repeated string pi_a = 2;
+  repeated StringArray pi_b = 3;
+  repeated string pi_c = 4;
+}
+
+// Mảng một chiều của chuỗi
+message StringArray {
+  repeated string values = 1; 
+}
+
+// Define the service for 
+service ZionAuthorization {
+  rpc GetDataRequestForZION (GetDataRequestForZionRequest) returns (GetDataRequestForZionResponse);
+}

@@ -1,0 +1,27 @@
+[package]
+name = "zion-service-etherman"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+zion-service-db.workspace = true
+zion-logger.workspace = true
+openapi-proto.workspace = true
+openapi-logger.workspace = true
+
+tokio.workspace = true
+serde.workspace = true
+ethers.workspace = true
+ethers-contract.workspace = true
+ethers-providers.workspace = true
+ethers-core.workspace = true
+anyhow.workspace = true
+serde_json.workspace = true
+once_cell.workspace = true
+futures.workspace = true
+chrono.workspace = true
+hex.workspace = true
+parking_lot.workspace = true
+reqwest.workspace = true
+tonic.workspace = true
+openssl.workspace = true

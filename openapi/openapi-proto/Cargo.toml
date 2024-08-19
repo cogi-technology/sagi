@@ -1,0 +1,34 @@
+[package]
+name = "openapi-proto"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tonic.workspace = true
+prost.workspace = true
+tokio.workspace = true
+serde.workspace = true
+ethers.workspace = true
+ethers-contract.workspace = true
+ethers-providers.workspace = true
+ethers-core.workspace = true
+anyhow.workspace = true
+serde_json.workspace = true
+once_cell.workspace = true
+futures.workspace = true
+chrono.workspace = true
+actix-prost.workspace = true
+actix-prost-macros.workspace = true
+actix-web.workspace = true
+serde_with.workspace = true
+actix-files.workspace = true
+actix-cors.workspace = true
+blockscout-service-launcher.workspace = true
+jsonwebtoken.workspace = true
+actix-web-httpauth.workspace = true
+
+[build-dependencies]
+actix-prost-build = { git = "https://github.com/blockscout/actix-prost" }
+tonic-build = "0.8"
+prost-build = "0.11"
+prost-types = "0.11"

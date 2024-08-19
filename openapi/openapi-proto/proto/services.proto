@@ -1,0 +1,191 @@
+syntax = "proto3";
+
+package serviceszion;
+
+option go_package = "example.com/project/protos/fizz";
+
+// Services
+message RegisterServiceRequest {
+  string client_id = 1;
+  string info = 2;
+}
+
+message GetAllServicesRequest {}
+message GetAllServicesResponse {
+  repeated InfoService data = 1;
+}
+
+message GetInfoServiceRequest {
+  optional string id = 1;
+  optional string client_id = 2;
+}
+
+message InfoService {
+  string id = 1;
+  string client_id = 2;
+  string info = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}
+
+// Services with endpoints
+message GetAllEndpointForServiceRequest {}
+message GetAllEndpointForServiceResponse {
+  repeated EndpointForService data = 1;
+}
+
+message GetInfoEndpointForServiceRequest {
+  optional string id = 1;
+  optional string client_id = 2;
+}
+
+message EndpointForService {
+  string id = 1;
+  string client_id = 2;
+  string endpoint_url = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}
+
+message ResgiterEndpointForServiceRequest {
+  string client_id = 1;
+  string endpoint_url = 2;
+}
+
+message ResgiterEndpointForServiceResponse {
+  string id = 1;
+  string client_id = 2;
+  string endpoint_url = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}
+
+message UnRegisterEndpointForServiceRequest {
+  string client_id = 1;
+}
+
+message UnRegisterEndpointForServiceResponse {
+  string id = 1;
+  string client_id = 2;
+  string endpoint_url = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}
+
+
+message UpdateEndpointForServiceRequest {
+  string client_id = 1;
+  string endpoint_url = 2;
+}
+
+message UpdateEndpointForServiceeResponse {
+  string id = 1;
+  string client_id = 2;
+  string endpoint_url = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}
+
+// Services with Collections
+message GetAllCollectionForServiceRequest {}
+message GetAllCollectionForServiceResponse {
+  repeated CollectionForService data = 1;
+}
+
+message GeInfoCollectionForServiceRequest {
+  optional string id = 1;
+  optional string client_id = 2;
+}
+
+message CollectionForService {
+  string id = 1;
+  string client_id = 2;
+  string address = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}
+
+message RegisterCollectionForServiceRequest {
+  string client_id = 1;
+  string address = 2;
+  string namespace = 3;
+  int32 start_block_number = 4;
+}
+
+message RegisterCollectionForServiceResponse {
+  string id = 1;
+  string client_id = 2;
+  string address = 3;
+  string namespace = 4;
+  int32 start_block_number = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message UnRegisterCollectionForServiceRequest {
+  string client_id = 1;
+  string address = 2;
+}
+
+message UnRegisterCollectionForServiceResponse {
+  string id = 1;
+  string client_id = 2;
+  string address = 3;
+  int32 start_block_number = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+message ResendNotiEventsRequest {
+  string id = 1;
+}
+
+message ResendNotiEventsResponse {
+  string id = 1;
+  string status = 2;
+}
+
+message GetInfoEventsRequest {
+  optional string id = 1;
+  optional string client_id = 2;
+  optional string collection = 3;
+  optional int32 token_id = 4;
+}
+
+message GetInfoEventsResponse {
+  repeated InfoEvent data = 1;
+}
+
+message InfoEvent {
+  string id = 1;
+  string tx = 2;
+  string client_id = 3;
+  string status = 4;
+  string method = 5;
+  string collection = 6;
+  int32 token_id = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+// Define the service for 
+service ServicesZION {
+  // Services
+  rpc RegisterService (RegisterServiceRequest) returns (InfoService);
+  rpc GetAllServices (GetAllServicesRequest) returns (GetAllServicesResponse);
+  rpc GetInfoService (GetInfoServiceRequest) returns (InfoService);
+    // Services with endpoints
+  rpc GetAllEndpointForService (GetAllEndpointForServiceRequest) returns (GetAllEndpointForServiceResponse);
+  rpc GetInfoEndpointForService (GetInfoEndpointForServiceRequest) returns (EndpointForService);
+  rpc ResgiterEndpointForService (ResgiterEndpointForServiceRequest) returns (ResgiterEndpointForServiceResponse);
+  rpc UnRegisterEndpointForService (UnRegisterEndpointForServiceRequest) returns (UnRegisterEndpointForServiceResponse);
+  rpc UpdateEndpointForService (UpdateEndpointForServiceRequest) returns (UpdateEndpointForServiceeResponse);
+  // Services with Collections
+  rpc GetAllCollectionForService (GetAllCollectionForServiceRequest) returns (GetAllCollectionForServiceResponse);
+  rpc GetInfoCollectionForService (GeInfoCollectionForServiceRequest) returns (CollectionForService);
+  rpc RegisterCollectionForService (RegisterCollectionForServiceRequest) returns (RegisterCollectionForServiceResponse);
+  rpc UnRegisterCollectionForService (UnRegisterCollectionForServiceRequest) returns (UnRegisterCollectionForServiceResponse);
+  // Resend Noti Events
+  rpc GetInfoEvents (GetInfoEventsRequest) returns (GetInfoEventsResponse);
+  rpc ResendNotiEvents (ResendNotiEventsRequest) returns (ResendNotiEventsResponse);
+}
