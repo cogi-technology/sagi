@@ -13,7 +13,7 @@ diesel::table! {
         #[max_length = 255]
         method -> Varchar,
         #[max_length = 255]
-        collection -> Varchar,
+        token_address -> Varchar,
         #[max_length = 255]
         client_id -> Varchar,
         amount -> Float8,
@@ -54,7 +54,6 @@ diesel::table! {
         address -> Varchar,
         #[max_length = 255]
         namespace -> Varchar,
-        status -> Int4,
         start_block_number -> Int4,
         #[max_length = 255]
         created_by -> Varchar,
@@ -72,8 +71,9 @@ diesel::table! {
         #[max_length = 255]
         address -> Varchar,
         #[max_length = 255]
+        to_transfer -> Varchar,
+        #[max_length = 255]
         namespace -> Varchar,
-        status -> Int4,
         start_block_number -> Int4,
         #[max_length = 255]
         created_by -> Varchar,

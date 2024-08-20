@@ -183,9 +183,8 @@ message TokenEndpointForService {
   string id = 1;
   string client_id = 2;
   string endpoint_url = 3;
-  string to_transfer = 4;
-  string created_at = 5;
-  string updated_at = 6;
+  string created_at = 4;
+  string updated_at = 5;
 }
 
 message ResgiterTokenEndpointForServiceRequest {
@@ -242,39 +241,46 @@ message TokenForService {
   string id = 1;
   string client_id = 2;
   string address = 3;
-  string created_at = 4;
-  string updated_at = 5;
+  string to_transfer = 4;
+  string created_at = 5;
+  string updated_at = 6;
 }
 
 message RegisterTokenForServiceRequest {
   string client_id = 1;
   string address = 2;
-  string namespace = 3;
-  int32 start_block_number = 4;
+  string to_transfer = 3;
+  string namespace = 4;
+  int32 start_block_number = 5;
 }
 
 message RegisterTokenForServiceResponse {
   string id = 1;
   string client_id = 2;
   string address = 3;
-  string namespace = 4;
-  int32 start_block_number = 5;
-  string created_at = 6;
-  string updated_at = 7;
+  string to_transfer = 4;
+  string namespace = 5;
+  int32 start_block_number = 6;
+  string created_at = 7;
+  string updated_at = 8;
 }
 
 message UnRegisterTokenForServiceRequest {
   string client_id = 1;
   string address = 2;
+  string to_transfer = 3;
+  string namespace = 4;
 }
 
 message UnRegisterTokenForServiceResponse {
   string id = 1;
   string client_id = 2;
   string address = 3;
-  int32 start_block_number = 4;
-  string created_at = 5;
-  string updated_at = 6;
+  string to_transfer = 5;
+  string namespace = 6;
+  int32 start_block_number = 7;
+  string created_at = 8;
+  string updated_at = 9;
 }
 
 message ResendNotiTokenEventsRequest {
@@ -289,7 +295,7 @@ message ResendNotiTokenEventsResponse {
 message GetInfoTokenEventsRequest {
   optional string id = 1;
   optional string client_id = 2;
-  optional string Token = 3;
+  optional string token_address = 3;
   optional int32 token_id = 4;
 }
 
@@ -303,8 +309,8 @@ message InfoEventToken {
   string client_id = 3;
   string status = 4;
   string method = 5;
-  string Token = 6;
-  float amount = 7;
+  string token_address = 6;
+  double amount = 7;
   string created_at = 8;
   string updated_at = 9;
 }

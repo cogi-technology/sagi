@@ -2011,7 +2011,7 @@ definitions:
         type: string
       client_id:
         type: string
-      Token:
+      token_address:
         type: string
       token_id:
         type: integer
@@ -2059,11 +2059,11 @@ definitions:
         type: string
       method:
         type: string
-      Token:
+      token_address:
         type: string
       amount:
         type: number
-        format: float
+        format: double
       created_at:
         type: string
       updated_at:
@@ -2139,6 +2139,8 @@ definitions:
         type: string
       address:
         type: string
+      to_transfer:
+        type: string
       namespace:
         type: string
       start_block_number:
@@ -2152,6 +2154,8 @@ definitions:
       client_id:
         type: string
       address:
+        type: string
+      to_transfer:
         type: string
       namespace:
         type: string
@@ -2235,8 +2239,6 @@ definitions:
         type: string
       endpoint_url:
         type: string
-      to_transfer:
-        type: string
       created_at:
         type: string
       updated_at:
@@ -2249,6 +2251,8 @@ definitions:
       client_id:
         type: string
       address:
+        type: string
+      to_transfer:
         type: string
       created_at:
         type: string
@@ -2320,6 +2324,10 @@ definitions:
         type: string
       address:
         type: string
+      to_transfer:
+        type: string
+      namespace:
+        type: string
   serviceszionUnRegisterTokenForServiceResponse:
     type: object
     properties:
@@ -2328,6 +2336,10 @@ definitions:
       client_id:
         type: string
       address:
+        type: string
+      to_transfer:
+        type: string
+      namespace:
         type: string
       start_block_number:
         type: integer

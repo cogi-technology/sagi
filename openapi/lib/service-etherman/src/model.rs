@@ -20,24 +20,24 @@ impl StatusEventCallback {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct PayloadCallback {
+pub struct PayloadNftCallback {
     pub status: i32,
     pub namespace: String,
-    pub param: ParamPayloadCallback,
+    pub param: ParamPayloadNftCallback,
 }
 
-impl Default for PayloadCallback {
+impl Default for PayloadNftCallback {
     fn default() -> Self {
         Self {
             status: StatusEventCallback::Init.as_str(),
             namespace: "".into(),
-            param: ParamPayloadCallback::default(),
+            param: ParamPayloadNftCallback::default(),
         }
     }
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct ParamPayloadCallback {
+pub struct ParamPayloadNftCallback {
     pub owner: Address,
     pub txhash: String,
     pub cid: String,
@@ -45,7 +45,7 @@ pub struct ParamPayloadCallback {
     pub token_id: U256,
 }
 
-impl Default for ParamPayloadCallback {
+impl Default for ParamPayloadNftCallback {
     fn default() -> Self {
         Self {
             owner: Address::zero(),
@@ -53,6 +53,48 @@ impl Default for ParamPayloadCallback {
             cid: "".into(),
             address: Address::zero(),
             token_id: U256::zero(),
+        }
+    }
+}
+
+// Token ERC20
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct PayloadTokenCallback {
+    pub status: i32,
+    pub namespace: String,
+    pub param: ParamPayloadTokenCallback,
+}
+
+impl Default for PayloadTokenCallback {
+    fn default() -> Self {
+        Self {
+            status: StatusEventCallback::Init.as_str(),
+            namespace: "".into(),
+            param: ParamPayloadTokenCallback::default(),
+        }
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ParamPayloadTokenCallback {
+    pub owner: Address,
+    pub txhash: String,
+    pub address: Address,
+    pub from: Address,
+    pub to: Address,
+    pub amount: U256,
+}
+
+impl Default for ParamPayloadTokenCallback {
+    fn default() -> Self {
+        Self {
+            owner: Address::zero(),
+            txhash: "".into(),
+            address: Address::zero(),
+            from: Address::zero(),
+            to: Address::zero(),
+            amount: U256::zero(),
         }
     }
 }

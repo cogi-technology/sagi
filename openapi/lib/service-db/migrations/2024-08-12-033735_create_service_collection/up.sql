@@ -3,7 +3,6 @@ CREATE TABLE service_collection (
     client_id VARCHAR(255) NOT NULL,
     address VARCHAR(255) NOT NULL,
     namespace VARCHAR(255) NOT NULL,
-    status INT NOT NULL,
     start_block_number INT NOT NULL,
     created_by VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

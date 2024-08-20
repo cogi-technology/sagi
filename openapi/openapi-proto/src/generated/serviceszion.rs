@@ -334,10 +334,8 @@ pub struct TokenEndpointForService {
     #[prost(string, tag = "3")]
     pub endpoint_url: ::prost::alloc::string::String,
     #[prost(string, tag = "4")]
-    pub to_transfer: ::prost::alloc::string::String,
-    #[prost(string, tag = "5")]
     pub created_at: ::prost::alloc::string::String,
-    #[prost(string, tag = "6")]
+    #[prost(string, tag = "5")]
     pub updated_at: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -442,8 +440,10 @@ pub struct TokenForService {
     #[prost(string, tag = "3")]
     pub address: ::prost::alloc::string::String,
     #[prost(string, tag = "4")]
-    pub created_at: ::prost::alloc::string::String,
+    pub to_transfer: ::prost::alloc::string::String,
     #[prost(string, tag = "5")]
+    pub created_at: ::prost::alloc::string::String,
+    #[prost(string, tag = "6")]
     pub updated_at: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -455,8 +455,10 @@ pub struct RegisterTokenForServiceRequest {
     #[prost(string, tag = "2")]
     pub address: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
+    pub to_transfer: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
     pub namespace: ::prost::alloc::string::String,
-    #[prost(int32, tag = "4")]
+    #[prost(int32, tag = "5")]
     pub start_block_number: i32,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -470,12 +472,14 @@ pub struct RegisterTokenForServiceResponse {
     #[prost(string, tag = "3")]
     pub address: ::prost::alloc::string::String,
     #[prost(string, tag = "4")]
+    pub to_transfer: ::prost::alloc::string::String,
+    #[prost(string, tag = "5")]
     pub namespace: ::prost::alloc::string::String,
-    #[prost(int32, tag = "5")]
+    #[prost(int32, tag = "6")]
     pub start_block_number: i32,
-    #[prost(string, tag = "6")]
-    pub created_at: ::prost::alloc::string::String,
     #[prost(string, tag = "7")]
+    pub created_at: ::prost::alloc::string::String,
+    #[prost(string, tag = "8")]
     pub updated_at: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -486,6 +490,10 @@ pub struct UnRegisterTokenForServiceRequest {
     pub client_id: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]
     pub address: ::prost::alloc::string::String,
+    #[prost(string, tag = "3")]
+    pub to_transfer: ::prost::alloc::string::String,
+    #[prost(string, tag = "4")]
+    pub namespace: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -497,11 +505,15 @@ pub struct UnRegisterTokenForServiceResponse {
     pub client_id: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
     pub address: ::prost::alloc::string::String,
-    #[prost(int32, tag = "4")]
-    pub start_block_number: i32,
     #[prost(string, tag = "5")]
-    pub created_at: ::prost::alloc::string::String,
+    pub to_transfer: ::prost::alloc::string::String,
     #[prost(string, tag = "6")]
+    pub namespace: ::prost::alloc::string::String,
+    #[prost(int32, tag = "7")]
+    pub start_block_number: i32,
+    #[prost(string, tag = "8")]
+    pub created_at: ::prost::alloc::string::String,
+    #[prost(string, tag = "9")]
     pub updated_at: ::prost::alloc::string::String,
 }
 #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -529,7 +541,7 @@ pub struct GetInfoTokenEventsRequest {
     #[prost(string, optional, tag = "2")]
     pub client_id: ::core::option::Option<::prost::alloc::string::String>,
     #[prost(string, optional, tag = "3")]
-    pub token: ::core::option::Option<::prost::alloc::string::String>,
+    pub token_address: ::core::option::Option<::prost::alloc::string::String>,
     #[prost(int32, optional, tag = "4")]
     pub token_id: ::core::option::Option<i32>,
 }
@@ -555,9 +567,9 @@ pub struct InfoEventToken {
     #[prost(string, tag = "5")]
     pub method: ::prost::alloc::string::String,
     #[prost(string, tag = "6")]
-    pub token: ::prost::alloc::string::String,
-    #[prost(float, tag = "7")]
-    pub amount: f32,
+    pub token_address: ::prost::alloc::string::String,
+    #[prost(double, tag = "7")]
+    pub amount: f64,
     #[prost(string, tag = "8")]
     pub created_at: ::prost::alloc::string::String,
     #[prost(string, tag = "9")]
@@ -724,8 +736,10 @@ pub mod services_zion_actix {
         #[prost(string, tag = "2")]
         pub address: ::prost::alloc::string::String,
         #[prost(string, tag = "3")]
+        pub to_transfer: ::prost::alloc::string::String,
+        #[prost(string, tag = "4")]
         pub namespace: ::prost::alloc::string::String,
-        #[prost(int32, tag = "4")]
+        #[prost(int32, tag = "5")]
         pub start_block_number: i32,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -736,6 +750,10 @@ pub mod services_zion_actix {
         pub client_id: ::prost::alloc::string::String,
         #[prost(string, tag = "2")]
         pub address: ::prost::alloc::string::String,
+        #[prost(string, tag = "3")]
+        pub to_transfer: ::prost::alloc::string::String,
+        #[prost(string, tag = "4")]
+        pub namespace: ::prost::alloc::string::String,
     }
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
@@ -746,7 +764,7 @@ pub mod services_zion_actix {
         #[prost(string, optional, tag = "2")]
         pub client_id: ::core::option::Option<::prost::alloc::string::String>,
         #[prost(string, optional, tag = "3")]
-        pub token: ::core::option::Option<::prost::alloc::string::String>,
+        pub token_address: ::core::option::Option<::prost::alloc::string::String>,
         #[prost(int32, optional, tag = "4")]
         pub token_id: ::core::option::Option<i32>,
     }
@@ -1255,6 +1273,7 @@ pub mod services_zion_actix {
         let request = RegisterTokenForServiceRequest {
             client_id: json.client_id,
             address: json.address,
+            to_transfer: json.to_transfer,
             namespace: json.namespace,
             start_block_number: json.start_block_number,
         };
@@ -1284,6 +1303,8 @@ pub mod services_zion_actix {
         let request = UnRegisterTokenForServiceRequest {
             client_id: json.client_id,
             address: json.address,
+            to_transfer: json.to_transfer,
+            namespace: json.namespace,
         };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.un_register_token_for_service(request).await?;
@@ -1311,7 +1332,7 @@ pub mod services_zion_actix {
         let request = GetInfoTokenEventsRequest {
             id: json.id,
             client_id: json.client_id,
-            token: json.token,
+            token_address: json.token_address,
             token_id: json.token_id,
         };
         let request = ::actix_prost::new_request(request, &http_request);
