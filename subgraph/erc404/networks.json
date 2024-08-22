@@ -1,0 +1,12 @@
+{
+  "https://devnet-rpc.zionx.network": {
+    "TestERC404Token1": {
+      "address": "0xaee6a4ac8638a4a7c45b3c0a12147b7ba3f6c6df",
+      "startBlock": 1269
+    },
+    "TestERC404Token2": {
+      "address": "0x26498c92ff247d2367d22b696a40c77dd27c6a01",
+      "startBlock": 1272
+    }
+  }
+}

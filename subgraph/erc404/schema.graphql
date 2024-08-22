@@ -1,0 +1,134 @@
+type Approval @entity {
+  id: ID!
+  owner: User! # address
+  spender: User! # address
+  value: BigInt! # uint256
+  remaining_allowance: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes! 
+  collection: Collection!
+}
+
+type ApprovalForAll @entity {
+  id: ID!
+  account: User! # address
+  operator: User! # address
+  approved: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  collection: Collection!
+}
+
+type Burn @entity(immutable: true) {
+  id: ID!
+  account: User! # address
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  collection: Collection!
+}
+
+type Mint @entity(immutable: true) {
+  id: ID!
+  account: User! # address
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  collection: Collection!
+}
+
+type Transfer @entity(immutable: true) {
+  id: ID!
+  operator: User! # address
+  from: User! # address
+  to: User! # address
+  value: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  collection: Collection!
+}
+
+type TransferBatch @entity(immutable: true) {
+  id: ID!
+  operator: User! # address
+  from: User! # address
+  to: User! # address
+  ids: [BigInt!]! # uint256[]
+  values: [BigInt!]! # uint256[]
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  collection: Collection!
+}
+
+type TransferSingle @entity(immutable: true) {
+  id: ID!
+  operator: User! # address
+  from: User! # address
+  to: User! # address
+  erc1155_id: BigInt! # uint256
+  value: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  collection: Collection!
+}
+
+type Collection @entity {
+  id: ID! # Address of the contract
+  name: String! # Token name
+  symbol: String! # Token symbol
+  totalSupply: BigInt! # Total supply of the fungible part (ERC20)
+}
+
+# Entity representing an account's balance for ERC20 tokens
+type ERC20Balance @entity {
+  id: ID! # Unique ID, typically a combination of account and contract addresses
+  account: User! # Reference to the User entity
+  collection: Collection! # Reference to the ERC404 contract
+  balance: BigInt! # Balance of ERC20 tokens
+}
+
+# Entity representing an account's balance for ERC1155 tokens (multi-token balance)
+type ERC1155Balance @entity {
+  id: ID! # Unique ID, typically a combination of account, contract address, and token ID
+  tokenId: BigInt! # ID of the token
+  balance: BigInt! # Balance of ERC1155 tokens
+}
+
+type ERC1155BatchBalance @entity {
+  id: ID! # Unique ID, typically a combination of account, contract address
+  batchBalance: [ERC1155Balance!]!
+  account: User! # Reference to the User entity
+  collection: Collection! # Reference to the ERC404 contract
+}
+
+# User entity representing an address interacting with the contract
+type User @entity {
+  id: ID! # This will be the address of the user
+
+  # Balances for ERC20 and ERC1155 tokens
+  erc20Balances: [ERC20Balance]! @derivedFrom(field: "account")
+  erc1155Balances: ERC1155BatchBalance @derivedFrom(field: "account")
+
+  # Transfers sent and received for ERC20 and ERC1155 tokens
+  erc20TransfersSent: [Transfer]! @derivedFrom(field: "operator")
+  erc20TransfersReceived: [Transfer]! @derivedFrom(field: "to")
+  erc1155SingleTransfersSent: [TransferSingle]! @derivedFrom(field: "from")
+  erc1155SingleTransfersReceived: [TransferSingle]! @derivedFrom(field: "to")
+  erc1155BatchTransfersSent: [TransferBatch]! @derivedFrom(field: "from")
+  erc1155BatchTransfersReceived: [TransferBatch]! @derivedFrom(field: "to")
+
+  # Approvals for ERC20 and ERC1155 tokens
+  erc20ApprovalsGiven: [Approval]! @derivedFrom(field: "owner")
+  erc20ApprovalsReceived: [Approval]! @derivedFrom(field: "spender")
+  erc1155ApprovalsGiven: [ApprovalForAll]! @derivedFrom(field: "account")
+  erc1155ApprovalsReceived: [ApprovalForAll]! @derivedFrom(field: "operator")
+
+  isErc1155TransferExempt: Boolean!
+}
