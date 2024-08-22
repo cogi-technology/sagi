@@ -225,7 +225,8 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
             }
         }
 
-        emit Transfer(operator, from, to, value);
+        emit Transfer(from, to, value);
+        emit TransferOperator(operator, from, to, value);
     }
 
     /**

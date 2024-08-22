@@ -13,7 +13,15 @@ interface IERC20 {
      *
      * Note that `value` may be zero.
      */
-    event Transfer(
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    /**
+     * @dev Emitted when `value` tokens are moved from one account (`from`) to
+     * another (`to`) by (`operator`).
+     *
+     * Note that `value` may be zero.
+     */
+    event TransferOperator(
         address indexed operator,
         address indexed from,
         address indexed to,

@@ -298,7 +298,8 @@ abstract contract ERC404 is
             }
         }
 
-        emit Transfer(operator, from, to, value);
+        emit Transfer(from, to, value);
+        emit TransferOperator(operator, from, to, value);
     }
 
     /**
