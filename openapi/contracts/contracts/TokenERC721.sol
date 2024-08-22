@@ -12,8 +12,12 @@ contract TokenERC721 is ERC721, Ownable, ERC721Holder, ERC721URIStorage {
     uint256 private _tokenIdCounter;
     mapping(string => uint8) public cids;
 
-    event AwardItem(address recipient, string cid, uint256 tokenId);
-    event Burn(uint256 tokenId);
+    event AwardItem(
+        address indexed recipient,
+        uint256 indexed tokenId,
+        string cid
+    );
+    event Burn(uint256 indexed tokenId);
 
     constructor(
         address owner_,
@@ -40,7 +44,7 @@ contract TokenERC721 is ERC721, Ownable, ERC721Holder, ERC721URIStorage {
 
         _setTokenURI(newTokenId, cid);
 
-        emit AwardItem(recipient, cid, newTokenId);
+        emit AwardItem(recipient, newTokenId, cid);
         return newTokenId;
     }
 

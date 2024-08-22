@@ -23,11 +23,6 @@
             },
             {
                 "internalType": "uint256",
-                "name": "initialSupply_",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
                 "name": "units_",
                 "type": "uint256"
             },
@@ -381,6 +376,44 @@
         "anonymous": false,
         "inputs": [
             {
+                "indexed": true,
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "Burn",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "bool",
+                "name": "exempt",
+                "type": "bool"
+            }
+        ],
+        "name": "ERC1155SetTransferExempt",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
                 "indexed": false,
                 "internalType": "uint64",
                 "name": "version",
@@ -388,6 +421,25 @@
             }
         ],
         "name": "Initialized",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "Mint",
         "type": "event"
     },
     {
@@ -500,6 +552,12 @@
     {
         "anonymous": false,
         "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "operator",
+                "type": "address"
+            },
             {
                 "indexed": true,
                 "internalType": "address",
@@ -815,6 +873,37 @@
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "burn",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "burnFrom",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "decimals",
         "outputs": [
@@ -879,27 +968,27 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "from",
+                "name": "from_",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "to",
+                "name": "to_",
                 "type": "address"
             },
             {
                 "internalType": "uint256[]",
-                "name": "ids",
+                "name": "ids_",
                 "type": "uint256[]"
             },
             {
                 "internalType": "uint256[]",
-                "name": "values",
+                "name": "values_",
                 "type": "uint256[]"
             },
             {
                 "internalType": "bytes",
-                "name": "data",
+                "name": "data_",
                 "type": "bytes"
             }
         ],
@@ -1054,6 +1143,19 @@
         "type": "function"
     },
     {
+        "inputs": [],
+        "name": "ids",
+        "outputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "",
+                "type": "uint256[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [
             {
                 "internalType": "address",
@@ -1075,6 +1177,24 @@
             }
         ],
         "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "mint",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -1445,6 +1565,19 @@
         "name": "unfreeze",
         "outputs": [],
         "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "units",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
         "type": "function"
     },
     {

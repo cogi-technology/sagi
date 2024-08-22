@@ -9,11 +9,10 @@ message DeployRequest {
   string name = 1;
   string symbol = 2;
   uint32 decimals = 3;
-  string initial_supply = 4;
-  string units = 5;
-  repeated string ids = 6;
-  string uri = 7;
-  string pin_code = 8;
+  string units = 4;
+  repeated string ids = 5;
+  string uri = 6;
+  string pin_code = 7;
 }
 
 message DeployResponse {
@@ -189,6 +188,38 @@ message RemoveTransferExemptResponse {
   string txhash = 1;
 }
 
+message MintRequest {
+  string contract = 1;
+  string account = 2;
+  string amount = 3;
+  string pin_code = 4;
+}
+
+message MintResponse {
+  string txhash = 1;
+}
+
+message BurnRequest {
+  string contract = 1;
+  string amount = 2;
+  string pin_code = 3;
+}
+
+message BurnResponse {
+  string txhash = 1;
+}
+
+message BurnFromRequest {
+  string contract = 1;
+  string account = 2;
+  string amount = 3;
+  string pin_code = 4;
+}
+
+message BurnFromResponse {
+  string txhash = 1;
+}
+
 // Define the service for 
 service ERC404 {
   rpc Deploy (DeployRequest) returns (DeployResponse);
@@ -208,4 +239,7 @@ service ERC404 {
   rpc ERC1155TransferExempt (ERC1155TransferExemptRequest) returns (ERC1155TransferExemptResponse);
   rpc AddTransferExempt (AddTransferExemptRequest) returns (AddTransferExemptResponse);
   rpc RemoveTransferExempt (RemoveTransferExemptRequest) returns (RemoveTransferExemptResponse);
+  rpc Mint (MintRequest) returns (MintResponse);
+  rpc Burn (BurnRequest) returns (BurnResponse);
+  rpc BurnFrom (BurnFromRequest) returns (BurnFromResponse);
 }

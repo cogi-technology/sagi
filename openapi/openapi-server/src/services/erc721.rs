@@ -14,7 +14,7 @@ use {
     openapi_ethers::erc721::{erc721_bytecode, ERC721 as ERC721Contract, ERC721_ABI},
     openapi_logger::debug,
     openapi_proto::erc721_service::{erc721_server::Erc721, *},
-    std::{str::FromStr, sync::Arc},
+    std::sync::Arc,
     tonic::{Request, Response},
     zion_aa::{
         address_to_string,
@@ -294,7 +294,7 @@ impl Erc721 for Erc721Service {
 
         let contract = ERC721Contract::new(contract_address, Arc::clone(&self.zion_provider));
         let owner = contract
-            .owner_of(U256::from_str(token_id.as_str()).map_err(|e| into_anyhow(e.into()))?)
+            .owner_of(U256::from_dec_str(token_id.as_str()).map_err(|e| into_anyhow(e.into()))?)
             .legacy()
             .await
             .map_err(|e| into_anyhow(e.into()))?;
@@ -331,7 +331,7 @@ impl Erc721 for Erc721Service {
             .map_err(|e| into_anyhow(e.into()))?;
         let from_address = from.parse::<Address>().map_err(|e| into_anyhow(e.into()))?;
         let to_address = to.parse::<Address>().map_err(|e| into_anyhow(e.into()))?;
-        let token_id = U256::from_str(&token_id).map_err(|e| into_anyhow(e.into()))?;
+        let token_id = U256::from_dec_str(&token_id).map_err(|e| into_anyhow(e.into()))?;
 
         debug!("contract: {contract_address:?}, from: {from_address:?}, to: {to_address:?}, token_id: {token_id:?}");
 
@@ -391,7 +391,7 @@ impl Erc721 for Erc721Service {
             .map_err(|e| into_anyhow(e.into()))?;
         let from_address = from.parse::<Address>().map_err(|e| into_anyhow(e.into()))?;
         let to_address = to.parse::<Address>().map_err(|e| into_anyhow(e.into()))?;
-        let token_id = U256::from_str(&token_id).map_err(|e| into_anyhow(e.into()))?;
+        let token_id = U256::from_dec_str(&token_id).map_err(|e| into_anyhow(e.into()))?;
 
         debug!("contract: {contract_address:?}, from: {from_address:?}, to: {to_address:?}, token_id: {token_id:?}");
 
@@ -446,7 +446,7 @@ impl Erc721 for Erc721Service {
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
         let to_address = to.parse::<Address>().map_err(|e| into_anyhow(e.into()))?;
-        let token_id = U256::from_str(&token_id).map_err(|e| into_anyhow(e.into()))?;
+        let token_id = U256::from_dec_str(&token_id).map_err(|e| into_anyhow(e.into()))?;
 
         debug!("contract: {contract_address:?}, to: {to_address:?}, token_id: {token_id:?}");
 
@@ -609,7 +609,7 @@ impl Erc721 for Erc721Service {
         let contract_address = contract
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
-        let token_id = U256::from_str(&token_id).map_err(|e| into_anyhow(e.into()))?;
+        let token_id = U256::from_dec_str(&token_id).map_err(|e| into_anyhow(e.into()))?;
         debug!("contract: {contract_address:?}, token_id: {token_id:?}");
 
         let contract = ERC721Contract::new(contract_address, Arc::clone(&self.zion_provider));
@@ -723,7 +723,7 @@ impl Erc721 for Erc721Service {
         let contract_address = contract
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
-        let token_id = U256::from_str(&token_id).map_err(|e| into_anyhow(e.into()))?;
+        let token_id = U256::from_dec_str(&token_id).map_err(|e| into_anyhow(e.into()))?;
         debug!("contract: {contract_address:?}, token_id: {token_id:?}");
 
         let contract = ERC721Contract::new(contract_address, Arc::clone(&self.zion_provider));

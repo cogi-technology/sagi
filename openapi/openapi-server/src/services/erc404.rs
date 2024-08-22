@@ -14,7 +14,7 @@ use {
     openapi_ethers::erc404::{erc404_bytecode, ERC404 as ERC404Contract, ERC404_ABI},
     openapi_logger::debug,
     openapi_proto::erc404_service::{erc404_server::Erc404, SafeTransferFromRequest, *},
-    std::{str::FromStr, sync::Arc},
+    std::sync::Arc,
     tonic::{Request, Response},
     zion_aa::{
         address_to_string,
@@ -52,7 +52,6 @@ impl Erc404 for Erc404Service {
             name,
             symbol,
             decimals,
-            initial_supply,
             units,
             ids,
             uri,
@@ -139,15 +138,16 @@ impl Erc404 for Erc404Service {
             );
         }
 
-        let initial_supply =
-            U256::from_dec_str(&initial_supply).map_err(|e| into_anyhow(e.into()))?;
         let units = U256::from_dec_str(&units).map_err(|e| into_anyhow(e.into()))?;
         let ids = ids
             .into_iter()
-            .map(|id| U256::from_str(&id).map_err(|e| into_anyhow(e.into())))
+            .map(|id| U256::from_dec_str(&id).map_err(|e| into_anyhow(e.into())))
             .collect::<Result<Vec<U256>>>()?;
 
-        debug!("owner: {:?}, initial_supply: {initial_supply:?}, units: {units:?}, ids: {ids:?}, uri: {uri}", contract_wallet.address());
+        debug!(
+            "owner: {:?}, units: {units:?}, ids: {ids:?}, uri: {uri}",
+            contract_wallet.address()
+        );
 
         let factory = ContractFactory::new(
             ERC404_ABI.clone(),
@@ -161,7 +161,6 @@ impl Erc404 for Erc404Service {
                 name,
                 symbol,
                 decimals as u8,
-                initial_supply,
                 units,
                 ids,
                 uri,
@@ -408,7 +407,7 @@ impl Erc404 for Erc404Service {
             .collect::<Result<Vec<Address>>>()?;
         let token_ids = token_ids
             .into_iter()
-            .map(|id| U256::from_str(&id).map_err(|e| into_anyhow(e.into())))
+            .map(|id| U256::from_dec_str(&id).map_err(|e| into_anyhow(e.into())))
             .collect::<Result<Vec<U256>>>()?;
 
         debug!("contract address: {contract_address:?}, accounts: {accounts:?}, token_ids: {token_ids:?}");
@@ -689,7 +688,7 @@ impl Erc404 for Erc404Service {
             .map_err(|e| into_anyhow(e.into()))?;
         let from = from.parse::<Address>().map_err(|e| into_anyhow(e.into()))?;
         let to = to.parse::<Address>().map_err(|e| into_anyhow(e.into()))?;
-        let token_id = U256::from_str(&token_id).map_err(|e| into_anyhow(e.into()))?;
+        let token_id = U256::from_dec_str(&token_id).map_err(|e| into_anyhow(e.into()))?;
         let value = U256::from_dec_str(&value).map_err(|e| into_anyhow(e.into()))?;
         let data = hex::decode(data).map_err(|e| into_anyhow(e.into()))?.into();
 
@@ -756,11 +755,11 @@ impl Erc404 for Erc404Service {
         let to = to.parse::<Address>().map_err(|e| into_anyhow(e.into()))?;
         let token_ids = token_ids
             .iter()
-            .map(|t| U256::from_str(t).map_err(|e| into_anyhow(e.into())))
+            .map(|t| U256::from_dec_str(t).map_err(|e| into_anyhow(e.into())))
             .collect::<Result<Vec<_>>>()?;
         let values = values
             .iter()
-            .map(|v| U256::from_str(v).map_err(|e| into_anyhow(e.into())))
+            .map(|v| U256::from_dec_str(v).map_err(|e| into_anyhow(e.into())))
             .collect::<Result<Vec<_>>>()?;
         let data = hex::decode(data).map_err(|e| into_anyhow(e.into()))?.into();
 
@@ -813,7 +812,7 @@ impl Erc404 for Erc404Service {
         let account = account
             .parse::<Address>()
             .map_err(|e| into_anyhow(e.into()))?;
-        let toke_id = U256::from_str(&token_id).map_err(|e| into_anyhow(e.into()))?;
+        let toke_id = U256::from_dec_str(&token_id).map_err(|e| into_anyhow(e.into()))?;
 
         debug!("contract: {contract_address:?}, account: {account:?}, token_id: {toke_id:?}");
 
@@ -987,5 +986,175 @@ impl Erc404 for Erc404Service {
         debug!("safe_transfer_from txhash: {txhash}");
 
         Ok(Response::new(RemoveTransferExemptResponse { txhash }))
+    }
+
+    async fn mint(&self, request: Request<MintRequest>) -> Result<Response<MintResponse>> {
+        let header_metadata = request.metadata();
+        let mut contract_wallet = init_contract_wallet(
+            header_metadata,
+            self.torii_provider.url().as_str(),
+            &self.tele_auth_config,
+        )
+        .await
+        .map_err(into_anyhow)?;
+
+        let MintRequest {
+            contract,
+            account,
+            amount,
+            pin_code,
+        } = request.into_inner();
+        let contract_address = contract
+            .parse::<Address>()
+            .map_err(|e| into_anyhow(e.into()))?;
+        let account = account
+            .parse::<Address>()
+            .map_err(|e| into_anyhow(e.into()))?;
+        let amount = U256::from_dec_str(&amount).map_err(|e| into_anyhow(e.into()))?;
+
+        debug!("contract: {contract_address:?}, account: {account:?}, amount: {amount:?}");
+
+        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
+        let calldata = contract
+            .mint(account, amount)
+            .calldata()
+            .ok_or_else(|| into_anyhow(anyhow!("Mint calldata is None")))?;
+        let transaction = Eip1559TransactionRequest::new()
+            .to(contract.address())
+            .data(calldata);
+
+        // This session is used to validate the pin code
+        {
+            let has_pin_code = contract_wallet.has_pin_code().await.map_err(into_anyhow)?;
+            contract_wallet
+                .validate_and_set_pin_code(pin_code, !has_pin_code, None)
+                .await
+                .map_err(into_anyhow)?;
+            debug!("Validated pin code");
+        }
+
+        let txhash = contract_wallet
+            .send_transaction(transaction, None)
+            .await
+            .map_err(into_anyhow)?
+            .transaction_hash;
+
+        let txhash = format!("{:#x}", txhash);
+        debug!("mint txhash: {txhash}");
+
+        Ok(Response::new(MintResponse { txhash }))
+    }
+
+    async fn burn(&self, request: Request<BurnRequest>) -> Result<Response<BurnResponse>> {
+        let header_metadata = request.metadata();
+        let mut contract_wallet = init_contract_wallet(
+            header_metadata,
+            self.torii_provider.url().as_str(),
+            &self.tele_auth_config,
+        )
+        .await
+        .map_err(into_anyhow)?;
+
+        let BurnRequest {
+            contract,
+            amount,
+            pin_code,
+        } = request.into_inner();
+        let contract_address = contract
+            .parse::<Address>()
+            .map_err(|e| into_anyhow(e.into()))?;
+        let amount = U256::from_dec_str(&amount).map_err(|e| into_anyhow(e.into()))?;
+
+        debug!("contract: {contract_address:?}, amount: {amount:?}");
+
+        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
+        let calldata = contract
+            .burn(amount)
+            .calldata()
+            .ok_or_else(|| into_anyhow(anyhow!("Burn calldata is None")))?;
+        let transaction = Eip1559TransactionRequest::new()
+            .to(contract.address())
+            .data(calldata);
+
+        // This session is used to validate the pin code
+        {
+            let has_pin_code = contract_wallet.has_pin_code().await.map_err(into_anyhow)?;
+            contract_wallet
+                .validate_and_set_pin_code(pin_code, !has_pin_code, None)
+                .await
+                .map_err(into_anyhow)?;
+            debug!("Validated pin code");
+        }
+
+        let txhash = contract_wallet
+            .send_transaction(transaction, None)
+            .await
+            .map_err(into_anyhow)?
+            .transaction_hash;
+
+        let txhash = format!("{:#x}", txhash);
+        debug!("Burn txhash: {txhash}");
+
+        Ok(Response::new(BurnResponse { txhash }))
+    }
+
+    async fn burn_from(
+        &self,
+        request: Request<BurnFromRequest>,
+    ) -> Result<Response<BurnFromResponse>> {
+        let header_metadata = request.metadata();
+        let mut contract_wallet = init_contract_wallet(
+            header_metadata,
+            self.torii_provider.url().as_str(),
+            &self.tele_auth_config,
+        )
+        .await
+        .map_err(into_anyhow)?;
+
+        let BurnFromRequest {
+            contract,
+            account,
+            amount,
+            pin_code,
+        } = request.into_inner();
+        let contract_address = contract
+            .parse::<Address>()
+            .map_err(|e| into_anyhow(e.into()))?;
+        let account = account
+            .parse::<Address>()
+            .map_err(|e| into_anyhow(e.into()))?;
+        let amount = U256::from_dec_str(&amount).map_err(|e| into_anyhow(e.into()))?;
+
+        debug!("contract: {contract_address:?}, account: {account:?}, amount: {amount:?}");
+
+        let contract = ERC404Contract::new(contract_address, Arc::clone(&self.zion_provider));
+        let calldata = contract
+            .burn_from(account, amount)
+            .calldata()
+            .ok_or_else(|| into_anyhow(anyhow!("BurnFrom calldata is None")))?;
+        let transaction = Eip1559TransactionRequest::new()
+            .to(contract.address())
+            .data(calldata);
+
+        // This session is used to validate the pin code
+        {
+            let has_pin_code = contract_wallet.has_pin_code().await.map_err(into_anyhow)?;
+            contract_wallet
+                .validate_and_set_pin_code(pin_code, !has_pin_code, None)
+                .await
+                .map_err(into_anyhow)?;
+            debug!("Validated pin code");
+        }
+
+        let txhash = contract_wallet
+            .send_transaction(transaction, None)
+            .await
+            .map_err(into_anyhow)?
+            .transaction_hash;
+
+        let txhash = format!("{:#x}", txhash);
+        debug!("Burn txhash: {txhash}");
+
+        Ok(Response::new(BurnFromResponse { txhash }))
     }
 }

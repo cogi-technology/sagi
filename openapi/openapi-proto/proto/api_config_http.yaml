@@ -128,3 +128,12 @@ http:
     - selector: erc404.ERC404.ERC1155TransferExempt
       get: /api/erc404/erc1155TransferExempt
       param: "target"
+    - selector: erc404.ERC404.Mint
+      post: /api/erc404/mint
+      body: "*"
+    - selector: erc404.ERC404.Burn
+      post: /api/erc404/burn
+      body: "*"
+    - selector: erc404.ERC404.BurnFrom
+      post: /api/erc404/burn_from
+      body: "*"

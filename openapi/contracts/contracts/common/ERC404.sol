@@ -21,6 +21,8 @@ abstract contract ERC404 is
     using Arrays for uint256[];
     using Arrays for address[];
 
+    event ERC1155SetTransferExempt(address indexed account, bool exempt);
+
     struct ERC1155Data {
         uint256 id;
         uint256 value;
@@ -268,6 +270,8 @@ abstract contract ERC404 is
         uint256 value
     ) internal virtual {
         ERC404Storage storage $ = _getERC404Storage();
+        address operator = _msgSender();
+
         if (from == address(0)) {
             // Overflow check required: The rest of the code assumes that totalSupply never overflows
             $._totalSupply += value;
@@ -294,7 +298,7 @@ abstract contract ERC404 is
             }
         }
 
-        emit Transfer(from, to, value);
+        emit Transfer(operator, from, to, value);
     }
 
     /**
@@ -564,6 +568,8 @@ abstract contract ERC404 is
         }
         ERC404Storage storage $ = _getERC404Storage();
         $._erc1155TransferExempt[target_] = state_;
+
+        emit ERC1155SetTransferExempt(target_, state_);
         return true;
     }
 

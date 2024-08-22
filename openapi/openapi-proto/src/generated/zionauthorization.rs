@@ -38,16 +38,13 @@ pub struct StringArray {
 }
 pub mod zion_authorization_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
-    use super::*;
     use super::zion_authorization_server::ZionAuthorization;
+    use super::*;
     use std::sync::Arc;
     async fn call_get_data_request_for_zion(
         service: ::actix_web::web::Data<dyn ZionAuthorization + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
-    ) -> Result<
-        ::actix_web::web::Json<GetDataRequestForZionResponse>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<::actix_web::web::Json<GetDataRequestForZionResponse>, ::actix_prost::Error> {
         let request = GetDataRequestForZionRequest {};
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.get_data_request_for_zion(request).await?;
@@ -59,18 +56,17 @@ pub mod zion_authorization_actix {
         service: Arc<dyn ZionAuthorization + Send + Sync + 'static>,
     ) {
         config.app_data(::actix_web::web::Data::from(service));
-        config
-            .route(
-                "/api/zionauthorization/getDataRequestForZION",
-                ::actix_web::web::get().to(call_get_data_request_for_zion),
-            );
+        config.route(
+            "/api/zionauthorization/getDataRequestForZION",
+            ::actix_web::web::get().to(call_get_data_request_for_zion),
+        );
     }
 }
 /// Generated client implementations.
 pub mod zion_authorization_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::*;
     use tonic::codegen::http::Uri;
+    use tonic::codegen::*;
     /// Define the service for
     #[derive(Debug, Clone)]
     pub struct ZionAuthorizationClient<T> {
@@ -115,9 +111,8 @@ pub mod zion_authorization_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
-            >>::Error: Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
+                Into<StdError> + Send + Sync,
         {
             ZionAuthorizationClient::new(InterceptedService::new(inner, interceptor))
         }
@@ -139,19 +134,13 @@ pub mod zion_authorization_client {
         pub async fn get_data_request_for_zion(
             &mut self,
             request: impl tonic::IntoRequest<super::GetDataRequestForZionRequest>,
-        ) -> Result<
-            tonic::Response<super::GetDataRequestForZionResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> Result<tonic::Response<super::GetDataRequestForZionResponse>, tonic::Status> {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/zionauthorization.ZionAuthorization/GetDataRequestForZION",
@@ -170,10 +159,7 @@ pub mod zion_authorization_server {
         async fn get_data_request_for_zion(
             &self,
             request: tonic::Request<super::GetDataRequestForZionRequest>,
-        ) -> Result<
-            tonic::Response<super::GetDataRequestForZionResponse>,
-            tonic::Status,
-        >;
+        ) -> Result<tonic::Response<super::GetDataRequestForZionResponse>, tonic::Status>;
     }
     /// Define the service for
     #[derive(Debug)]
@@ -195,10 +181,7 @@ pub mod zion_authorization_server {
                 send_compression_encodings: Default::default(),
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -226,10 +209,7 @@ pub mod zion_authorization_server {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
-        fn poll_ready(
-            &mut self,
-            _cx: &mut Context<'_>,
-        ) -> Poll<Result<(), Self::Error>> {
+        fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
@@ -238,23 +218,19 @@ pub mod zion_authorization_server {
                 "/zionauthorization.ZionAuthorization/GetDataRequestForZION" => {
                     #[allow(non_camel_case_types)]
                     struct GetDataRequestForZIONSvc<T: ZionAuthorization>(pub Arc<T>);
-                    impl<
-                        T: ZionAuthorization,
-                    > tonic::server::UnaryService<super::GetDataRequestForZionRequest>
-                    for GetDataRequestForZIONSvc<T> {
+                    impl<T: ZionAuthorization>
+                        tonic::server::UnaryService<super::GetDataRequestForZionRequest>
+                        for GetDataRequestForZIONSvc<T>
+                    {
                         type Response = super::GetDataRequestForZionResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetDataRequestForZionRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).get_data_request_for_zion(request).await
-                            };
+                            let fut =
+                                async move { (*inner).get_data_request_for_zion(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -265,28 +241,23 @@ pub mod zion_authorization_server {
                         let inner = inner.0;
                         let method = GetDataRequestForZIONSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", "12")
-                                .header("content-type", "application/grpc")
-                                .body(empty_body())
-                                .unwrap(),
-                        )
-                    })
-                }
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", "12")
+                        .header("content-type", "application/grpc")
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }
@@ -310,8 +281,7 @@ pub mod zion_authorization_server {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: ZionAuthorization> tonic::server::NamedService
-    for ZionAuthorizationServer<T> {
+    impl<T: ZionAuthorization> tonic::server::NamedService for ZionAuthorizationServer<T> {
         const NAME: &'static str = "zionauthorization.ZionAuthorization";
     }
 }

@@ -369,6 +369,46 @@ paths:
           collectionFormat: multi
       tags:
         - ERC404
+  /api/erc404/burn:
+    post:
+      operationId: ERC404_Burn
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404BurnResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc404BurnRequest'
+      tags:
+        - ERC404
+  /api/erc404/burn_from:
+    post:
+      operationId: ERC404_BurnFrom
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404BurnFromResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc404BurnFromRequest'
+      tags:
+        - ERC404
   /api/erc404/deploy:
     post:
       operationId: ERC404_Deploy
@@ -487,6 +527,26 @@ paths:
           in: query
           required: false
           type: string
+      tags:
+        - ERC404
+  /api/erc404/mint:
+    post:
+      operationId: ERC404_Mint
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404MintResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc404MintRequest'
       tags:
         - ERC404
   /api/erc404/safeBatchTransferFrom:
@@ -1089,6 +1149,36 @@ definitions:
     properties:
       amount:
         type: string
+  erc404BurnFromRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      account:
+        type: string
+      amount:
+        type: string
+      pin_code:
+        type: string
+  erc404BurnFromResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc404BurnRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      amount:
+        type: string
+      pin_code:
+        type: string
+  erc404BurnResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
   erc404DeployRequest:
     type: object
     properties:
@@ -1099,8 +1189,6 @@ definitions:
       decimals:
         type: integer
         format: int64
-      initial_supply:
-        type: string
       units:
         type: string
       ids:
@@ -1137,6 +1225,22 @@ definitions:
     properties:
       result:
         type: boolean
+  erc404MintRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      account:
+        type: string
+      amount:
+        type: string
+      pin_code:
+        type: string
+  erc404MintResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
   erc404RemoveTransferExemptResponse:
     type: object
     properties:

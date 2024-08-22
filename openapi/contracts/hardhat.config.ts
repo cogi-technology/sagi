@@ -27,6 +27,11 @@ const config: HardhatUserConfig = {
       chainId: 176923,
       accounts
     },
+    fuji: {
+      url: "https://avalanche-fuji.blockpi.network/v1/rpc/public",
+      accounts: accounts,
+      chainId: 43113,
+    },
   },
   sourcify: {
     enabled: true,
