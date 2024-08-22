@@ -1,5 +1,27 @@
+type Approval @entity {
+  id: ID!
+  owner: User! # address
+  approved: User! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes! 
+  collection: Collection!
+}
+
+type ApprovalForAll @entity {
+  id: ID!
+  owner: User! # address
+  operator: User! # address
+  approved: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  collection: Collection!
+}
+
 type AwardItem @entity(immutable: true) {
-  id: Bytes!
+  id: ID!
   recipient: Bytes! # address
   cid: String! # string
   tokenId: BigInt! # uint256
@@ -11,7 +33,7 @@ type AwardItem @entity(immutable: true) {
 }
 
 type Burn @entity(immutable: true) {
-  id: Bytes!
+  id: ID!
   tokenId: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -21,7 +43,7 @@ type Burn @entity(immutable: true) {
 }
 
 type Transfer @entity(immutable: true) {
-  id: Bytes!
+  id: ID!
   from: Bytes! # address
   to: Bytes! # address
   tokenId: BigInt! # uint256
@@ -134,4 +156,9 @@ type User @entity {
 
   "NFTs"
   nfts: [NFT!]! @derivedFrom(field: "owner")
+
+  approvalsGiven: [Approval]! @derivedFrom(field: "owner")
+  approvalsReceived: [Approval]! @derivedFrom(field: "approved")
+  approvalForAllGiven: [ApprovalForAll]! @derivedFrom(field: "owner")
+  approvalForAllReceived: [ApprovalForAll]! @derivedFrom(field: "operator")
 }

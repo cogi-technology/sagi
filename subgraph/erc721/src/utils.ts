@@ -50,7 +50,7 @@ export function processIpfsMetadata(value: JSONValue, userData: Value): Metadata
         if (metadataAttribute == null) {
             // new metadataAttribute entity
             let postfix = i.toString();
-            if (imetadata.attributes[i].trait_type !== '') {
+            if (imetadata.attributes[i].trait_type != '') {
                 postfix = (imetadata.attributes[i].trait_type as string).toLowerCase()
             }
             metadataAttribute = new MetadataAttribute(cid + '-' + postfix)

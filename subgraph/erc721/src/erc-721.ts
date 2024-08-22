@@ -1,82 +1,22 @@
-import { Address, BigDecimal, BigInt, Bytes, dataSource, json, log } from "@graphprotocol/graph-ts"
+import { Address, log } from "@graphprotocol/graph-ts"
 import {
   AwardItem as AwardItemEvent,
   Burn as BurnEvent,
-  Transfer as TransferEvent
+  Transfer as TransferEvent,
+  Approval as ApprovalEvent,
+  ApprovalForAll as ApprovalForAllEvent,
 } from "../fix-generated/erc721/erc721"
 import {
+  ApprovalForAll,
   AwardItem,
   Burn,
-  Collection,
-  Metadata,
-  MetadataAttribute,
-  NFT,
   Transfer,
   User
 } from "../fix-generated/schema"
 import { fetchMetadata, fetchName, fetchSymbol } from "./utils"
 import { IMetadata } from "./types"
-
-const ZERO_ADDRESS = Address.zero()
-const ZERO_BI = BigInt.fromI32(0)
-const ONE_BI = BigInt.fromI32(1)
-const ZERO_BD = BigDecimal.fromString('0')
-
-function loadCollection(address: Address): Collection {
-  let collection = Collection.load(address.toHex())
-  if (collection == null) {
-    collection = new Collection(address.toHex())
-    collection.name = fetchName(address)
-    collection.symbol = fetchSymbol(address)
-    collection.save()
-  }
-  return collection
-}
-
-function loadUser(address: Address): User {
-  const _address = address.toHex()
-  let user = User.load(_address)
-  if (user == null) {
-    user = new User(_address)
-    user.numberTokens = ZERO_BI
-    user.save()
-  }
-  return user
-}
-
-function loadToken(address: Address, tokenId: BigInt, cid: string = ""): NFT {
-  const _tid = address.toHex() + '-' + tokenId.toString()
-
-  // check nft exists 
-  if (cid == "") {
-    let token = NFT.load(_tid)
-    assert(token != null, `loadToken failed ${address.toHex()} ${tokenId} ${cid}`)
-    return token as NFT
-  }
-
-  //new token
-  const collection = loadCollection(address)
-  let token = new NFT(_tid)
-  let metadata = fetchMetadata(cid) // //IMetadata.default(cid) //
-  // check metadata exists
-  assert(metadata != null, 'fetchMetadata failed')
-
-  let metadataType = MetadataAttribute.load(cid + '-type')
-  let metadataGrade = MetadataAttribute.load(cid + '-grade')
-
-  // save token entity
-  token.tokenId = tokenId
-  token.collection = collection.id
-  token.metadata = metadata!.id
-  token.metadataName = metadata!.name.toLowerCase()
-  token.metadataType = metadataType ? metadataType.value : null
-  token.metadataGrade = metadataGrade ? <i32>parseFloat(metadataGrade.value as string) : -1
-  token.updatedAt = ZERO_BI
-  token.owner = ZERO_ADDRESS.toHex()
-  token.save()
-
-  return token
-}
+import { Approval } from "../fix-generated/schema"
+import { loadCollection, loadToken, loadUser, ONE_BI, ZERO_ADDRESS } from "./helpers"
 
 export function handleAwardItem(event: AwardItemEvent): void {
   let collection = loadCollection(event.address)
@@ -91,9 +31,7 @@ export function handleAwardItem(event: AwardItemEvent): void {
   recipient.numberTokens = recipient.numberTokens.plus(ONE_BI)
   recipient.save()
 
-  let entity = new AwardItem(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
+  let entity = new AwardItem(event.transaction.hash.toHex() + "-" + event.logIndex.toI32().toString())
   entity.recipient = event.params.recipient
   entity.cid = event.params.cid
   entity.tokenId = event.params.tokenId
@@ -124,9 +62,8 @@ export function handleBurn(event: BurnEvent): void {
   old_owner.numberTokens = old_owner.numberTokens.minus(ONE_BI)
   old_owner.save()
 
-  let entity = new Burn(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
+  let entity = new Burn(event.transaction.hash.toHex() + "-" + event.logIndex.toI32().toString())
+
   entity.tokenId = event.params.tokenId
 
   entity.blockNumber = event.block.number
@@ -158,9 +95,7 @@ export function handleTransfer(event: TransferEvent): void {
   recipient.numberTokens = recipient.numberTokens.plus(ONE_BI)
   recipient.save()
 
-  let entity = new Transfer(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
+  let entity = new Transfer(event.transaction.hash.toHex() + "-" + event.logIndex.toI32().toString())
 
   entity.from = event.params.from
   entity.to = event.params.to
@@ -176,3 +111,40 @@ export function handleTransfer(event: TransferEvent): void {
   entity.save()
 }
 
+export function handleApproval(event: ApprovalEvent): void {
+  let collection = loadCollection(event.address)
+  let owner = loadUser(event.params.owner)
+  let spender = loadUser(event.params.approved)
+
+  let entity = new Approval(event.transaction.hash.toHex() + "-" + event.logIndex.toI32().toString())
+  entity.owner = owner.id
+  entity.approved = spender.id
+  entity.tokenId = event.params.tokenId
+
+  entity.blockNumber = event.block.number
+  entity.blockTimestamp = event.block.timestamp
+  entity.transactionHash = event.transaction.hash
+
+  entity.collection = collection.id;
+
+  entity.save()
+}
+
+export function handleApprovalForAll(event: ApprovalForAllEvent): void {
+  let collection = loadCollection(event.address)
+  let owner = loadUser(event.params.owner)
+  let operator = loadUser(event.params.operator)
+
+  let entity = new ApprovalForAll(event.transaction.hash.toHex() + "-" + event.logIndex.toI32().toString())
+  entity.owner = owner.id
+  entity.operator = operator.id
+  entity.approved = event.params.approved
+
+  entity.blockNumber = event.block.number
+  entity.blockTimestamp = event.block.timestamp
+  entity.transactionHash = event.transaction.hash
+
+  entity.collection = collection.id;
+
+  entity.save()
+}

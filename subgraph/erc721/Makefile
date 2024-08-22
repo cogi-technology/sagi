@@ -3,7 +3,7 @@
 
 subgraph-build:
 	sudo rm -rf build && sudo rm -rf generated && \
-	yarn codegen && yarn build
+	npm run codegen && npm run build
 
 subgraph-test: 
 	npm test -d
