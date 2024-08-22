@@ -27,15 +27,21 @@ dataSources:
           - AwardItem
           - Burn
           - Transfer
+          - Approval
+          - ApprovalForAll
         abis:
           - name: erc721
             file: ./abis/erc721.json
         eventHandlers:
-          - event: AwardItem(address,string,uint256)
+          - event: AwardItem(indexed address,indexed uint256,string)
             handler: handleAwardItem
-          - event: Burn(uint256)
+          - event: Burn(indexed uint256)
             handler: handleBurn
           - event: Transfer(indexed address,indexed address,indexed uint256)
             handler: handleTransfer
+          - event: Approval(indexed address,indexed address,indexed uint256)
+            handler: handleApproval
+          - event: ApprovalForAll(indexed address,indexed address,bool)
+            handler: handleApprovalForAll
         file: ./src/erc-721.ts
   {{/each}}

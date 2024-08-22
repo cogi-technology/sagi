@@ -20,11 +20,15 @@ dataSources:
           - User
           - Collection
           - Transfer
+          - Approval
+          - Balance
         abis:
           - name: erc20
             file: ./abis/erc20.json
         eventHandlers:
-          - event: Transfer(indexed address,indexed address,uint256)
+          - event: Approval(indexed address,indexed address,uint256)
+            handler: handleApproval
+          - event: TransferOperator(indexed address,indexed address,indexed address,uint256)
             handler: handleTransfer
         file: ./src/erc-20.ts
   {{/each}}

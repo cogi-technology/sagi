@@ -1,0 +1,55 @@
+specVersion: 1.0.0
+features:
+  - fullTextSearch
+  - ipfsOnEthereumContracts
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  {{#each configs}}
+    - kind: ethereum
+      name: {{name}}
+      network: zionx
+      source:
+        address: "{{address}}"
+        abi: erc404
+        startBlock: {{startBlock}}
+      mapping:
+        kind: ethereum/events
+        apiVersion: 0.0.7
+        language: wasm/assemblyscript
+        entities:
+          - Approval
+          - ApprovalForAll
+          - Burn
+          - Mint
+          - Transfer
+          - TransferSingle
+          - Collection
+          - ERC20Balance
+          - ERC1155Balance
+          - ERC1155BatchBalance
+          - User
+        abis:
+          - name: erc404
+            file: ./abis/erc404.json
+        eventHandlers:
+          - event: Approval(indexed address,indexed address,uint256)
+            handler: handleApproval
+          - event: ApprovalForAll(indexed address,indexed address,bool)
+            handler: handleApprovalForAll
+          - event: Burn(indexed address,uint256)
+            handler: handleBurn
+          - event: Mint(indexed address,uint256)
+            handler: handleMint
+          - event: TransferOperator(indexed address,indexed address,indexed address,uint256)
+            handler: handleTransfer
+          - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
+            handler: handleTransferBatch
+          - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+            handler: handleTransferSingle
+          - event: ERC1155SetTransferExempt(indexed address,bool)
+            handler: handleERC1155SetTransferExempt
+        file: ./src/erc-404.ts
+  {{/each}}
