@@ -1,5 +1,6 @@
 type Transfer @entity(immutable: true) {
-  id: Bytes!
+  id: ID!
+  operator: User! # address
   from: User! # address
   to: User! # address
   value: BigInt! # uint256
@@ -9,11 +10,36 @@ type Transfer @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type User @entity {
+type Approval @entity {
   id: ID!
+  owner: User! # address
+  spender: User! # address
+  value: BigInt! # uint256
+  remaining_allowance: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes! 
+  collection: Collection!
+}
 
-  "User address"
-  address: Bytes!
+# Entity representing an account's balance for ERC20 tokens
+type Balance @entity {
+  id: ID! # Unique ID, typically a combination of account and contract addresses
+  account: User! # Reference to the User entity
+  collection: Collection! # Reference to the ERC404 contract
+  balance: BigInt! # Balance of ERC20 tokens
+}
+
+type User @entity {
+  id: ID! # address
+
+  balances: [Balance!]! @derivedFrom(field: "account")
+
+  transfersSent: [Transfer]! @derivedFrom(field: "operator")
+  transfersReceived: [Transfer]! @derivedFrom(field: "to")
+
+  approvalsGiven: [Approval]! @derivedFrom(field: "owner")
+  approvalsReceived: [Approval]! @derivedFrom(field: "spender")
 }
 
 type Collection @entity {
@@ -25,4 +51,6 @@ type Collection @entity {
 
   "Symbol"
   symbol: String!
+
+  totalSupply: BigInt!
 }

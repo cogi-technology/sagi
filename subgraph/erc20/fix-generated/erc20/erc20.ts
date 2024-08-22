@@ -84,6 +84,36 @@ export class Transfer__Params {
   }
 }
 
+export class TransferOperator extends ethereum.Event {
+  get params(): TransferOperator__Params {
+    return new TransferOperator__Params(this);
+  }
+}
+
+export class TransferOperator__Params {
+  _event: TransferOperator;
+
+  constructor(event: TransferOperator) {
+    this._event = event;
+  }
+
+  get operator(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get from(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get to(): Address {
+    return this._event.parameters[2].value.toAddress();
+  }
+
+  get value(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+}
+
 export class erc20 extends ethereum.SmartContract {
   static bind(address: Address): erc20 {
     return new erc20("erc20", address);
