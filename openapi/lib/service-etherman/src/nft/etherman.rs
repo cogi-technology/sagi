@@ -125,7 +125,7 @@ impl Etherman {
     ) -> Result<bool> {
         if !self.is_allow_event(
             &log,
-            TransferFilter::abi_signature().into_owned().as_mut(),
+            OnTransferFilter::abi_signature().into_owned().as_mut(),
             erc721_contract.address(),
         ) {
             return Ok(false);
@@ -133,14 +133,10 @@ impl Etherman {
         let txhash = db_string!(log
             .transaction_hash
             .ok_or(anyhow!("onTransfer.txhash is None"))?);
-        let (_, _, token_id): (Address, Address, U256) = erc721_contract
-            .decode_event("Transfer", log.topics, log.data)
+        let (_, to, token_id): (Address, Address, U256) = erc721_contract
+            .decode_event("onTransfer", log.topics, log.data)
             .unwrap();
-        // get owner
-        let owner: Address = erc721_contract
-            .method::<_, Address>("ownerOf", token_id.clone())?
-            .call()
-            .await?;
+        // get cid
         let cid: String = erc721_contract
             .method::<_, String>("tokenURI", token_id.clone())?
             .call()
@@ -150,7 +146,7 @@ impl Etherman {
         param.token_id = token_id.clone();
         param.txhash = txhash.clone();
         param.address = erc721_contract.address();
-        param.owner = owner.clone();
+        param.owner = to.clone();
         param.cid = cid.clone();
         // payload
         let mut payload_call_back = PayloadNftCallback::default();
@@ -164,7 +160,7 @@ impl Etherman {
                 serde_json::to_string(&payload_call_back).expect("Failed to serialize"),
                 txhash,
                 erc721_contract.address().to_string(),
-                "Transfer".to_string(),
+                "onTransfer".to_string(),
                 i32::try_from(token_id.low_u64()).unwrap_or_default(),
             )
             .await?;
@@ -192,21 +188,16 @@ impl Etherman {
         let txhash = db_string!(log
             .transaction_hash
             .ok_or(anyhow!("OnAwardItem.txhash is None"))?);
-        let (_, cid, token_id): (Address, String, U256) = erc721_contract
+        let (recipient, cid, token_id): (Address, String, U256) = erc721_contract
             .decode_event("onAwardItem", log.topics, log.data)
             .unwrap();
 
-        // get owner
-        let owner: Address = erc721_contract
-            .method::<_, Address>("ownerOf", token_id.clone())?
-            .call()
-            .await?;
         // param
         let mut param = ParamPayloadNftCallback::default();
         param.token_id = token_id.clone();
         param.txhash = txhash.clone();
         param.address = erc721_contract.address();
-        param.owner = owner.clone();
+        param.owner = recipient.clone();
         param.cid = cid.clone();
         // payload
         let mut payload_call_back = PayloadNftCallback::default();
@@ -399,7 +390,7 @@ impl Etherman {
                 let events = vec![
                     OnBurnFilter::abi_signature().into_owned(),
                     OnAwardItemFilter::abi_signature().into_owned(),
-                    TransferFilter::abi_signature().into_owned(),
+                    OnTransferFilter::abi_signature().into_owned(),
                 ];
                 let event_filter = Filter::new().address(contract.address()).events(events);
                 // event_perform
