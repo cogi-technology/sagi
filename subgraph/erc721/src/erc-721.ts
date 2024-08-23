@@ -1,7 +1,7 @@
 import { Address, log } from "@graphprotocol/graph-ts"
 import {
-  AwardItem as AwardItemEvent,
-  Burn as BurnEvent,
+  onAwardItem as AwardItemEvent,
+  onBurn as BurnEvent,
   Transfer as TransferEvent,
   Approval as ApprovalEvent,
   ApprovalForAll as ApprovalForAllEvent,
@@ -21,7 +21,7 @@ import { loadCollection, loadToken, loadUser, ONE_BI, ZERO_ADDRESS } from "./hel
 export function handleAwardItem(event: AwardItemEvent): void {
   let collection = loadCollection(event.address)
   let recipient = loadUser(event.params.recipient)
-  log.info('handleAwardItem {} {} {}', [event.address.toHex(), recipient.id, event.params.tokenId.toString()])
+  log.info('handleAwardItem {} {} {} {}', [event.address.toHex(), recipient.id, event.params.tokenId.toString(), event.params.cid])
 
   let nft = loadToken(Address.fromString(collection.id), event.params.tokenId, event.params.cid);
   nft.owner = recipient.id

@@ -11,9 +11,9 @@ dataSources:
       name: TestERC721Token1
       network: zionx
       source:
-        address: "0xa94fa0edc5a36369cb85015030846de1b62c623b"
+        address: "0xa1a1b055dd08634dab87eddf20464f80711e324f"
         abi: erc721
-        startBlock: 1230
+        startBlock: 1296
       mapping:
         kind: ethereum/events
         apiVersion: 0.0.7
@@ -32,45 +32,9 @@ dataSources:
           - name: erc721
             file: ./abis/erc721.json
         eventHandlers:
-          - event: AwardItem(indexed address,indexed uint256,string)
+          - event: onAwardItem(address,string,uint256)
             handler: handleAwardItem
-          - event: Burn(indexed uint256)
-            handler: handleBurn
-          - event: Transfer(indexed address,indexed address,indexed uint256)
-            handler: handleTransfer
-          - event: Approval(indexed address,indexed address,indexed uint256)
-            handler: handleApproval
-          - event: ApprovalForAll(indexed address,indexed address,bool)
-            handler: handleApprovalForAll
-        file: ./src/erc-721.ts
-    - kind: ethereum
-      name: TestERC721Token2
-      network: zionx
-      source:
-        address: "0x86b4866520dd7e0a4542c709e055585f1bde9d5c"
-        abi: erc721
-        startBlock: 1233
-      mapping:
-        kind: ethereum/events
-        apiVersion: 0.0.7
-        language: wasm/assemblyscript
-        entities:
-          - Collection
-          - Metadata
-          - MetadataAttribute
-          - NFT
-          - AwardItem
-          - Burn
-          - Transfer
-          - Approval
-          - ApprovalForAll
-        abis:
-          - name: erc721
-            file: ./abis/erc721.json
-        eventHandlers:
-          - event: AwardItem(indexed address,indexed uint256,string)
-            handler: handleAwardItem
-          - event: Burn(indexed uint256)
+          - event: onBurn(uint256)
             handler: handleBurn
           - event: Transfer(indexed address,indexed address,indexed uint256)
             handler: handleTransfer

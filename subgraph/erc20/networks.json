@@ -1,12 +1,8 @@
 {
   "https://devnet-rpc.zionx.network": {
     "TestERC20Token1": {
-      "address": "0x7d4f228257062e8f9fb37907df2e97430b42be9d",
-      "startBlock": 1263
-    },
-    "TestERC20Token2": {
-      "address": "0x460d2b00556b6115937cdfa1e30f869ea9594411",
-      "startBlock": 1266
+      "address": "0xf5c74ad153bf44b85b5606062893ead2928911c4",
+      "startBlock": 1283
     }
   }
 }

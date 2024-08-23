@@ -33,9 +33,9 @@ dataSources:
           - name: erc721
             file: ./abis/erc721.json
         eventHandlers:
-          - event: AwardItem(indexed address,indexed uint256,string)
+          - event: onAwardItem(address,string,uint256)
             handler: handleAwardItem
-          - event: Burn(indexed uint256)
+          - event: onBurn(uint256)
             handler: handleBurn
           - event: Transfer(indexed address,indexed address,indexed uint256)
             handler: handleTransfer

@@ -3,7 +3,7 @@ const yaml = require('js-yaml');
 
 function main() {
     let ds = ['erc20', 'erc721', 'erc404']
-    const configs = yaml.load(fs.readFileSync(__dirname + `/../config.yaml`, 'utf8'));
+    const configs = yaml.load(fs.readFileSync(__dirname + `/config.yaml`, 'utf8'));
 
     // Process each individual YAML template
     ds.forEach((dataSource) => {
