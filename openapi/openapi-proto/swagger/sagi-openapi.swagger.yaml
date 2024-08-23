@@ -1432,6 +1432,8 @@ definitions:
         type: string
       base_uri:
         type: string
+      currency:
+        type: string
       pin_code:
         type: string
     title: Define messages for the requests and responses for ERC721

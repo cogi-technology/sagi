@@ -3,7 +3,7 @@ info:
   title: proto/zion_authorization.proto
   version: version not set
 servers:
-  - url: http://localhost:50052
+  url: http://localhost:50052
 tags:
   - name: ZionAuthorization
   - name: AuthTelegram
@@ -1433,6 +1433,8 @@ definitions:
       symbol:
         type: string
       base_uri:
+        type: string
+      lp_address:
         type: string
       pin_code:
         type: string

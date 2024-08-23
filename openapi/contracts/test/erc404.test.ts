@@ -22,14 +22,17 @@ describe("TokenERC404", () => {
             owner.address,
             "TestTokenERC404",
             "TTE404",
-            6,
-            toWei(initialSupply),
+            18,
             toWei(units),
             ids,
             "https://baseuri.com/"
         );
         await token.waitForDeployment();
         const zeroAddress = "0x0000000000000000000000000000000000000000";
+
+        // Mint tokens
+        await token.mint(owner.address, toWei(initialSupply));
+
         return { token, initialSupply, units, ids, zeroAddress };
     }
 

@@ -205,6 +205,14 @@ abstract contract ERC721 is
         return _owners[tokenId];
     }
 
+    function isOwnerOf(
+        address account,
+        uint256 tokenId
+    ) public view returns (bool) {
+        address owner = _owners[tokenId];
+        return (owner != address(0) && account == owner);
+    }
+
     /**
      * @dev Returns the approved address for `tokenId`. Returns 0 if `tokenId` is not minted.
      */
@@ -562,4 +570,25 @@ abstract contract ERC721 is
             }
         }
     }
+
+    /**
+     * @dev Hook that is called before any token transfer. This includes minting
+     * and burning.
+     *
+     * Calling conditions:
+     *
+     * - When `from` and `to` are both non-zero, ``from``'s `tokenId` will be
+     * transferred to `to`.
+     * - When `from` is zero, `tokenId` will be minted for `to`.
+     * - When `to` is zero, ``from``'s `tokenId` will be burned.
+     * - `from` and `to` are never both zero.
+     *
+     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     */
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal virtual {}
+    uint256[44] private __gap;
 }

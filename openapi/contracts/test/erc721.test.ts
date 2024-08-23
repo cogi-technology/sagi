@@ -8,9 +8,12 @@ import {
 
 describe("TokenERC721", function () {
     async function deployTokenFixture() {
-        const Token = await ethers.getContractFactory("TokenERC721");
         const [owner, addr1, addr2, addr3] = await ethers.getSigners();
-        const token = await Token.deploy(owner.address, "MyToken", "MTK", "https://base.uri/");
+        const ERC20 = await ethers.getContractFactory("TokenERC20");
+        const erc20 = await ERC20.deploy(owner.address, "TestTokenERC20", "TTE20", ethers.parseEther("1000000000"));
+
+        const Token = await ethers.getContractFactory("TokenERC721");
+        const token = await Token.deploy(owner.address, "MyToken", "MTK", "https://base.uri/", await erc20.getAddress());
         await token.waitForDeployment();
 
         return { token, owner, addr1, addr2, addr3 };
@@ -54,7 +57,7 @@ describe("TokenERC721", function () {
             const { token, addr1 } = await loadFixture(deployTokenFixture);
             const cid = "unique_cid";
 
-            await expect(token.connect(addr1).awardItem(addr1.address, cid)).to.be.revertedWithCustomError(token, "OwnableUnauthorizedAccount");;
+            await expect(token.connect(addr1).awardItem(addr1.address, cid)).to.be.revertedWith("ERC721: must have minter role to awardItem");
         });
     });
 

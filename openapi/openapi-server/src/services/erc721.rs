@@ -52,6 +52,7 @@ impl Erc721 for Erc721Service {
             name,
             symbol,
             base_uri,
+            currency,
             pin_code,
         } = request.into_inner();
 
@@ -74,6 +75,10 @@ impl Erc721 for Erc721Service {
                 .await
                 .map_err(into_anyhow)?;
         debug!("contract wallet address: {:#x}", contract_wallet.address());
+
+        let currency = currency
+            .parse::<Address>()
+            .map_err(|e| into_anyhow(e.into()))?;
 
         // This session for contract wallet fund to deploy the contract
         {
@@ -143,7 +148,7 @@ impl Erc721 for Erc721Service {
 
         debug!("Waiting for deploy ERC721 contract...");
         let contract = factory
-            .deploy((contract_wallet.address(), name, symbol, base_uri))
+            .deploy((contract_wallet.address(), name, symbol, base_uri, currency))
             .map_err(|e| into_anyhow(e.into()))?
             .legacy()
             .send()

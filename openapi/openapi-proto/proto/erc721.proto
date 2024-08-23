@@ -9,7 +9,8 @@ message DeployRequest {
   string name = 1;
   string symbol = 2;
   string base_uri = 3;
-  string pin_code = 4;
+  string currency = 4;
+  string pin_code = 5;
 }
 
 message DeployResponse {
