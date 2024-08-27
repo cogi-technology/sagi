@@ -1,0 +1,122 @@
+{
+    "attributes": [
+        {
+            "display_type": "",
+            "trait_type": "NftType",
+            "value": "Mystery Box"
+        },
+        {
+            "display_type": "",
+            "trait_type": "Type",
+            "value": "Supreme Box"
+        },
+        {
+            "display_type": "",
+            "trait_type": "Skills",
+            "value": "N/A"
+        },
+        {
+            "display_type": "",
+            "trait_type": "Speed",
+            "value": " 0"
+        },
+        {
+            "display_type": "",
+            "trait_type": "ResCriticalRatio",
+            "value": " 0.0%"
+        },
+        {
+            "display_type": "",
+            "trait_type": "ResAbnormalRatio",
+            "value": " 0.0%"
+        },
+        {
+            "display_type": "",
+            "trait_type": "MaxHp",
+            "value": " 0"
+        },
+        {
+            "display_type": "",
+            "trait_type": "HP",
+            "value": " 0"
+        },
+        {
+            "display_type": "",
+            "trait_type": "Defense",
+            "value": " 0"
+        },
+        {
+            "display_type": "",
+            "trait_type": "CureCriticalRatio",
+            "value": " 0.0%"
+        },
+        {
+            "display_type": "",
+            "trait_type": "CriticalRatio",
+            "value": " 0.0%"
+        },
+        {
+            "display_type": "",
+            "trait_type": "CriticalDamage",
+            "value": " 0.0%"
+        },
+        {
+            "display_type": "",
+            "trait_type": "SubType",
+            "value": "3"
+        },
+        {
+            "display_type": "",
+            "trait_type": "Attack",
+            "value": " 0"
+        },
+        {
+            "display_type": "",
+            "trait_type": "AbnormalAttrRatio",
+            "value": " 0.0%"
+        },
+        {
+            "display_type": "",
+            "trait_type": "Details",
+            "value": "https://market-api-proxy-dev.marswar.com/api/market/item_detail/16765301198002"
+        },
+        {
+            "display_type": "",
+            "trait_type": "Awake",
+            "value": "0"
+        },
+        {
+            "display_type": "",
+            "trait_type": "Talent",
+            "value": ""
+        },
+        {
+            "display_type": "",
+            "trait_type": "TalentInfo",
+            "value": ""
+        },
+        {
+            "display_type": "",
+            "trait_type": "Level",
+            "value": "1"
+        },
+        {
+            "display_type": "",
+            "trait_type": "Star",
+            "value": "0"
+        },
+        {
+            "display_type": "",
+            "trait_type": "Rarity",
+            "value": "5"
+        },
+        {
+            "display_type": "",
+            "trait_type": "SId",
+            "value": "16765301198002"
+        }
+    ],
+    "description": "Items receive:\n1 paladin medal (30 days)\n1 Valarion (R)\n1 Valarion (SR)\n1 Valarion with random quality among: SSR, UR.",
+    "image": "ipfs://QmWFRxGTWVkF62sPZxcXEdQroYPAWpSEg52EUWKRysnyUc",
+    "name": "Supreme Box"
+}

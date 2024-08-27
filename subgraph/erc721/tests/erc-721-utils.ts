@@ -3,12 +3,12 @@ import { ethereum, Address, BigInt } from "@graphprotocol/graph-ts"
 import {
   Approval,
   ApprovalForAll,
-  AwardItem,
-  Burn,
+  onAwardItem as AwardItem,
+  onBurn as Burn,
   OwnershipTransferred,
   SetTokenCID,
   Transfer
-} from "../generated/erc721/erc721"
+} from "../fix-generated/erc721/erc721"
 
 export function createApprovalEvent(
   owner: Address,

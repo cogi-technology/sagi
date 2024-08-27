@@ -33,15 +33,15 @@ export function handleApproval(event: ApprovalEvent): void {
     entity = new Approval(id)
     entity.owner = owner.id
     entity.spender = spender.id
-    entity.value = event.params.value
     entity.remaining_allowance = event.params.value
     entity.collection = collection.id
   }
+  entity.value = event.params.value
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
   entity.transactionHash = event.transaction.hash
-  entity.remaining_allowance = fetchAllowance(Address.fromString(collection.id), Address.fromString(owner.id), Address.fromString(spender.id))
+  entity.remaining_allowance = event.params.value //fetchAllowance(Address.fromString(collection.id), Address.fromString(owner.id), Address.fromString(spender.id))
 
   entity.save()
 }
@@ -140,7 +140,7 @@ export function handleTransfer(event: TransferOperatorEvent): void {
   updateErc20Balance(erc20ToBalance, Address.fromString(collection.id), Address.fromString(to.id))
 
   // event.receipt.
-  updateAllowance(collection, from, operator)
+  updateAllowance(collection.id, from.id, operator.id, event.params.value)
 
   let entity = new Transfer(
     event.transaction.hash.toHex() + "-" + event.logIndex.toI32().toString()
@@ -181,6 +181,7 @@ export function handleTransferBatch(event: TransferBatchEvent): void {
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
   entity.transactionHash = event.transaction.hash
+  entity.collection = collection.id
 
   entity.save()
 }

@@ -22,39 +22,53 @@ Before getting started, ensure you have the following installed on your machine:
     ```
     This downloads the project files to your computer.
 
-2. Install the project dependencies:
+2. Install the needed project dependencies:
     ```bash
     cd config && npm install
     ```
     ```bash
-    cd subgraphs && npm install
+    cd erc20 && npm install
+    ```
+    ```bash
+    cd erc404 && npm install
+    ```
+    ```bash
+    cd erc721 && npm install
     ```
     This installs the necessary packages
 
-## Step 2: Configuration in subgraph.yaml
+## Step 2: Configuration for Deployment
 1. Config the `config/config.yaml` file in a text editor.
 2. Update the listed fields of the ERC-20 | ERC-721 | ERC-404 contract you want to track.
     ```yaml
     erc20:
-        address: <address contract>
-        startBlock: <start block of contract>
+        - name: <name contract>
+          address: <address contract>
+          startBlock: <start block of contract>
     ...
     ```
     Besides, you can also be unable to index the contract by commenting the whole block:
     ```yaml
     ## erc20:
-    ##    address: <address contract>
-    ##    startBlock: <start block of contract>
+    ##    - name: <name contract>
+    ##      address: <address contract>
+    ##      startBlock: <start block of contract>
     ...
+    ```
+    2.2. If you want to config ipfs, you can config ipfs in `config/config.yaml` file, else you can ignore this step.
+    ```yaml
+    ipfs:
+        host: <ipfs host>
+        port: <ipfs port>
     ```
 
 3. Run makefile to update the `subgraph.yaml` file in subgraphs.
     ```bash
-    make generate-subgraph
+    make configure-subgraph
     ```
 
 ## Step 3: Codegen and Build the Subgraph
-After updating the needed fields for contracts, the next step is to build the subgraph.
+After configuring your subgraphs, you'll need to build them. This involves generating code and building the subgraph for deployment.
 1. In your terminal, run:
     ```bash
     make subgraph-build
@@ -62,10 +76,24 @@ After updating the needed fields for contracts, the next step is to build the su
     - `graph codegen`: Generates TypeScript code based on your subgraph schema and smart contract ABIs.
     - `graph build`:  Compiles the subgraph and prepares it for deployment.
 
+    Individual Subgraph Build Commands:
+    - Build only ERC20 subgraph:
+        ```bash
+        make subgraph-build-erc20
+        ```
+    - Build only ERC721 subgraph:
+        ```bash
+        make subgraph-build-erc721
+        ```
+    - Build only ERC404 subgraph:
+        ```bash
+        make subgraph-build-erc404
+        ```
+
 2. Ensure that there are no errors in the terminal output. If there are errors, double-check the contract addresses and any changes you made in subgraph.yaml.
 
 ## Step 4: Deploy the Subgraph
-Once the subgraph is built, you deploy it to Graph Node or the decentralized Graph Network.
+After building, you can deploy your subgraphs to the Graph Node. This step requires both the IPFS and Graph Node to be running.
 ### Set Up Graph Node
 1. Start the Graph Node:
     ```bash
@@ -74,7 +102,7 @@ Once the subgraph is built, you deploy it to Graph Node or the decentralized Gra
     Wait for the Graph Node to start. You should see logs like this:
     ```
     ...
-    2024-08-15 09:38:16 Aug 15 02:38:16.937 INFO Starting JSON-RPC admin server at: http://localhost:8020, component: JsonRpcServer
+    INFO Starting JSON-RPC admin server at: http://localhost:8020, component: JsonRpcServer
     ...
     ```
 
@@ -93,4 +121,8 @@ Once the subgraph is built, you deploy it to Graph Node or the decentralized Gra
 ## Conclusion
 Congratulations! You've successfully updated and deployed a subgraph by changing the contract addresses. If you encounter any issues, double-check the steps above or reach out to a Web3 developer for assistance.
 
-**[Example Queries](./example.md)**
+**[Example ERC20 Queries](./erc20/queries.md)**
+
+**[Example ERC721 Queries](./erc721/queries.md)**
+
+**[Example ERC404 Queries](./erc404/queries.md)**

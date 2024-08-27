@@ -18,7 +18,7 @@ export function handleTransfer(event: TransferOperatorEvent): void {
   if (!event.params.from.equals(Address.zero())) {
     let fromBalance = loadBalance(collection, from)
     updateBalance(fromBalance, Address.fromString(collection.id), Address.fromString(from.id))
-    updateAllowance(collection, from, operator)
+    updateAllowance(collection.id, from.id, operator.id, event.params.value)
   }
 
   // Bypass Burn event
@@ -57,14 +57,14 @@ export function handleApproval(event: ApprovalEvent): void {
     entity.owner = owner.id
     entity.spender = spender.id
     entity.value = event.params.value
-    entity.remaining_allowance = event.params.value
     entity.collection = collection.id
   }
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
   entity.transactionHash = event.transaction.hash
-  entity.remaining_allowance = fetchAllowance(Address.fromString(collection.id), Address.fromString(owner.id), Address.fromString(spender.id))
+  entity.remaining_allowance = event.params.value
+  //entity.remaining_allowance =  //fetchAllowance(Address.fromString(collection.id), Address.fromString(owner.id), Address.fromString(spender.id))
 
   entity.save()
 }

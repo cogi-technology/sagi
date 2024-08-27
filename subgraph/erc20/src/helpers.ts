@@ -39,17 +39,15 @@ export function loadBalance(collection: Collection, user: User): Balance {
     return entity
 }
 
-export function updateAllowance(collection: Collection, owner: User, spender: User): void {
-    if (owner.id == spender.id) {
-        log.info("owner and spender are the same", [])
-        return;
+export function updateAllowance(collection: string, owner: string, spender: string, value: BigInt): void {
+    if (owner == spender) {
+        return
     }
-    log.info("owner and spender are not the same", [])
 
-    let allowanceEntity = Approval.load(collection.id + "-" + owner.id + "-" + spender.id)
-    assert(allowanceEntity != null, "allowanceEntity is null")
+    let allowanceEntity = Approval.load(collection + "-" + owner + "-" + spender)
+    assert(allowanceEntity !== null, "allowanceEntity is null")
 
-    allowanceEntity!.remaining_allowance = fetchAllowance(Address.fromString(collection.id), Address.fromString(owner.id), Address.fromString(spender.id))
+    allowanceEntity!.remaining_allowance = allowanceEntity!.remaining_allowance.minus(value);
     allowanceEntity!.save()
 }
 

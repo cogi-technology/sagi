@@ -55,15 +55,15 @@ export function updateErc1155BatchBalance(entity: ERC1155BatchBalance, collectio
     entity.save()
 }
 
-export function updateAllowance(collection: Collection, owner: User, spender: User): void {
-    if (owner.id == spender.id) {
+export function updateAllowance(collection: string, owner: string, spender: string, value: BigInt): void {
+    if (owner == spender) {
         return
     }
 
-    let allowanceEntity = Approval.load(collection.id + "-" + owner.id + "-" + spender.id)
+    let allowanceEntity = Approval.load(collection + "-" + owner + "-" + spender)
     assert(allowanceEntity !== null, "allowanceEntity is null")
 
-    allowanceEntity!.remaining_allowance = fetchAllowance(Address.fromString(collection.id), Address.fromString(owner.id), Address.fromString(spender.id))
+    allowanceEntity!.remaining_allowance = allowanceEntity!.remaining_allowance.minus(value);
     allowanceEntity!.save()
 }
 

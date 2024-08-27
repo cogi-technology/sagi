@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import { Address, Bytes, ipfs, json, JSONValue, Value } from '@graphprotocol/graph-ts'
+import { Address, ipfs, json, JSONValue, Value } from '@graphprotocol/graph-ts'
 import { erc721 } from '../fix-generated/erc721/erc721'
 import { IMetadata, IMetadataAttribute } from './types'
 import { Metadata, MetadataAttribute } from '../generated/schema'
@@ -23,7 +23,6 @@ export function fetchSymbol(address: Address): string {
 }
 
 export function fetchMetadata(cid: string): Metadata | null {
-    // ipfs.map(cid, "processIpfsMetadata", Value.fromString(cid), ['json'])
     let bytes = ipfs.cat(cid)
     if (!bytes) {
         return null

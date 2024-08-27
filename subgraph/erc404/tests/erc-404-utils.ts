@@ -14,10 +14,11 @@ import {
   RoleRevoked,
   Transfer,
   TransferBatch,
+  TransferOperator,
   TransferSingle,
   URI,
   Unpaused
-} from "../generated/erc404/erc404"
+} from "../fix-generated/erc404/erc404"
 
 export function createApprovalEvent(
   owner: Address,
@@ -255,6 +256,32 @@ export function createTransferEvent(
   )
 
   return transferEvent
+}
+
+export function createTransferOperatorEvent(
+  operator: Address,
+  from: Address,
+  to: Address,
+  value: BigInt
+): TransferOperator {
+  let transferOperatorEvent = changetype<TransferOperator>(newMockEvent())
+
+  transferOperatorEvent.parameters = new Array()
+
+  transferOperatorEvent.parameters.push(
+    new ethereum.EventParam("operator", ethereum.Value.fromAddress(operator))
+  )
+  transferOperatorEvent.parameters.push(
+    new ethereum.EventParam("from", ethereum.Value.fromAddress(from))
+  )
+  transferOperatorEvent.parameters.push(
+    new ethereum.EventParam("to", ethereum.Value.fromAddress(to))
+  )
+  transferOperatorEvent.parameters.push(
+    new ethereum.EventParam("value", ethereum.Value.fromUnsignedBigInt(value))
+  )
+
+  return transferOperatorEvent
 }
 
 export function createTransferBatchEvent(

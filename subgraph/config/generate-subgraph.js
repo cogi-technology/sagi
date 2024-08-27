@@ -12,7 +12,7 @@ function processTemplate(templateFile, context) {
 
 function main() {
     let ds = ['erc20', 'erc721', 'erc404']
-    const configs = yaml.load(fs.readFileSync(__dirname + `/config.yaml`, 'utf8'));
+    const configs = yaml.load(fs.readFileSync(__dirname + `/config.yaml`, 'utf8'))['datasources'];
 
     // Process each individual YAML template
     ds.forEach((dataSource) => {

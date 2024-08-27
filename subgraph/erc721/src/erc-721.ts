@@ -1,4 +1,4 @@
-import { Address, log } from "@graphprotocol/graph-ts"
+import { Address } from "@graphprotocol/graph-ts"
 import {
   onAwardItem as AwardItemEvent,
   onBurn as BurnEvent,
@@ -13,15 +13,12 @@ import {
   Transfer,
   User
 } from "../fix-generated/schema"
-import { fetchMetadata, fetchName, fetchSymbol } from "./utils"
-import { IMetadata } from "./types"
 import { Approval } from "../fix-generated/schema"
 import { loadCollection, loadToken, loadUser, ONE_BI, ZERO_ADDRESS } from "./helpers"
 
 export function handleAwardItem(event: AwardItemEvent): void {
   let collection = loadCollection(event.address)
   let recipient = loadUser(event.params.recipient)
-  log.info('handleAwardItem {} {} {} {}', [event.address.toHex(), recipient.id, event.params.tokenId.toString(), event.params.cid])
 
   let nft = loadToken(Address.fromString(collection.id), event.params.tokenId, event.params.cid);
   nft.owner = recipient.id
@@ -92,6 +89,7 @@ export function handleTransfer(event: TransferEvent): void {
 
   sender.numberTokens = sender.numberTokens.minus(ONE_BI)
   sender.save()
+
   recipient.numberTokens = recipient.numberTokens.plus(ONE_BI)
   recipient.save()
 
