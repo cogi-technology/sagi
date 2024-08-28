@@ -6,3 +6,4 @@ openapi-proto/src/lib_bk.rs
 **/Cargo.lock
 **/dist/private_key.pem
 **/dist/public_key.pem
+ops/docker/lib

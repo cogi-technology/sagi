@@ -104,10 +104,15 @@ impl TokenWebhood {
                     match res {
                         Ok(res) => {
                             let res = res.into_inner();
-                            let res: std::result::Result<TestSendToEndpointsResponse, serde_json::Error> = serde_json::from_str::<TestSendToEndpointsResponse>(&res);
+                            let res: std::result::Result<
+                                TestSendToEndpointsResponse,
+                                serde_json::Error,
+                            > = serde_json::from_str::<TestSendToEndpointsResponse>(&res);
                             match res {
                                 Ok(res) => {
-                                    if res.code == StatusSendToEndpointsResponse::SuccessStatus as i32 {
+                                    if res.code
+                                        == StatusSendToEndpointsResponse::SuccessStatus as i32
+                                    {
                                         let res = self
                                             .event_db
                                             .update_status(e.id.clone(), StatusEvent::Sent)
