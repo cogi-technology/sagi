@@ -17,21 +17,21 @@ use {
         database::Database,
         models::StatusEvent,
         repositories::{
-            events::Events, services_collection::ServicesCollection,
-            services_webhood::ServicesWebhood,
+            nftevents::NftEvents, services_collection::ServicesCollection,
+            services_collection_webhood::ServicesCollectionWebhood,
         },
     },
 };
 
-pub struct Webhood {
-    event_db: Arc<Events>,
+pub struct NFTWebhood {
+    event_db: Arc<NftEvents>,
     service_collection_db: Arc<ServicesCollection>,
-    service_webhood_db: Arc<ServicesWebhood>,
+    service_webhood_db: Arc<ServicesCollectionWebhood>,
     private_key_path: String,
 }
 
-impl Webhood {
-    pub fn get_event_db(&self) -> Arc<Events> {
+impl NFTWebhood {
+    pub fn get_event_db(&self) -> Arc<NftEvents> {
         Arc::clone(&self.event_db)
     }
 
@@ -39,7 +39,7 @@ impl Webhood {
         Arc::clone(&self.service_collection_db)
     }
 
-    pub fn get_service_webhood_db(&self) -> Arc<ServicesWebhood> {
+    pub fn get_service_webhood_db(&self) -> Arc<ServicesCollectionWebhood> {
         Arc::clone(&self.service_webhood_db)
     }
 
@@ -48,11 +48,11 @@ impl Webhood {
     }
 }
 
-impl Webhood {
+impl NFTWebhood {
     pub async fn init(db: Arc<Database>, private_key_path: String) -> Result<Self> {
-        let event_db = Arc::new(Events::new(Arc::clone(&db)));
+        let event_db = Arc::new(NftEvents::new(Arc::clone(&db)));
         let service_collection_db = Arc::new(ServicesCollection::new(Arc::clone(&db)));
-        let service_webhood_db = Arc::new(ServicesWebhood::new(Arc::clone(&db)));
+        let service_webhood_db = Arc::new(ServicesCollectionWebhood::new(Arc::clone(&db)));
 
         Ok(Self {
             event_db,

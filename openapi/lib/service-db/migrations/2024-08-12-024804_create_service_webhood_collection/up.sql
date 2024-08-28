@@ -1,4 +1,4 @@
-CREATE TABLE services_webhood (
+CREATE TABLE service_webhood_collection (
     id VARCHAR(255) PRIMARY KEY,
     client_id VARCHAR(255) NOT NULL,
     endpoint_url VARCHAR(255) NOT NULL,

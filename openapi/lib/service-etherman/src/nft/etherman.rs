@@ -1,93 +1,36 @@
 use {
-    super::abi::*,
     crate::{
-        config::Config,
-        db_string,
-        model::{ParamPayloadCallback, PayloadCallback, StatusEventCallback},
-        tokio_sleep_ms,
-    },
-    anyhow::{anyhow, Result},
-    ethers::{
+        abi::*, config::Config, db_string, etherman_state::EthermanState, model::{ParamPayloadNftCallback, PayloadNftCallback, StatusEventCallback}, tokio_sleep_ms
+    }, anyhow::{anyhow, Result}, ethers::{
         middleware::SignerMiddleware,
         providers::Provider,
         signers::{LocalWallet, Signer},
         types::{Address, Filter, Log, H160, H256, U256},
         utils::keccak256,
-    },
-    ethers_contract::EthEvent,
-    ethers_providers::{Http, Middleware, ProviderExt},
-    futures::{stream::FuturesUnordered, FutureExt, StreamExt},
-    std::{
+    }, ethers_contract::EthEvent, ethers_providers::{Http, Middleware, ProviderExt}, futures::{stream::FuturesUnordered, FutureExt, StreamExt}, std::{
         str::FromStr,
-        sync::{
-            atomic::{AtomicU64, Ordering},
-            Arc,
-        },
-    },
-    zion_logger::{debug, info, tracing, warn},
-    zion_service_db::{
+        sync::Arc,
+    }, zion_logger::{debug, info, tracing, warn}, zion_service_db::{
         database::Database,
         models::ServiceCollection,
-        repositories::{events::Events, services_collection::ServicesCollection, state::States},
+        repositories::{nftevents::NftEvents, services_collection::ServicesCollection},
     },
+    kogi_erc721::TransferFilter
 };
-
-pub struct EthermanState {
-    db: Arc<States>,
-    start_block_number: AtomicU64,
-    last_block_number: AtomicU64,
-}
-
-impl EthermanState {
-    pub async fn init(db: Arc<Database>, c: Config) -> Result<Self> {
-        let db = Arc::new(States::new(db));
-        let b = db
-            .get("ethermanstate.start_block_number".into())
-            .await
-            .unwrap_or(c.start_block_number.to_string())
-            .parse::<u64>()?;
-        Ok(Self {
-            db,
-            start_block_number: b.into(),
-            last_block_number: b.into(),
-        })
-    }
-
-    pub async fn set_start_block_number(&self, v: u64) -> Result<()> {
-        self.db
-            .push("ethermanstate.start_block_number".into(), v.to_string())
-            .await?;
-        self.start_block_number.store(v, Ordering::Release);
-        Ok(())
-    }
-
-    pub fn get_start_block_number(&self) -> u64 {
-        self.start_block_number.load(Ordering::Relaxed)
-    }
-
-    pub fn set_last_block_number(&self, v: u64) -> Result<()> {
-        self.last_block_number.store(v, Ordering::Release);
-        Ok(())
-    }
-
-    pub fn get_last_block_number(&self) -> u64 {
-        self.last_block_number.load(Ordering::Relaxed)
-    }
-}
 
 type Client = SignerMiddleware<Arc<Provider<Http>>, LocalWallet>;
 
 pub struct Etherman {
     // erc721_contract: Arc<KogiERC721<Client>>,
     state: Arc<EthermanState>,
-    event_db: Arc<Events>,
+    event_db: Arc<NftEvents>,
     service_collection_db: Arc<ServicesCollection>,
     client: Arc<Client>,
     // event_filter: Filter,
 }
 
 impl Etherman {
-    pub fn get_event_db(&self) -> Arc<Events> {
+    pub fn get_event_db(&self) -> Arc<NftEvents> {
         Arc::clone(&self.event_db)
     }
 
@@ -118,7 +61,7 @@ impl Etherman {
         let provider = Arc::new(Provider::<Http>::connect(c.ethereum_rpc.as_str()).await);
 
         let state = Arc::new(EthermanState::init(Arc::clone(&db), c.clone()).await?);
-        let event_db = Arc::new(Events::new(Arc::clone(&db)));
+        let event_db = Arc::new(NftEvents::new(Arc::clone(&db)));
         let service_collection_db = Arc::new(ServicesCollection::new(Arc::clone(&db)));
         let operator = LocalWallet::decrypt_keystore(c.operator_keystore, key_password)
             .map_err(|x| anyhow!("decrypt_keystore failed err:{}", x))?;
@@ -182,7 +125,7 @@ impl Etherman {
     ) -> Result<bool> {
         if !self.is_allow_event(
             &log,
-            TransferFilter::abi_signature().into_owned().as_mut(),
+            OnTransferFilter::abi_signature().into_owned().as_mut(),
             erc721_contract.address(),
         ) {
             return Ok(false);
@@ -190,27 +133,23 @@ impl Etherman {
         let txhash = db_string!(log
             .transaction_hash
             .ok_or(anyhow!("onTransfer.txhash is None"))?);
-        let (_, _, token_id): (Address, Address, U256) = erc721_contract
-            .decode_event("Transfer", log.topics, log.data)
+        let (_, to, token_id): (Address, Address, U256) = erc721_contract
+            .decode_event("onTransfer", log.topics, log.data)
             .unwrap();
-        // get owner
-        let owner: Address = erc721_contract
-            .method::<_, Address>("ownerOf", token_id.clone())?
-            .call()
-            .await?;
+        // get cid
         let cid: String = erc721_contract
             .method::<_, String>("tokenURI", token_id.clone())?
             .call()
             .await?;
         // param
-        let mut param = ParamPayloadCallback::default();
+        let mut param = ParamPayloadNftCallback::default();
         param.token_id = token_id.clone();
         param.txhash = txhash.clone();
         param.address = erc721_contract.address();
-        param.owner = owner.clone();
+        param.owner = to.clone();
         param.cid = cid.clone();
         // payload
-        let mut payload_call_back = PayloadCallback::default();
+        let mut payload_call_back = PayloadNftCallback::default();
         payload_call_back.status = StatusEventCallback::Transfer.as_str();
         payload_call_back.namespace = service_collection.namespace.clone();
         payload_call_back.param = param;
@@ -221,7 +160,7 @@ impl Etherman {
                 serde_json::to_string(&payload_call_back).expect("Failed to serialize"),
                 txhash,
                 erc721_contract.address().to_string(),
-                "Transfer".to_string(),
+                "onTransfer".to_string(),
                 i32::try_from(token_id.low_u64()).unwrap_or_default(),
             )
             .await?;
@@ -249,24 +188,19 @@ impl Etherman {
         let txhash = db_string!(log
             .transaction_hash
             .ok_or(anyhow!("OnAwardItem.txhash is None"))?);
-        let (_, cid, token_id): (Address, String, U256) = erc721_contract
+        let (recipient, cid, token_id): (Address, String, U256) = erc721_contract
             .decode_event("onAwardItem", log.topics, log.data)
             .unwrap();
 
-        // get owner
-        let owner: Address = erc721_contract
-            .method::<_, Address>("ownerOf", token_id.clone())?
-            .call()
-            .await?;
         // param
-        let mut param = ParamPayloadCallback::default();
+        let mut param = ParamPayloadNftCallback::default();
         param.token_id = token_id.clone();
         param.txhash = txhash.clone();
         param.address = erc721_contract.address();
-        param.owner = owner.clone();
+        param.owner = recipient.clone();
         param.cid = cid.clone();
         // payload
-        let mut payload_call_back = PayloadCallback::default();
+        let mut payload_call_back = PayloadNftCallback::default();
         payload_call_back.status = StatusEventCallback::TxSuccess.as_str();
         payload_call_back.namespace = service_collection.namespace.clone();
         payload_call_back.param = param;
@@ -322,14 +256,14 @@ impl Etherman {
             .await?;
 
         // param
-        let mut param = ParamPayloadCallback::default();
+        let mut param = ParamPayloadNftCallback::default();
         param.token_id = token_id.clone();
         param.txhash = txhash.clone();
         param.address = erc721_contract.address();
         param.owner = owner.clone();
         param.cid = cid.clone();
         // payload
-        let mut payload_call_back = PayloadCallback::default();
+        let mut payload_call_back = PayloadNftCallback::default();
         payload_call_back.status = StatusEventCallback::Burned.as_str();
         payload_call_back.namespace = service_collection.namespace.clone();
         payload_call_back.param = param;
@@ -456,7 +390,7 @@ impl Etherman {
                 let events = vec![
                     OnBurnFilter::abi_signature().into_owned(),
                     OnAwardItemFilter::abi_signature().into_owned(),
-                    TransferFilter::abi_signature().into_owned(),
+                    OnTransferFilter::abi_signature().into_owned(),
                 ];
                 let event_filter = Filter::new().address(contract.address()).events(events);
                 // event_perform

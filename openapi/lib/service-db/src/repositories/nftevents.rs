@@ -12,11 +12,11 @@ use {
 };
 
 #[derive(Debug, Clone)]
-pub struct Events {
+pub struct NftEvents {
     db: Arc<Database>,
 }
 
-impl Events {
+impl NftEvents {
     pub fn new(db: Arc<Database>) -> Self {
         Self { db }
     }

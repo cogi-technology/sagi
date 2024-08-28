@@ -1,8 +1,8 @@
 use {
     crate::{
         database::Database,
-        models::{Service, ServiceError, ServiceWebhood},
-        schema::{services, services_webhood},
+        models::{Service, ServiceToken, ServiceError},
+        schema::{services, service_token},
     },
     chrono::Local,
     diesel::prelude::*,
@@ -12,20 +12,22 @@ use {
 };
 
 #[derive(Debug, Clone)]
-pub struct ServicesWebhood {
+pub struct ServicesToken {
     db: Arc<Database>,
 }
 
-impl ServicesWebhood {
+impl ServicesToken {
     pub fn new(db: Arc<Database>) -> Self {
         Self { db }
     }
 
-    pub async fn get_all(&self) -> Result<Vec<ServiceWebhood>, ServiceError> {
+    pub async fn get_all(
+        &self
+    ) -> Result<Vec<ServiceToken>, ServiceError> {
         let mut conn = self.db.get_connection().await;
 
-        let ret = services_webhood::table
-            .select(ServiceWebhood::as_select())
+        let ret = service_token::table
+            .select(ServiceToken::as_select())
             .load(&mut conn)
             .await?;
 
@@ -35,12 +37,12 @@ impl ServicesWebhood {
     pub async fn get_all_with_created_by(
         &self,
         created_by: String,
-    ) -> Result<Vec<ServiceWebhood>, ServiceError> {
+    ) -> Result<Vec<ServiceToken>, ServiceError> {
         let mut conn = self.db.get_connection().await;
 
-        let ret = services_webhood::table
-            .filter(services_webhood::created_by.eq(created_by))
-            .select(ServiceWebhood::as_select())
+        let ret = service_token::table
+            .filter(service_token::created_by.eq(created_by))
+            .select(ServiceToken::as_select())
             .load(&mut conn)
             .await?;
 
@@ -52,14 +54,16 @@ impl ServicesWebhood {
         id: Option<String>,
         client_id: Option<String>,
         created_by: String,
-    ) -> Result<ServiceWebhood, ServiceError> {
+    ) -> Result<ServiceToken, ServiceError> {
         let mut conn = self.db.get_connection().await;
 
-        let ret = services_webhood::table
-            .filter(services_webhood::created_by.eq(created_by))
-            .filter(services_webhood::id.eq(id.unwrap_or_else(|| "".to_string())))
-            .or_filter(services_webhood::client_id.eq(client_id.unwrap_or_else(|| "".to_string())))
-            .select(ServiceWebhood::as_select())
+        let ret = service_token::table
+            .filter(service_token::created_by.eq(created_by))
+            .filter(service_token::id.eq(id.unwrap_or_else(|| "".to_string())))
+            .or_filter(
+                service_token::client_id.eq(client_id.unwrap_or_else(|| "".to_string())),
+            )
+            .select(ServiceToken::as_select())
             .first(&mut conn)
             .await?;
 
@@ -85,26 +89,32 @@ impl ServicesWebhood {
         Ok(ret)
     }
 
-    pub async fn check_exist_service_webhood(
+    pub async fn check_exist_service_token(
         &self,
+        id: Option<String>,
         client_id: Option<String>,
-    ) -> Result<ServiceWebhood, ServiceError> {
+    ) -> Result<ServiceToken, ServiceError> {
         let mut conn = self.db.get_connection().await;
-        let ret = services_webhood::table
-            .filter(services_webhood::client_id.eq(client_id.unwrap_or_else(|| "".to_string())))
-            .select(ServiceWebhood::as_select())
+
+        let ret = service_token::table
+            .filter(service_token::client_id.eq(client_id.unwrap_or_else(|| "".to_string())))
+            .or_filter(service_token::id.eq(id.unwrap_or_else(|| "".to_string())))
+            .select(ServiceToken::as_select())
             .first(&mut conn)
             .await?;
 
         Ok(ret)
     }
 
-    pub async fn register_service_webhood(
+    pub async fn register_service_token(
         &self,
         client_id: String,
-        endpoint_url: String,
+        address: String,
+        to_transfer: String,
+        namespace: String,
+        start_block_number: i32,
         created_by: String,
-    ) -> Result<ServiceWebhood, ServiceError> {
+    ) -> Result<ServiceToken, ServiceError> {
         let service = self
             .get_service(
                 Some("".to_string()),
@@ -121,45 +131,50 @@ impl ServicesWebhood {
             });
         }
 
-        let service_webhood = self
+        let service_token = self
             .get(
                 Some("".to_string()),
                 Some(client_id.clone()),
                 created_by.clone(),
             )
             .await
-            .unwrap_or(ServiceWebhood::default());
-        if service_webhood.client_id != "".to_string() {
+            .unwrap_or(ServiceToken::default());
+        if service_token.client_id != "".to_string()
+            && service_token.address == address.to_string()
+        {
             return Err(ServiceError {
-                msg: "The service has Endpoint. Please unregister first".into(),
+                msg: "Collection for service existence".into(),
                 status: tonic::Code::Unknown as i32,
             });
         }
         let uuid = Uuid::new_v4();
-        let new_service = ServiceWebhood {
+        let new_service = ServiceToken {
             id: uuid.to_string(),
             client_id: client_id,
-            endpoint_url: endpoint_url,
+            address: address,
+            to_transfer: to_transfer,
+            namespace: namespace.to_string(),
+            start_block_number: start_block_number,
             created_by: created_by,
             created_at: Local::now().naive_utc(),
             updated_at: Local::now().naive_utc(),
         };
 
         let mut conn = self.db.get_connection().await;
-        let ret = diesel::insert_into(services_webhood::table)
+        let ret = diesel::insert_into(service_token::table)
             .values(new_service)
-            .returning(ServiceWebhood::as_returning())
+            .returning(ServiceToken::as_returning())
             .get_result(&mut conn)
             .await?;
 
         Ok(ret)
     }
 
-    pub async fn un_register_service_webhood(
+    pub async fn un_register_service_token(
         &self,
         client_id: String,
         created_by: String,
-    ) -> Result<ServiceWebhood, ServiceError> {
+    ) -> Result<ServiceToken, ServiceError> {
         let service = self
             .get_service(
                 Some("".to_string()),
@@ -176,80 +191,58 @@ impl ServicesWebhood {
             });
         }
 
-        let service_webhood = self
+        let service_token = self
             .get(
                 Some("".to_string()),
                 Some(client_id.clone()),
                 created_by.clone(),
             )
             .await
-            .unwrap_or(ServiceWebhood::default());
-        if service_webhood.client_id == "".to_string()
-            || service_webhood.endpoint_url == "".to_string()
+            .unwrap_or(ServiceToken::default());
+        if service_token.client_id == "".to_string()
+            || service_token.address == "".to_string()
         {
             return Err(ServiceError {
-                msg: "The endpoint for the service does not exist.".into(),
+                msg: "Endpoint for Service not available".into(),
                 status: tonic::Code::Unknown as i32,
             });
         }
         let mut conn = self.db.get_connection().await;
         let ret = diesel::delete(
-            services_webhood::table.filter(services_webhood::client_id.eq(client_id)),
+            service_token::table.filter(service_token::client_id.eq(client_id)),
         )
-        .returning(ServiceWebhood::as_returning())
+        .returning(ServiceToken::as_returning())
         .get_result(&mut conn)
         .await?;
 
         Ok(ret)
     }
 
-    pub async fn update_service_webhood(
+    pub async fn update_start_block_number(
         &self,
-        client_id: String,
-        endpoint_url: String,
-        created_by: String,
-    ) -> Result<ServiceWebhood, ServiceError> {
+        id: String,
+        start_block_number: i32,
+    ) -> Result<ServiceToken, ServiceError> {
         let service = self
-            .get_service(
-                Some("".to_string()),
-                Some(client_id.clone()),
-                created_by.clone(),
-            )
+            .check_exist_service_token(Some(id.to_string()), Some("".to_string()))
             .await
-            .unwrap_or(Service::default());
-
-        if service.client_id == "".to_string() || service.id == "".to_string() {
+            .unwrap_or(ServiceToken::default());
+        if service.client_id == "".to_string() || service.address == "".to_string() {
             return Err(ServiceError {
-                msg: "Service not available".into(),
+                msg: "Endpoint for Service not available".into(),
                 status: tonic::Code::Unknown as i32,
             });
         }
 
-        let service_webhood = self
-            .get(
-                Some("".to_string()),
-                Some(client_id.clone()),
-                created_by.clone(),
-            )
-            .await
-            .unwrap_or(ServiceWebhood::default());
-
-        if service_webhood.client_id == "".to_string() || service_webhood.id == "".to_string() {
-            return Err(ServiceError {
-                msg: "The service did not register the endpoint. Please register the endpoint.".into(),
-                status: tonic::Code::Unknown as i32,
-            });
-        }
-        
         let mut conn = self.db.get_connection().await;
         let ret = diesel::update(
-            services_webhood::table.filter(services_webhood::client_id.eq(client_id.clone())),
+            service_token::table.filter(service_token::id.eq(id.clone())),
         )
         .set((
-            services_webhood::endpoint_url.eq(endpoint_url),
-            services_webhood::updated_at.eq(Local::now().naive_utc()),
+            service_token::start_block_number.eq(start_block_number),
+            service_token::updated_at.eq(Local::now().naive_utc()),
         ))
-        .returning(ServiceWebhood::as_returning())
+        .returning(ServiceToken::as_returning())
         .get_result(&mut conn)
         .await?;
 

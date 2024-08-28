@@ -7,7 +7,19 @@ mod server;
 mod services;
 
 use {
-    anyhow::{anyhow, Result}, cache::{remove_expired_jwt_cache, remove_expired_session_cache}, clap::Parser, config::{Cli, Config}, entity::telegram, openapi_ethers::provider, openapi_logger::{info, init as logger_init}, server::{run as run_server, ServerConfig}, std::{fs, sync::Arc}, zion_service_db::database::Database, zion_service_etherman::{etherman::Etherman, webhood::Webhood}
+    anyhow::{anyhow, Result},
+    cache::{remove_expired_jwt_cache, remove_expired_session_cache},
+    clap::Parser,
+    config::{Cli, Config},
+    openapi_ethers::provider,
+    openapi_logger::{info, init as logger_init},
+    server::{run as run_server, ServerConfig},
+    std::{fs, sync::Arc},
+    zion_service_db::database::Database,
+    zion_service_etherman::{
+        nft::{etherman::Etherman, nftwebhood::NFTWebhood},
+        token::{etherman_token::EthermanToken, tokenwebhood::TokenWebhood},
+    },
 };
 
 #[tokio::main]
@@ -32,14 +44,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let _ = std::fs::remove_dir_all(dir_sessions).is_ok();
     std::fs::create_dir_all(dir_sessions).unwrap();
 
-    //
+    // NFT
     // etherman
     let db: Arc<Database> = Arc::new(Database::new(c.db_url));
-    let etherman: Arc<Etherman> =
-        Arc::new(Etherman::init(db.clone(), "test".into(), c.etherman).await?);
+    let etherman_nft: Arc<Etherman> =
+        Arc::new(Etherman::init(db.clone(), "test".into(), c.etherman.clone()).await?);
     // webhoood
-    let webhood: Arc<Webhood> =
-        Arc::new(Webhood::init(db.clone(), c.private_key_path.clone()).await?);
+    let webhood_nft: Arc<NFTWebhood> =
+        Arc::new(NFTWebhood::init(db.clone(), c.private_key_path.clone()).await?);
+    //
+    // Token
+    let etherman_token: Arc<EthermanToken> =
+        Arc::new(EthermanToken::init(db.clone(), "test".into(), c.etherman.clone()).await?);
+    // webhoood
+    let webhood_token: Arc<TokenWebhood> =
+        Arc::new(TokenWebhood::init(db.clone(), c.private_key_path.clone()).await?);
     //
 
     let server_config = ServerConfig {
@@ -52,8 +71,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     info!("Started at {}", c.grpc_listen);
     tokio::select! {
-        _ = webhood.heartbeat() => {},
-        _ = etherman.heartbeat() => {},
+        _ = webhood_token.heartbeat() => {},
+        _ = etherman_token.heartbeat() => {},
+        _ = webhood_nft.heartbeat() => {},
+        _ = etherman_nft.heartbeat() => {},
         _ = async move {
             run_server(zion_provider, torii_provider, server_config, c.telegram_auth.clone(), db.clone()).await
         } => {},
