@@ -1,6 +1,8 @@
 [workspace]
+version = "0.1.0"
 resolver = "2"
-
+edition = "2021"
+rust-version = "1.79.0"
 members = ["openapi-*"]
 
 [workspace.dependencies]
@@ -8,6 +10,12 @@ openapi-proto = { path = "openapi-proto" }
 openapi-server = { path = "openapi-server" }
 openapi-ethers = { path = "openapi-ethers" }
 openapi-logger = { path = "openapi-logger" }
+
+#etherman
+zion-service-db = { path = "lib/service-db" }
+zion-service-etherman = { path = "lib/service-etherman" }
+zion-logger = { path = "lib/logger" }
+#
 
 tokio = { version = "1.38.0", features = ["full"] }
 tokio-stream = { version = "0.1.15", features = ["sync"] }
@@ -78,3 +86,16 @@ hmac = "0.12"
 reqwest = "0.11"
 base64 = "0.22.1"
 
+# storage
+diesel = { version = "2.1.6", features = [
+    "postgres",
+    "serde_json",
+    "chrono",
+    "r2d2",
+] }
+diesel-async = { version = "0.4.1", features = ["postgres", "bb8", "r2d2"] }
+diesel_async_migrations = "0.12.0"
+diesel-enum = "0.2.1"
+num-traits = "0.2"
+num-derive = "0.4"
+openssl = "0.10"

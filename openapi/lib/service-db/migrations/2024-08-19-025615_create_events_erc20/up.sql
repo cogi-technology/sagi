@@ -1,0 +1,13 @@
+-- Your SQL goes here
+CREATE TABLE events_erc20 (
+    id VARCHAR(255) PRIMARY KEY,
+    payload VARCHAR(500) NOT NULL,
+    txHash VARCHAR(255) NOT NULL,
+    status VARCHAR(255) NOT NULL,
+    method VARCHAR(255) NOT NULL,
+    token_address VARCHAR(255) NOT NULL,
+    client_id VARCHAR(255) NOT NULL,
+    amount FLOAT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

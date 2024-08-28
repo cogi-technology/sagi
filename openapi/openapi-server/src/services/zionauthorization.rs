@@ -4,7 +4,7 @@ use {
         config::TelegramAuthConfig,
         entity::telegram::{GetProofRequest, GetRequestType, GetSaltRequest},
         error::{into_anyhow, Result as TonicResult},
-        helpers::{into::proto_proofpoint_from, utils::send_request_text},
+        helpers::into::proto_proofpoint_from,
     },
     anyhow::{anyhow, Result},
     ethers::signers::{LocalWallet, Signer},
@@ -20,7 +20,7 @@ use {
             jwt::{JWTPayload, ProofPoints as SdkProofPoints},
             request::AuthorizationData,
         },
-    },
+    }, zion_service_etherman::utils::send_request_text,
 };
 
 #[derive(Debug, Clone)]
@@ -146,6 +146,7 @@ pub async fn get_data_request_for_zion_logic(
 
     JWT_CACHE
         .write()
+        // .insert(token.to_string(), (data.clone(), parsed_token.claims.exp));
         .insert(token.to_string(), (data.clone(), parsed_token.claims.exp));
 
     Ok((data, parsed_token))

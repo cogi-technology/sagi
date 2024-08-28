@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  db:
+    container_name: sagi-openapi-db
+    image: postgres:latest
+    restart: on-failure
+    environment:
+      POSTGRES_USER: sagi
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: sagi
+    volumes:
+      - ./lib/esim.db:/var/lib/postgresql/data
+    ports:
+      - "15432:5432"

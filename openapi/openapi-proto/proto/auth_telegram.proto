@@ -53,6 +53,20 @@ message LogOutTelegramAsBotResponse {
   string message = 4;
 }
 
+// Test Endpoints
+message TestSendToEndpointsRequest {
+  string id = 1;
+  string client_id = 2;
+  string payload = 3;
+}
+
+message TestSendToEndpointsResponse {
+  string id = 1;
+  string code = 2;
+  string description = 3;
+  string additionalInfo = 4;
+}
+
 // Define the service for 
 service AuthTelegram {
   rpc SendCodeTelegram (SendCodeTelegramRequest) returns (SendCodeTelegramResponse);
@@ -60,4 +74,5 @@ service AuthTelegram {
   rpc LogOutTelegram (LogOutTelegramRequest) returns (LogOutTelegramResponse);
   rpc SignInTelegramAsBot (SignInTelegramAsBotRequest) returns (SignInTelegramAsBotResponse);
   rpc LogOutTelegramAsBot (LogOutTelegramAsbotRequest) returns (LogOutTelegramAsBotResponse);
+  rpc TestSendToEndpoints (TestSendToEndpointsRequest) returns (TestSendToEndpointsResponse);
 }

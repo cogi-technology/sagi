@@ -4,13 +4,13 @@ use {
         error::{into_anyhow, Result},
         services::zionauthorization::get_data_request_for_zion_logic,
     },
-    anyhow::Result as AnyhowResult,
+    anyhow::{Result as AnyhowResult, anyhow},
     ethers::{signers::LocalWallet, types::Address},
     jsonwebtoken::TokenData,
     reqwest::{Client, Method, RequestBuilder},
     serde::{de::DeserializeOwned, Serialize},
     std::{collections::HashMap, result::Result::Ok, sync::Arc},
-    tonic::Response,
+    tonic::{metadata::MetadataMap, Response},
     zion_aa::{
         constants::{get_contract_wallet_operator, Networkish},
         contract_wallet::{
@@ -18,7 +18,7 @@ use {
             operator::Operator,
             wallet::ContractWallet,
         },
-        types::{jwt::JWTOptions, request::AuthorizationData},
+        types::{jwt::{JWTOptions, JWTPayload}, request::AuthorizationData},
     },
 };
 
@@ -55,40 +55,40 @@ pub async fn send_request_json<T: Serialize + DeserializeOwned, U: Serialize>(
     }
 }
 
-pub async fn send_request_text<U>(
-    client: &Client,
-    method: Method,
-    url: &str,
-    body: Option<&U>,
-    headers: Option<HashMap<String, String>>,
-) -> Result<Response<String>>
-where
-    U: Serialize,
-{
-    let mut request: RequestBuilder = client.request(method, url);
+// pub async fn send_request_text<U>(
+//     client: &Client,
+//     method: Method,
+//     url: &str,
+//     body: Option<&U>,
+//     headers: Option<HashMap<String, String>>,
+// ) -> Result<Response<String>>
+// where
+//     U: Serialize,
+// {
+//     let mut request: RequestBuilder = client.request(method, url);
 
-    // Set the body if provided
-    if let Some(b) = body {
-        request = request.json(b);
-    }
+//     // Set the body if provided
+//     if let Some(b) = body {
+//         request = request.json(b);
+//     }
 
-    // Set headers if provided
-    if let Some(h) = headers {
-        for (key, value) in h {
-            request = request.header(&key, &value);
-        }
-    }
+//     // Set headers if provided
+//     if let Some(h) = headers {
+//         for (key, value) in h {
+//             request = request.header(&key, &value);
+//         }
+//     }
 
-    let response = match request.send().await {
-        Ok(response) => response,
-        Err(e) => return Err(into_anyhow(e.into())),
-    };
+//     let response = match request.send().await {
+//         Ok(response) => response,
+//         Err(e) => return Err(into_anyhow(e.into())),
+//     };
 
-    match response.text().await {
-        Ok(response) => Ok(Response::new(response)),
-        Err(e) => Err(into_anyhow(e.into())),
-    }
-}
+//     match response.text().await {
+//         Ok(response) => Ok(Response::new(response)),
+//         Err(e) => Err(into_anyhow(e.into())),
+//     }
+// }
 
 pub async fn init_contract_wallet(
     header_metadata: &tonic::metadata::MetadataMap,
@@ -146,6 +146,26 @@ pub async fn init_contract_wallet(
     contract_wallet.set_jwt(jwt_options);
 
     Ok(contract_wallet)
+}
+
+
+pub async fn get_payload_from_jwt(
+    metadata: &MetadataMap,
+) -> AnyhowResult<TokenData<JWTPayload>> {
+    // Access a specific header, e.g., "authorization"
+    let authorization_header = metadata
+        .get("authorization")
+        .ok_or(anyhow!("Authorization header not found"))?
+        .to_str()?;
+    if !authorization_header.starts_with("Bearer ") {
+        return Err(anyhow!("Invalid authorization header"));
+    }
+
+    // Extract the JWT token by removing the "Bearer " prefix
+    let token = &authorization_header["Bearer ".len()..];
+    let parsed_token = zion_aa::utils::decode_jwt(token)?;
+
+    Ok( parsed_token)
 }
 
 // pub async fn delete_file_after_time(file_path: &str, time: u64) -> bool {

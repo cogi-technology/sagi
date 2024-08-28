@@ -39,6 +39,7 @@ pub struct JWTPayload {
     pub iss: String,
     pub sub: String,
     pub aud: String,
+    pub uid: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub at_hash: Option<String>,
 }
