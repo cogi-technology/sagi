@@ -1417,6 +1417,13 @@ definitions:
         type: string
       sessionUuid:
         type: string
+  authtelegramStatusSendToEndpointsResponse:
+    type: string
+    enum:
+      - SUCCESS_STATUS
+      - ERROR_STATUS
+    default: SUCCESS_STATUS
+    title: Test Endpoints
   authtelegramTestSendToEndpointsRequest:
     type: object
     properties:
@@ -1426,14 +1433,13 @@ definitions:
         type: string
       payload:
         type: string
-    title: Test Endpoints
   authtelegramTestSendToEndpointsResponse:
     type: object
     properties:
       id:
         type: string
       code:
-        type: string
+        $ref: '#/definitions/authtelegramStatusSendToEndpointsResponse'
       description:
         type: string
       additionalInfo:
