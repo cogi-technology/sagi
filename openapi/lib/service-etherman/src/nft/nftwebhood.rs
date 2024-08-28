@@ -111,7 +111,7 @@ impl NFTWebhood {
                             let res = serde_json::from_str::<TestSendToEndpointsResponse>(&res);
                             match res {
                                 Ok(res) => {
-                                    if res.code == "1" {
+                                    if res.code == StatusSendToEndpointsResponse::SuccessStatus as i32 {
                                         let res = self
                                             .event_db
                                             .update_status(e.id.clone(), StatusEvent::Sent)

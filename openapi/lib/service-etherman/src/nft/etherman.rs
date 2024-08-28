@@ -14,8 +14,7 @@ use {
         database::Database,
         models::ServiceCollection,
         repositories::{nftevents::NftEvents, services_collection::ServicesCollection},
-    },
-    kogi_erc721::TransferFilter
+    }
 };
 
 type Client = SignerMiddleware<Arc<Provider<Http>>, LocalWallet>;

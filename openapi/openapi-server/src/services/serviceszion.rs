@@ -3,7 +3,7 @@ use {
     crate::error::{into_anyhow, Result as TonicResult},
     jsonwebtoken::TokenData,
     openapi_proto::{
-        authtelegram_service::{TestSendToEndpointsRequest, TestSendToEndpointsResponse},
+        authtelegram_service::*,
         serviceszion_service::{services_zion_server::ServicesZion, *},
     },
     reqwest::{Client, Method},
@@ -620,7 +620,7 @@ impl ServicesZion for ServicesZionService {
                         let res = serde_json::from_str::<TestSendToEndpointsResponse>(&res);
                         match res {
                             Ok(res) => {
-                                if res.code == "1" {
+                                if res.code == StatusSendToEndpointsResponse::SuccessStatus as i32 {
                                     let _ = self
                                         .nft_events_db
                                         .update_status(event.id.clone(), StatusEvent::Sent)
@@ -1120,7 +1120,7 @@ impl ServicesZion for ServicesZionService {
                         let res = serde_json::from_str::<TestSendToEndpointsResponse>(&res);
                         match res {
                             Ok(res) => {
-                                if res.code == "1" {
+                                if res.code == StatusSendToEndpointsResponse::SuccessStatus as i32 {
                                     let _ = self
                                         .token_events_db
                                         .update_status(event.id.clone(), StatusEvent::Sent)

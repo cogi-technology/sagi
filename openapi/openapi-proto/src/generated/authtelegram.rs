@@ -85,7 +85,6 @@ pub struct LogOutTelegramAsBotResponse {
     #[prost(string, tag = "4")]
     pub message: ::prost::alloc::string::String,
 }
-/// Test Endpoints
 #[actix_prost_macros::serde(rename_all = "snake_case")]
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -103,12 +102,40 @@ pub struct TestSendToEndpointsRequest {
 pub struct TestSendToEndpointsResponse {
     #[prost(string, tag = "1")]
     pub id: ::prost::alloc::string::String,
-    #[prost(string, tag = "2")]
-    pub code: ::prost::alloc::string::String,
+    #[prost(enumeration = "StatusSendToEndpointsResponse", tag = "2")]
+    pub code: i32,
     #[prost(string, tag = "3")]
     pub description: ::prost::alloc::string::String,
     #[prost(string, tag = "4")]
     pub additional_info: ::prost::alloc::string::String,
+}
+/// Test Endpoints
+#[actix_prost_macros::serde(rename_all = "snake_case")]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum StatusSendToEndpointsResponse {
+    SuccessStatus = 0,
+    ErrorStatus = 1,
+}
+impl StatusSendToEndpointsResponse {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            StatusSendToEndpointsResponse::SuccessStatus => "SUCCESS_STATUS",
+            StatusSendToEndpointsResponse::ErrorStatus => "ERROR_STATUS",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "SUCCESS_STATUS" => Some(Self::SuccessStatus),
+            "ERROR_STATUS" => Some(Self::ErrorStatus),
+            _ => None,
+        }
+    }
 }
 pub mod auth_telegram_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
@@ -143,7 +170,6 @@ pub mod auth_telegram_actix {
         #[prost(string, tag = "1")]
         pub session_uuid: ::prost::alloc::string::String,
     }
-    /// Test Endpoints
     #[actix_prost_macros::serde(rename_all = "snake_case")]
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
