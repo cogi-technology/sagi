@@ -4,7 +4,7 @@ use {
         error::{into_anyhow, Result},
         services::zionauthorization::get_data_request_for_zion_logic,
     },
-    anyhow::{Result as AnyhowResult, anyhow},
+    anyhow::{anyhow, Result as AnyhowResult},
     ethers::{signers::LocalWallet, types::Address},
     jsonwebtoken::TokenData,
     reqwest::{Client, Method, RequestBuilder},
@@ -18,7 +18,10 @@ use {
             operator::Operator,
             wallet::ContractWallet,
         },
-        types::{jwt::{JWTOptions, JWTPayload}, request::AuthorizationData},
+        types::{
+            jwt::{JWTOptions, JWTPayload},
+            request::AuthorizationData,
+        },
     },
 };
 
@@ -148,10 +151,7 @@ pub async fn init_contract_wallet(
     Ok(contract_wallet)
 }
 
-
-pub async fn get_payload_from_jwt(
-    metadata: &MetadataMap,
-) -> AnyhowResult<TokenData<JWTPayload>> {
+pub async fn get_payload_from_jwt(metadata: &MetadataMap) -> AnyhowResult<TokenData<JWTPayload>> {
     // Access a specific header, e.g., "authorization"
     let authorization_header = metadata
         .get("authorization")
@@ -165,7 +165,7 @@ pub async fn get_payload_from_jwt(
     let token = &authorization_header["Bearer ".len()..];
     let parsed_token = zion_aa::utils::decode_jwt(token)?;
 
-    Ok( parsed_token)
+    Ok(parsed_token)
 }
 
 // pub async fn delete_file_after_time(file_path: &str, time: u64) -> bool {

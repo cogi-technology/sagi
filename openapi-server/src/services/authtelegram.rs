@@ -192,9 +192,10 @@ impl AuthTelegram for AuthTelegramService {
         // Save the session
         let parsed_token: TokenData<JWTPayload> =
             zion_aa::utils::decode_jwt(&jwt).map_err(|e| into_anyhow(e.into()))?;
-        SESSION_CACHE
-            .write()
-            .insert(jwt.to_string(), (parsed_token.claims.exp, session_uuid.clone()));
+        SESSION_CACHE.write().insert(
+            jwt.to_string(),
+            (parsed_token.claims.exp, session_uuid.clone()),
+        );
         // Get JWT
         Ok(Response::new(SignInTelegramResponse {
             jwt: jwt.to_string(),

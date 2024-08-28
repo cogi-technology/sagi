@@ -158,6 +158,7 @@ mod tests {
                 ..Default::default()
             },
             claims: JWTPayload {
+                uid: None,
                 iat: Some(1722652848),
                 exp: 1722739248,
                 nbf: 1722652847,
@@ -238,6 +239,7 @@ mod tests {
                 ..Default::default()
             },
             claims: JWTPayload {
+                uid: None,
                 iat: Some(1722652848),
                 exp: 1722739248,
                 nbf: 1722652847,

@@ -11,10 +11,10 @@ openapi-server = { path = "openapi-server" }
 openapi-ethers = { path = "openapi-ethers" }
 openapi-logger = { path = "openapi-logger" }
 
-#etherman
-zion-service-db = { path = "lib/service-db" }
-zion-service-etherman = { path = "lib/service-etherman" }
-zion-logger = { path = "lib/logger" }
+#webhook services
+webhook-db = { path = "webhook-db" }
+webhook-etherman = { path = "webhook-etherman" }
+# zion-logger = { path = "lib/logger" }
 #
 
 tokio = { version = "1.38.0", features = ["full"] }

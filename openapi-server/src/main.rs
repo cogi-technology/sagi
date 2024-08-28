@@ -15,10 +15,10 @@ use {
     openapi_logger::{info, init as logger_init},
     server::{run as run_server, ServerConfig},
     std::{fs, sync::Arc},
-    zion_service_db::database::Database,
-    zion_service_etherman::{
-        nft::{etherman::Etherman, nftwebhood::NFTWebhood},
-        token::{etherman_token::EthermanToken, tokenwebhood::TokenWebhood},
+    webhook_db::database::Database,
+    webhook_etherman::{
+        nft::{etherman::Etherman, nftwebhook::NFTWebhook},
+        token::{etherman_token::EthermanToken, tokenwebhook::TokenWebhook},
     },
 };
 
@@ -50,15 +50,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let etherman_nft: Arc<Etherman> =
         Arc::new(Etherman::init(db.clone(), "test".into(), c.etherman.clone()).await?);
     // webhoood
-    let webhood_nft: Arc<NFTWebhood> =
-        Arc::new(NFTWebhood::init(db.clone(), c.private_key_path.clone()).await?);
+    let webhook_nft: Arc<NFTWebhook> =
+        Arc::new(NFTWebhook::init(db.clone(), c.private_key_path.clone()).await?);
     //
     // Token
     let etherman_token: Arc<EthermanToken> =
         Arc::new(EthermanToken::init(db.clone(), "test".into(), c.etherman.clone()).await?);
     // webhoood
-    let webhood_token: Arc<TokenWebhood> =
-        Arc::new(TokenWebhood::init(db.clone(), c.private_key_path.clone()).await?);
+    let webhook_token: Arc<TokenWebhook> =
+        Arc::new(TokenWebhook::init(db.clone(), c.private_key_path.clone()).await?);
     //
 
     let server_config = ServerConfig {
@@ -71,9 +71,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     info!("Started at {}", c.grpc_listen);
     tokio::select! {
-        _ = webhood_token.heartbeat() => {},
+        _ = webhook_token.heartbeat() => {},
         _ = etherman_token.heartbeat() => {},
-        _ = webhood_nft.heartbeat() => {},
+        _ = webhook_nft.heartbeat() => {},
         _ = etherman_nft.heartbeat() => {},
         _ = async move {
             run_server(zion_provider, torii_provider, server_config, c.telegram_auth.clone(), db.clone()).await

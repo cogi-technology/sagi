@@ -8,9 +8,9 @@ openapi-proto.workspace = true
 openapi-ethers.workspace = true
 openapi-logger.workspace = true
 #
-zion-service-db.workspace = true
-zion-logger.workspace = true
-zion-service-etherman.workspace = true
+webhook-db.workspace = true
+# zion-logger.workspace = true
+webhook-etherman.workspace = true
 #
 
 tonic.workspace = true

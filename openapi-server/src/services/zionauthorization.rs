@@ -20,7 +20,8 @@ use {
             jwt::{JWTPayload, ProofPoints as SdkProofPoints},
             request::AuthorizationData,
         },
-    }, zion_service_etherman::utils::send_request_text,
+    },
+    webhook_etherman::utils::send_request_text,
 };
 
 #[derive(Debug, Clone)]

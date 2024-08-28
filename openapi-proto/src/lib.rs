@@ -25,4 +25,3 @@ pub mod zionauthorization_service {
 pub mod serviceszion_service {
     include!("./generated/serviceszion.rs");
 }
-

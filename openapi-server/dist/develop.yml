@@ -20,7 +20,7 @@ telegram-auth:
   # next_public_server_login_with_telegram: "http://192.168.100.100:9090"
   next_public_torii: "https://torii.zionx.network/torii"
   session-path: openapi-server/dist/sessions
-private-key-path: lib/service-etherman/dist/private_key.pem   
+private-key-path: webhook-etherman/dist/private_key.pem   
 # db-url: postgresql://service:123@localhost:35432/service
 # db-url: postgresql://pgadmin:123456@192.168.100.100:5432/sagidb
 db-url: postgresql://sagi:123@localhost:15432/sagi

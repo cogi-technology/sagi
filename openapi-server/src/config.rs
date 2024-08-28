@@ -5,7 +5,7 @@ use {
     serde::{Deserialize, Serialize},
     std::{fs, net::SocketAddr},
     tonic::transport::Identity,
-    zion_service_etherman::config::Config as EthereumConfig,
+    webhook_etherman::config::Config as EthereumConfig,
 };
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]

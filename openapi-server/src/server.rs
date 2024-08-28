@@ -3,7 +3,9 @@ use {
         config::TelegramAuthConfig,
         helpers::http_auth::validator_token,
         services::{
-            authtelegram::AuthTelegramService, erc20::Erc20Service, erc404::Erc404Service, erc721::Erc721Service, serviceszion::ServicesZionService, zionauthorization::ZionAuthorizationService
+            authtelegram::AuthTelegramService, erc20::Erc20Service, erc404::Erc404Service,
+            erc721::Erc721Service, serviceszion::ServicesZionService,
+            zionauthorization::ZionAuthorizationService,
         },
     },
     actix_files::Files,
@@ -20,13 +22,16 @@ use {
         erc20_service::{erc20_actix::route_erc20, erc20_server::Erc20Server},
         erc404_service::{erc404_actix::route_erc404, erc404_server::Erc404Server},
         erc721_service::{erc721_actix::route_erc721, erc721_server::Erc721Server},
-        serviceszion_service::{services_zion_actix::route_services_zion,services_zion_server::ServicesZionServer},
+        serviceszion_service::{
+            services_zion_actix::route_services_zion, services_zion_server::ServicesZionServer,
+        },
         zionauthorization_service::{
             zion_authorization_actix::route_zion_authorization,
             zion_authorization_server::ZionAuthorizationServer,
         },
     },
-    std::{net::SocketAddr, sync::Arc}, zion_service_db::database::Database,
+    std::{net::SocketAddr, sync::Arc},
+    webhook_db::database::Database,
 };
 
 const SERVICE_NAME: &str = "sagi_openapi_server";
@@ -123,7 +128,7 @@ pub async fn run(
     torii_provider: Arc<Provider<Http>>,
     server_config: ServerConfig,
     telegram_auth_config: TelegramAuthConfig,
-    db:  Arc<Database>
+    db: Arc<Database>,
 ) -> Result<(), anyhow::Error> {
     let erc20 = Arc::new(Erc20Service::new(
         Arc::clone(&zion_provider),
@@ -142,7 +147,10 @@ pub async fn run(
     ));
     let authtelegram = Arc::new(AuthTelegramService::new(telegram_auth_config.clone()));
     let zionauthorization = Arc::new(ZionAuthorizationService::new(telegram_auth_config.clone()));
-    let services_zion = Arc::new(ServicesZionService::new(db.clone(), server_config.private_key_path.clone()));
+    let services_zion = Arc::new(ServicesZionService::new(
+        db.clone(),
+        server_config.private_key_path.clone(),
+    ));
 
     let router = Router {
         authtelegram,

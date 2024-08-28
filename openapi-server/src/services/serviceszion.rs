@@ -10,27 +10,27 @@ use {
     std::{collections::HashMap, sync::Arc},
     tonic::{Request, Response, Status},
     zion_aa::types::jwt::JWTPayload,
-    zion_service_db::{
+    webhook_db::{
         database::Database,
         models::StatusEvent,
         repositories::{
             nftevents::NftEvents, services::Services, services_collection::ServicesCollection,
-            services_collection_webhood::ServicesCollectionWebhood, services_token::ServicesToken,
-            services_token_webhood::ServicesTokenWebhood, tokenevents::TokenEvents,
+            services_collection_webhook::ServicesCollectionWebhook, services_token::ServicesToken,
+            services_token_webhook::ServicesTokenWebhook, tokenevents::TokenEvents,
         },
     },
-    zion_service_etherman::utils::{get_signature, load_private_key_from_file, send_request_text},
+    webhook_etherman::utils::{get_signature, load_private_key_from_file, send_request_text},
 };
 
 #[derive(Debug, Clone)]
 pub struct ServicesZionService {
     services_db: Arc<Services>,
     //
-    services_collection_webhood_db: Arc<ServicesCollectionWebhood>,
+    services_collection_webhook_db: Arc<ServicesCollectionWebhook>,
     services_collection_db: Arc<ServicesCollection>,
     nft_events_db: Arc<NftEvents>,
     //
-    services_token_webhood_db: Arc<ServicesTokenWebhood>,
+    services_token_webhook_db: Arc<ServicesTokenWebhook>,
     services_token_db: Arc<ServicesToken>,
     token_events_db: Arc<TokenEvents>,
     private_key_path: String,
@@ -40,20 +40,20 @@ impl ServicesZionService {
     pub fn new(db: Arc<Database>, private_key_path: String) -> Self {
         let services_db = Arc::new(Services::new(Arc::clone(&db)));
         //
-        let services_collection_webhood_db =
-            Arc::new(ServicesCollectionWebhood::new(Arc::clone(&db)));
+        let services_collection_webhook_db =
+            Arc::new(ServicesCollectionWebhook::new(Arc::clone(&db)));
         let services_collection_db = Arc::new(ServicesCollection::new(Arc::clone(&db)));
         let nft_events_db = Arc::new(NftEvents::new(Arc::clone(&db)));
         //
-        let services_token_webhood_db = Arc::new(ServicesTokenWebhood::new(Arc::clone(&db)));
+        let services_token_webhook_db = Arc::new(ServicesTokenWebhook::new(Arc::clone(&db)));
         let services_token_db = Arc::new(ServicesToken::new(Arc::clone(&db)));
         let token_events_db = Arc::new(TokenEvents::new(Arc::clone(&db)));
         Self {
             services_db,
-            services_collection_webhood_db,
+            services_collection_webhook_db,
             services_collection_db,
             nft_events_db,
-            services_token_webhood_db,
+            services_token_webhook_db,
             services_token_db,
             token_events_db,
             private_key_path,
@@ -182,7 +182,7 @@ impl ServicesZion for ServicesZionService {
         };
         //
         let response = self
-            .services_collection_webhood_db
+            .services_collection_webhook_db
             .get_all_with_created_by(payload.claims.sub.clone())
             .await;
         match response {
@@ -219,7 +219,7 @@ impl ServicesZion for ServicesZionService {
         };
         //
         let response = self
-            .services_collection_webhood_db
+            .services_collection_webhook_db
             .get(
                 req.get_ref().id.clone(),
                 req.get_ref().client_id.clone(),
@@ -258,8 +258,8 @@ impl ServicesZion for ServicesZionService {
             ));
         }
         let response = self
-            .services_collection_webhood_db
-            .register_service_webhood_collection(
+            .services_collection_webhook_db
+            .register_service_webhook_collection(
                 req.get_ref().client_id.clone(),
                 req.get_ref().endpoint_url.clone(),
                 payload.claims.sub.clone(),
@@ -297,8 +297,8 @@ impl ServicesZion for ServicesZionService {
             ));
         }
         let response = self
-            .services_collection_webhood_db
-            .un_register_service_webhood_collection(
+            .services_collection_webhook_db
+            .un_register_service_webhook_collection(
                 req.get_ref().client_id.clone(),
                 payload.claims.sub.clone(),
             )
@@ -335,8 +335,8 @@ impl ServicesZion for ServicesZionService {
             ));
         }
         let response = self
-            .services_collection_webhood_db
-            .update_service_webhood_collection(
+            .services_collection_webhook_db
+            .update_service_webhook_collection(
                 req.get_ref().client_id.clone(),
                 req.get_ref().endpoint_url.clone(),
                 payload.claims.sub.clone(),
@@ -573,8 +573,8 @@ impl ServicesZion for ServicesZionService {
                     ));
                 }
                 // Resend noti
-                let services_webhood = self
-                    .services_collection_webhood_db
+                let services_webhook = self
+                    .services_collection_webhook_db
                     .get(
                         Some("".to_string()),
                         Some(event.client_id.clone()),
@@ -583,7 +583,7 @@ impl ServicesZion for ServicesZionService {
                     .await
                     .map_err(|e| into_anyhow(e.into()))?;
 
-                if services_webhood.id.is_empty() {
+                if services_webhook.id.is_empty() {
                     return Err(Status::new(
                         tonic::Code::InvalidArgument,
                         "Endpoint for Service not exist",
@@ -597,7 +597,7 @@ impl ServicesZion for ServicesZionService {
                 };
                 // create signature
                 let client = Client::new();
-                let url = services_webhood.endpoint_url.clone();
+                let url = services_webhook.endpoint_url.clone();
                 let data: String = format!("{}{}", event.id.clone(), event.client_id.clone());
                 let file_name = self.private_key_path.clone();
                 let private_key = load_private_key_from_file(&file_name).unwrap();
@@ -680,7 +680,7 @@ impl ServicesZion for ServicesZionService {
         };
         //
         let response = self
-            .services_token_webhood_db
+            .services_token_webhook_db
             .get_all_with_created_by(payload.claims.sub.clone())
             .await;
         match response {
@@ -717,7 +717,7 @@ impl ServicesZion for ServicesZionService {
         };
         //
         let response = self
-            .services_collection_webhood_db
+            .services_collection_webhook_db
             .get(
                 req.get_ref().id.clone(),
                 req.get_ref().client_id.clone(),
@@ -756,8 +756,8 @@ impl ServicesZion for ServicesZionService {
             ));
         }
         let response = self
-            .services_token_webhood_db
-            .register_service_webhood_token(
+            .services_token_webhook_db
+            .register_service_webhook_token(
                 req.get_ref().client_id.clone(),
                 req.get_ref().endpoint_url.clone(),
                 payload.claims.sub.clone(),
@@ -795,8 +795,8 @@ impl ServicesZion for ServicesZionService {
             ));
         }
         let response = self
-            .services_token_webhood_db
-            .un_register_service_webhood_token(
+            .services_token_webhook_db
+            .un_register_service_webhook_token(
                 req.get_ref().client_id.clone(),
                 payload.claims.sub.clone(),
             )
@@ -833,8 +833,8 @@ impl ServicesZion for ServicesZionService {
             ));
         }
         let response = self
-            .services_token_webhood_db
-            .update_service_webhood_token(
+            .services_token_webhook_db
+            .update_service_webhook_token(
                 req.get_ref().client_id.clone(),
                 req.get_ref().endpoint_url.clone(),
                 payload.claims.sub.clone(),
@@ -988,10 +988,7 @@ impl ServicesZion for ServicesZionService {
         }
         let response = self
             .services_token_db
-            .un_register_service_token(
-                req.get_ref().client_id.clone(),
-                payload.claims.sub.clone(),
-            )
+            .un_register_service_token(req.get_ref().client_id.clone(), payload.claims.sub.clone())
             .await;
         match response {
             Ok(service) => {
@@ -1018,7 +1015,7 @@ impl ServicesZion for ServicesZionService {
             .get_events_filters(
                 filter.id.clone(),
                 filter.client_id.clone(),
-                filter.token_address.clone()
+                filter.token_address.clone(),
             )
             .await;
         match response {
@@ -1057,7 +1054,10 @@ impl ServicesZion for ServicesZionService {
         };
         //
         let filter = req.get_ref();
-        let response = self.token_events_db.get_events_by_id(filter.id.clone()).await;
+        let response = self
+            .token_events_db
+            .get_events_by_id(filter.id.clone())
+            .await;
         match response {
             Ok(event) => {
                 if event.client_id.is_empty() || event.token_address.is_empty() {
@@ -1073,8 +1073,8 @@ impl ServicesZion for ServicesZionService {
                     ));
                 }
                 // Resend noti
-                let services_token_webhood = self
-                    .services_token_webhood_db
+                let services_token_webhook = self
+                    .services_token_webhook_db
                     .get(
                         Some("".to_string()),
                         Some(event.client_id.clone()),
@@ -1083,7 +1083,7 @@ impl ServicesZion for ServicesZionService {
                     .await
                     .map_err(|e| into_anyhow(e.into()))?;
 
-                if services_token_webhood.id.is_empty() {
+                if services_token_webhook.id.is_empty() {
                     return Err(Status::new(
                         tonic::Code::InvalidArgument,
                         "Endpoint for Service not exist",
@@ -1097,7 +1097,7 @@ impl ServicesZion for ServicesZionService {
                 };
                 // create signature
                 let client = Client::new();
-                let url = services_token_webhood.endpoint_url.clone();
+                let url = services_token_webhook.endpoint_url.clone();
                 let data: String = format!("{}{}", event.id.clone(), event.client_id.clone());
                 let file_name = self.private_key_path.clone();
                 let private_key = load_private_key_from_file(&file_name).unwrap();
