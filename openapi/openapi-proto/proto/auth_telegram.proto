@@ -54,6 +54,11 @@ message LogOutTelegramAsBotResponse {
 }
 
 // Test Endpoints
+enum StatusSendToEndpointsResponse {
+  SUCCESS_STATUS = 0;
+  ERROR_STATUS = 1;
+}
+
 message TestSendToEndpointsRequest {
   string id = 1;
   string client_id = 2;
@@ -62,7 +67,7 @@ message TestSendToEndpointsRequest {
 
 message TestSendToEndpointsResponse {
   string id = 1;
-  string code = 2;
+  StatusSendToEndpointsResponse code = 2;
   string description = 3;
   string additionalInfo = 4;
 }

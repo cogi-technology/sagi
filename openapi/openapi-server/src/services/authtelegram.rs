@@ -378,7 +378,7 @@ impl AuthTelegram for AuthTelegramService {
         req: Request<TestSendToEndpointsRequest>,
     ) -> Result<Response<TestSendToEndpointsResponse>> {
         let mut response = TestSendToEndpointsResponse::default();
-        response.code = "1".to_string();
+        response.code = StatusSendToEndpointsResponse::SuccessStatus;
         response.description = "Success".to_string();
         response.id = req.get_ref().id.clone();
         Ok(Response::new(response))
