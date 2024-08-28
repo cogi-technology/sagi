@@ -1,0 +1,9 @@
+target
+.env
+**/session*
+openapi-proto/src/lib_bk.rs
+# openapi-proto/src/generated/
+**/Cargo.lock
+**/dist/private_key.pem
+**/dist/public_key.pem
+ops/docker/lib

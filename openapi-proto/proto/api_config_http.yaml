@@ -1,0 +1,220 @@
+type: google.api.Service
+config_version: 3
+
+http:
+  rules:
+    - selector: authtelegram.AuthTelegram.SendCodeTelegram
+      post: /api/authtelegram/sendCodeTelegram
+      body: "*"
+    - selector: authtelegram.AuthTelegram.SignInTelegram
+      post: /api/authtelegram/signInTelegram
+      body: "*"
+    - selector: authtelegram.AuthTelegram.LogOutTelegram
+      post: /api/authtelegram/logOutTelegram
+      body: "*"
+    # - selector: authtelegram.AuthTelegram.SignInTelegramAsBot
+    #   post: /api/authtelegram/signInTelegramAsBot
+    #   body: "*"
+    # - selector: authtelegram.AuthTelegram.LogOutTelegramAsBot
+    #   post: /api/authtelegram/logOutTelegramAsBot
+    #   body: "*"
+
+    - selector: authtelegram.AuthTelegram.TestSendToEndpoints
+      post: /api/authtelegram/testSendToEndpoints     
+      body: "*"
+
+    - selector: zionauthorization.ZionAuthorization.GetDataRequestForZION
+      get: /api/zionauthorization/getDataRequestForZION    
+      
+    - selector: serviceszion.ServicesZION.RegisterService
+      post: /api/serviceszion/registerService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.GetInfoService
+      post: /api/serviceszion/getInfoService  
+      body: "*"
+    - selector: serviceszion.ServicesZION.GetAllServices
+      get: /api/serviceszion/getAllServices 
+
+    - selector: serviceszion.ServicesZION.GetAllNFTEndpointForService
+      get: /api/serviceszion/getAllNFTEndpointForService     
+    - selector: serviceszion.ServicesZION.GetInfoNFTEndpointForService
+      post: /api/serviceszion/getInfoNFTEndpointForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.ResgiterNFTEndpointForService
+      post: /api/serviceszion/resgiterNFTEndpointForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.UnRegisterNFTEndpointForService
+      post: /api/serviceszion/unRegisterNFTEndpointForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.UpdateNFTEndpointForService
+      post: /api/serviceszion/updateNFTEndpointForService     
+      body: "*"
+
+    - selector: serviceszion.ServicesZION.GetAllCollectionForService
+      get: /api/serviceszion/getAllCollectionForService     
+    - selector: serviceszion.ServicesZION.GetInfoCollectionForService
+      post: /api/serviceszion/getInfoCollectionForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.RegisterCollectionForService
+      post: /api/serviceszion/registerCollectionForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.UnRegisterCollectionForService
+      post: /api/serviceszion/unRegisterCollectionForService     
+      body: "*"
+
+    - selector: serviceszion.ServicesZION.GetInfoNFTEvents
+      post: /api/serviceszion/getInfoNFTEvents     
+      body: "*"
+    - selector: serviceszion.ServicesZION.ResendNotiNFTEvents
+      post: /api/serviceszion/resendNotiNFTEvents     
+      body: "*"
+
+    - selector: serviceszion.ServicesZION.GetAllTokenEndpointForService
+      get: /api/serviceszion/getAllTokenEndpointForService     
+    - selector: serviceszion.ServicesZION.GetInfoTokenEndpointForService
+      post: /api/serviceszion/getInfoTokenEndpointForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.ResgiterTokenEndpointForService
+      post: /api/serviceszion/resgiterTokenEndpointForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.UnRegisterTokenEndpointForService
+      post: /api/serviceszion/unRegisterTokenEndpointForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.UpdateTokenEndpointForService
+      post: /api/serviceszion/updateTokenEndpointForService     
+      body: "*"
+
+    - selector: serviceszion.ServicesZION.GetAllTokenForService
+      get: /api/serviceszion/getAllTokenForService     
+    - selector: serviceszion.ServicesZION.GetInfoTokenForService
+      post: /api/serviceszion/getInfoTokenForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.RegisterTokenForService
+      post: /api/serviceszion/registerTokenForService     
+      body: "*"
+    - selector: serviceszion.ServicesZION.UnRegisterTokenForService
+      post: /api/serviceszion/unRegisterTokenForService     
+      body: "*"
+
+    - selector: serviceszion.ServicesZION.GetInfoTokenEvents
+      post: /api/serviceszion/getInfoTokenEvents     
+      body: "*"
+    - selector: serviceszion.ServicesZION.ResendNotiTokenEvents
+      post: /api/serviceszion/resendNotiTokenEvents     
+      body: "*"
+
+    - selector: erc20.ERC20.Deploy
+      post: /api/erc20/deploy
+      body: "*"
+    - selector: erc20.ERC20.TotalSupply
+      get: /api/erc20/totalSupply
+      param: "contract"
+    - selector: erc20.ERC20.BalanceOf
+      get: /api/erc20/balanceOf
+      param: "contract&account"
+    - selector: erc20.ERC20.Allowance
+      get: /api/erc20/allowance
+      param: "contract&owner&spender"
+    - selector: erc20.ERC20.Approve
+      post: /api/erc20/approve
+      body: "*"
+    - selector: erc20.ERC20.Transfer
+      post: /api/erc20/transfer
+      body: "*"
+    - selector: erc20.ERC20.TransferFrom
+      post: /api/erc20/transferFrom
+      body: "*"
+    - selector: erc721.ERC721.Deploy
+      post: /api/erc721/deploy
+      body: "*"
+    - selector: erc721.ERC721.BalanceOf
+      get: /api/erc721/balanceOf
+      param: "contract&owner"
+    - selector: erc721.ERC721.OwnerOf
+      get: /api/erc721/ownerOf
+      param: "contract&token_id"
+    - selector: erc721.ERC721.SafeTransferFrom
+      post: /api/erc721/safeTransferFrom
+      body: "*"
+    - selector: erc721.ERC721.TransferFrom
+      post: /api/erc721/transferFrom
+      body: "*"
+    - selector: erc721.ERC721.Approve
+      post: /api/erc721/approve
+      body: "*"
+    - selector: erc721.ERC721.AwardItem
+      post: /api/erc721/awardItem
+      body: "*"
+    - selector: erc721.ERC721.AwardItems
+      post: /api/erc721/awardItems
+      body: "*"
+    - selector: erc721.ERC721.GetApproved
+      get: /api/erc721/getApproved
+      param: "contract&token_id"
+    - selector: erc721.ERC721.SetApprovalForAll
+      post: /api/erc721/setApprovalForAll
+      body: "*"
+    - selector: erc721.ERC721.IsApprovedForAll
+      get: /api/erc721/isApprovedForAll
+      param: "contract&owner&operator"
+    - selector: erc721.ERC721.Burn
+      post: /api/erc721/burn
+      body: "*"
+    - selector: erc721.ERC721.TokenURI
+      get: /api/erc721/token_uri
+      param: "contract&token_id"
+
+    - selector: erc404.ERC404.Deploy
+      post: /api/erc404/deploy
+      body: "*"
+    - selector: erc404.ERC404.TotalSupply
+      get: /api/erc404/totalSupply
+      param: "contract"
+    - selector: erc404.ERC404.BalanceOf
+      get: /api/erc404/balanceOf
+      param: "contract&account&token_id"
+    - selector: erc404.ERC404.Allowance
+      get: /api/erc404/allowance
+      param: "contract&owner&spender"
+    - selector: erc404.ERC404.Approve
+      post: /api/erc404/approve
+      body: "*"
+    - selector: erc404.ERC404.Transfer
+      post: /api/erc404/transfer
+      body: "*"
+    - selector: erc404.ERC404.TransferFrom
+      post: /api/erc404/transferFrom
+      body: "*"
+    - selector: erc404.ERC404.BalanceOfBatch
+      get: /api/erc404/balanceOfBatch
+      param: "contract&accounts[]&token_ids[]"
+    - selector: erc404.ERC404.SetApprovalForAll
+      post: /api/erc404/setApprovalForAll
+      body: "*"
+    - selector: erc404.ERC404.IsApprovedForAll
+      get: /api/erc404/isApprovedForAll
+      param: "contract&owner&operator"
+    - selector: erc404.ERC404.SafeTransferFrom
+      post: /api/erc404/safeTransferFrom
+      body: "*"
+    - selector: erc404.ERC404.SafeBatchTransferFrom
+      post: /api/erc404/safeBatchTransferFrom
+      body: "*"
+    - selector: erc404.ERC404.ERC1155BalanceOf
+      get: /api/erc404/erc1155BalanceOf
+      param: "contract&account&token_id"
+    - selector: erc404.ERC404.ERC20BalanceOf
+      get: /api/erc404/erc20BalanceOf
+      param: "contract&account"
+    - selector: erc404.ERC404.ERC1155TransferExempt
+      get: /api/erc404/erc1155TransferExempt
+      param: "target"
+    - selector: erc404.ERC404.Mint
+      post: /api/erc404/mint
+      body: "*"
+    - selector: erc404.ERC404.Burn
+      post: /api/erc404/burn
+      body: "*"
+    - selector: erc404.ERC404.BurnFrom
+      post: /api/erc404/burn_from
+      body: "*"

@@ -1,0 +1,159 @@
+syntax = "proto3";
+
+package erc721;
+
+option go_package = "example.com/project/protos/fizz";
+
+// Define messages for the requests and responses for ERC721
+message DeployRequest {
+  string name = 1;
+  string symbol = 2;
+  string base_uri = 3;
+  string currency = 4;
+  string pin_code = 5;
+}
+
+message DeployResponse {
+  string contract = 1;
+}
+
+message BalanceOfRequest {
+  string contract = 1;
+  string account = 2;
+}
+
+message BalanceOfResponse {
+  string amount = 1;
+}
+
+message OwnerOfRequest {
+  string contract = 1;
+  string token_id = 2;
+}
+
+message OwnerOfResponse {
+  string owner = 1;
+}
+
+message SafeTransferFromRequest {
+  string contract = 1;
+  string from = 2;
+  string to = 3;
+  string token_id = 4;
+  string pin_code = 5;
+}
+
+message SafeTransferFromResponse {
+  string txhash = 1;
+}
+
+message TransferFromRequest {
+  string contract = 1;
+  string from = 2;
+  string to = 3;
+  string token_id = 4;
+  string pin_code = 5;
+}
+
+message TransferFromResponse {
+  string txhash = 1;
+}
+
+message ApproveRequest {
+  string contract = 1;
+  string to = 2;
+  string token_id = 3;
+  string pin_code = 4;
+}
+
+message ApproveResponse {
+  string txhash = 1;
+}
+
+message AwardItemRequest {
+  string contract = 1;
+  string account = 2;
+  string cid = 3;
+  string pin_code = 4;
+}
+
+message AwardItemResponse {
+  string txhash = 1;
+}
+
+message AwardItemsRequest {
+  string contract = 1;
+  repeated string accounts = 2;
+  repeated string cids = 3;
+  string pin_code = 4;
+}
+
+message AwardItemsResponse {
+  string txhash = 1;
+}
+
+message GetApprovedRequest {
+  string contract = 1;
+  string token_id = 2;
+}
+
+message GetApprovedResponse {
+  string operator = 1;
+}
+
+message SetApprovalForAllRequest {
+  string contract = 1;
+  string operator = 2;
+  bool approved = 3;
+  string pin_code = 4;
+}
+
+message SetApprovalForAllResponse {
+  string txhash = 1;
+}
+
+message IsApprovedForAllRequest {
+  string contract = 1;
+  string owner = 2;
+  string operator = 3;
+}
+
+message IsApprovedForAllResponse {
+  bool result = 1;
+}
+
+message TokenURIRequest {
+  string contract = 1;
+  string token_id = 2;
+}
+
+message TokenURIResponse {
+  string token_uri = 1;
+}
+
+message BurnRequest {
+  string contract = 1;
+  repeated string token_ids = 2;
+  string pin_code = 3;
+}
+
+message BurnResponse {
+  string txhash = 1;
+}
+
+// Define the service for 
+service ERC721 {
+  rpc Deploy (DeployRequest) returns (DeployResponse);
+  rpc BalanceOf (BalanceOfRequest) returns (BalanceOfResponse);
+  rpc OwnerOf (OwnerOfRequest) returns (OwnerOfResponse);
+  rpc SafeTransferFrom (SafeTransferFromRequest) returns (SafeTransferFromResponse);
+  rpc TransferFrom (TransferFromRequest) returns (TransferFromResponse);
+  rpc Approve (ApproveRequest) returns (ApproveResponse);
+  rpc AwardItem (AwardItemRequest) returns (AwardItemResponse);
+  rpc AwardItems (AwardItemsRequest) returns (AwardItemsResponse);
+  rpc GetApproved (GetApprovedRequest) returns (GetApprovedResponse);
+  rpc SetApprovalForAll (SetApprovalForAllRequest) returns (SetApprovalForAllResponse);
+  rpc IsApprovedForAll (IsApprovedForAllRequest) returns (IsApprovedForAllResponse);
+  rpc TokenURI (TokenURIRequest) returns (TokenURIResponse);
+  rpc Burn (BurnRequest) returns (BurnResponse);
+}

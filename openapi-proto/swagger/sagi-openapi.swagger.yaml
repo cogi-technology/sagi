@@ -1,0 +1,2541 @@
+swagger: "2.0"
+info:
+  title: proto/zion_authorization.proto
+  version: version not set
+tags:
+  - name: ZionAuthorization
+  - name: AuthTelegram
+  - name: ERC20
+  - name: ERC404
+  - name: ERC721
+  - name: ServicesZION
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /api/authtelegram/logOutTelegram:
+    post:
+      operationId: AuthTelegram_LogOutTelegram
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/authtelegramLogOutTelegramResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/authtelegramLogOutTelegramRequest'
+      tags:
+        - AuthTelegram
+  /api/authtelegram/sendCodeTelegram:
+    post:
+      operationId: AuthTelegram_SendCodeTelegram
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/authtelegramSendCodeTelegramResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/authtelegramSendCodeTelegramRequest'
+      tags:
+        - AuthTelegram
+  /api/authtelegram/signInTelegram:
+    post:
+      operationId: AuthTelegram_SignInTelegram
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/authtelegramSignInTelegramResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/authtelegramSignInTelegramRequest'
+      tags:
+        - AuthTelegram
+  /api/authtelegram/testSendToEndpoints:
+    post:
+      operationId: AuthTelegram_TestSendToEndpoints
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/authtelegramTestSendToEndpointsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/authtelegramTestSendToEndpointsRequest'
+      tags:
+        - AuthTelegram
+  /api/erc20/allowance:
+    get:
+      operationId: ERC20_Allowance
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc20AllowanceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
+        - name: owner
+          in: query
+          required: false
+          type: string
+        - name: spender
+          in: query
+          required: false
+          type: string
+      tags:
+        - ERC20
+  /api/erc20/approve:
+    post:
+      operationId: ERC20_Approve
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc20ApproveResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc20ApproveRequest'
+      tags:
+        - ERC20
+  /api/erc20/balanceOf:
+    get:
+      operationId: ERC20_BalanceOf
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc20BalanceOfResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
+        - name: account
+          in: query
+          required: false
+          type: string
+      tags:
+        - ERC20
+  /api/erc20/deploy:
+    post:
+      operationId: ERC20_Deploy
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc20DeployResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc20DeployRequest'
+      tags:
+        - ERC20
+  /api/erc20/totalSupply:
+    get:
+      operationId: ERC20_TotalSupply
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc20TotalSupplyResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
+      tags:
+        - ERC20
+  /api/erc20/transfer:
+    post:
+      operationId: ERC20_Transfer
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc20TransferResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc20TransferRequest'
+      tags:
+        - ERC20
+  /api/erc20/transferFrom:
+    post:
+      operationId: ERC20_TransferFrom
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc20TransferFromResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc20TransferFromRequest'
+      tags:
+        - ERC20
+  /api/erc404/allowance:
+    get:
+      operationId: ERC404_Allowance
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404AllowanceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
+        - name: owner
+          in: query
+          required: false
+          type: string
+        - name: spender
+          in: query
+          required: false
+          type: string
+      tags:
+        - ERC404
+  /api/erc404/approve:
+    post:
+      operationId: ERC404_Approve
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404ApproveResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc404ApproveRequest'
+      tags:
+        - ERC404
+  /api/erc404/balanceOf:
+    get:
+      operationId: ERC404_BalanceOf
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404BalanceOfResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
+        - name: account
+          in: query
+          required: false
+          type: string
+        - name: token_id
+          in: query
+          required: false
+          type: string
+      tags:
+        - ERC404
+  /api/erc404/balanceOfBatch:
+    get:
+      operationId: ERC404_BalanceOfBatch
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404BalanceOfBatchResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
+        - name: accounts
+          in: query
+          required: false
+          type: array
+          items:
+            type: string
+          collectionFormat: multi
+        - name: token_ids
+          in: query
+          required: false
+          type: array
+          items:
+            type: string
+          collectionFormat: multi
+      tags:
+        - ERC404
+  /api/erc404/burn:
+    post:
+      operationId: ERC404_Burn
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404BurnResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc404BurnRequest'
+      tags:
+        - ERC404
+  /api/erc404/burn_from:
+    post:
+      operationId: ERC404_BurnFrom
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404BurnFromResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc404BurnFromRequest'
+      tags:
+        - ERC404
+  /api/erc404/deploy:
+    post:
+      operationId: ERC404_Deploy
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404DeployResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc404DeployRequest'
+      tags:
+        - ERC404
+  /api/erc404/erc1155BalanceOf:
+    get:
+      operationId: ERC404_ERC1155BalanceOf
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404ERC1155BalanceOfResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
+        - name: account
+          in: query
+          required: false
+          type: string
+        - name: token_id
+          in: query
+          required: false
+          type: string
+      tags:
+        - ERC404
+  /api/erc404/erc1155TransferExempt:
+    get:
+      operationId: ERC404_ERC1155TransferExempt
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404ERC1155TransferExemptResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
+        - name: target
+          in: query
+          required: false
+          type: string
+      tags:
+        - ERC404
+  /api/erc404/erc20BalanceOf:
+    get:
+      operationId: ERC404_ERC20BalanceOf
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404ERC20BalanceOfResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
+        - name: account
+          in: query
+          required: false
+          type: string
+      tags:
+        - ERC404
+  /api/erc404/isApprovedForAll:
+    get:
+      operationId: ERC404_IsApprovedForAll
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404IsApprovedForAllResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
+        - name: owner
+          in: query
+          required: false
+          type: string
+        - name: operator
+          in: query
+          required: false
+          type: string
+      tags:
+        - ERC404
+  /api/erc404/mint:
+    post:
+      operationId: ERC404_Mint
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404MintResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc404MintRequest'
+      tags:
+        - ERC404
+  /api/erc404/safeBatchTransferFrom:
+    post:
+      operationId: ERC404_SafeBatchTransferFrom
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404SafeBatchTransferFromResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc404SafeBatchTransferFromRequest'
+      tags:
+        - ERC404
+  /api/erc404/safeTransferFrom:
+    post:
+      operationId: ERC404_SafeTransferFrom
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404SafeTransferFromResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc404SafeTransferFromRequest'
+      tags:
+        - ERC404
+  /api/erc404/setApprovalForAll:
+    post:
+      operationId: ERC404_SetApprovalForAll
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404SetApprovalForAllResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc404SetApprovalForAllRequest'
+      tags:
+        - ERC404
+  /api/erc404/totalSupply:
+    get:
+      operationId: ERC404_TotalSupply
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404TotalSupplyResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
+      tags:
+        - ERC404
+  /api/erc404/transfer:
+    post:
+      operationId: ERC404_Transfer
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404TransferResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc404TransferRequest'
+      tags:
+        - ERC404
+  /api/erc404/transferFrom:
+    post:
+      operationId: ERC404_TransferFrom
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc404TransferFromResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc404TransferFromRequest'
+      tags:
+        - ERC404
+  /api/erc721/approve:
+    post:
+      operationId: ERC721_Approve
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721ApproveResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc721ApproveRequest'
+      tags:
+        - ERC721
+  /api/erc721/awardItem:
+    post:
+      operationId: ERC721_AwardItem
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721AwardItemResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc721AwardItemRequest'
+      tags:
+        - ERC721
+  /api/erc721/awardItems:
+    post:
+      operationId: ERC721_AwardItems
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721AwardItemsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc721AwardItemsRequest'
+      tags:
+        - ERC721
+  /api/erc721/balanceOf:
+    get:
+      operationId: ERC721_BalanceOf
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721BalanceOfResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
+        - name: account
+          in: query
+          required: false
+          type: string
+      tags:
+        - ERC721
+  /api/erc721/burn:
+    post:
+      operationId: ERC721_Burn
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721BurnResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc721BurnRequest'
+      tags:
+        - ERC721
+  /api/erc721/deploy:
+    post:
+      operationId: ERC721_Deploy
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721DeployResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc721DeployRequest'
+      tags:
+        - ERC721
+  /api/erc721/getApproved:
+    get:
+      operationId: ERC721_GetApproved
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721GetApprovedResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
+        - name: token_id
+          in: query
+          required: false
+          type: string
+      tags:
+        - ERC721
+  /api/erc721/isApprovedForAll:
+    get:
+      operationId: ERC721_IsApprovedForAll
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721IsApprovedForAllResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
+        - name: owner
+          in: query
+          required: false
+          type: string
+        - name: operator
+          in: query
+          required: false
+          type: string
+      tags:
+        - ERC721
+  /api/erc721/ownerOf:
+    get:
+      operationId: ERC721_OwnerOf
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721OwnerOfResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
+        - name: token_id
+          in: query
+          required: false
+          type: string
+      tags:
+        - ERC721
+  /api/erc721/safeTransferFrom:
+    post:
+      operationId: ERC721_SafeTransferFrom
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721SafeTransferFromResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc721SafeTransferFromRequest'
+      tags:
+        - ERC721
+  /api/erc721/setApprovalForAll:
+    post:
+      operationId: ERC721_SetApprovalForAll
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721SetApprovalForAllResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc721SetApprovalForAllRequest'
+      tags:
+        - ERC721
+  /api/erc721/token_uri:
+    get:
+      operationId: ERC721_TokenURI
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721TokenURIResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: contract
+          in: query
+          required: false
+          type: string
+        - name: token_id
+          in: query
+          required: false
+          type: string
+      tags:
+        - ERC721
+  /api/erc721/transferFrom:
+    post:
+      operationId: ERC721_TransferFrom
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/erc721TransferFromResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/erc721TransferFromRequest'
+      tags:
+        - ERC721
+  /api/serviceszion/getAllCollectionForService:
+    get:
+      summary: Services with Collections
+      operationId: ServicesZION_GetAllCollectionForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionGetAllCollectionForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getAllNFTEndpointForService:
+    get:
+      summary: Services with endpoints
+      operationId: ServicesZION_GetAllNFTEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionGetAllNFTEndpointForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getAllServices:
+    get:
+      operationId: ServicesZION_GetAllServices
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionGetAllServicesResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getAllTokenEndpointForService:
+    get:
+      summary: Services with endpoints
+      operationId: ServicesZION_GetAllTokenEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionGetAllTokenEndpointForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getAllTokenForService:
+    get:
+      summary: Services with Tokens
+      operationId: ServicesZION_GetAllTokenForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionGetAllTokenForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getInfoCollectionForService:
+    post:
+      operationId: ServicesZION_GetInfoCollectionForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionCollectionForService'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionGeInfoCollectionForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getInfoNFTEndpointForService:
+    post:
+      operationId: ServicesZION_GetInfoNFTEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionNFTEndpointForService'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionGetInfoNFTEndpointForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getInfoNFTEvents:
+    post:
+      summary: Resend Noti Events
+      operationId: ServicesZION_GetInfoNFTEvents
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionGetInfoNFTEventsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionGetInfoNFTEventsRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getInfoService:
+    post:
+      operationId: ServicesZION_GetInfoService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionInfoService'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionGetInfoServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getInfoTokenEndpointForService:
+    post:
+      operationId: ServicesZION_GetInfoTokenEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionTokenEndpointForService'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionGetInfoTokenEndpointForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getInfoTokenEvents:
+    post:
+      summary: Resend Noti Events
+      operationId: ServicesZION_GetInfoTokenEvents
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionGetInfoTokenEventsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionGetInfoTokenEventsRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/getInfoTokenForService:
+    post:
+      operationId: ServicesZION_GetInfoTokenForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionTokenForService'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionGeInfoTokenForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/registerCollectionForService:
+    post:
+      operationId: ServicesZION_RegisterCollectionForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionRegisterCollectionForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionRegisterCollectionForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/registerService:
+    post:
+      summary: Services
+      operationId: ServicesZION_RegisterService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionInfoService'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionRegisterServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/registerTokenForService:
+    post:
+      operationId: ServicesZION_RegisterTokenForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionRegisterTokenForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionRegisterTokenForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/resendNotiNFTEvents:
+    post:
+      operationId: ServicesZION_ResendNotiNFTEvents
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionResendNotiNFTEventsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionResendNotiNFTEventsRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/resendNotiTokenEvents:
+    post:
+      operationId: ServicesZION_ResendNotiTokenEvents
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionResendNotiTokenEventsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionResendNotiTokenEventsRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/resgiterNFTEndpointForService:
+    post:
+      operationId: ServicesZION_ResgiterNFTEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionResgiterNFTEndpointForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionResgiterNFTEndpointForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/resgiterTokenEndpointForService:
+    post:
+      operationId: ServicesZION_ResgiterTokenEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionResgiterTokenEndpointForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionResgiterTokenEndpointForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/unRegisterCollectionForService:
+    post:
+      operationId: ServicesZION_UnRegisterCollectionForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionUnRegisterCollectionForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionUnRegisterCollectionForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/unRegisterNFTEndpointForService:
+    post:
+      operationId: ServicesZION_UnRegisterNFTEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionUnRegisterNFTEndpointForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionUnRegisterNFTEndpointForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/unRegisterTokenEndpointForService:
+    post:
+      operationId: ServicesZION_UnRegisterTokenEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionUnRegisterTokenEndpointForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionUnRegisterTokenEndpointForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/unRegisterTokenForService:
+    post:
+      operationId: ServicesZION_UnRegisterTokenForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionUnRegisterTokenForServiceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionUnRegisterTokenForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/updateNFTEndpointForService:
+    post:
+      operationId: ServicesZION_UpdateNFTEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionUpdateNFTEndpointForServiceeResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionUpdateNFTEndpointForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/serviceszion/updateTokenEndpointForService:
+    post:
+      operationId: ServicesZION_UpdateTokenEndpointForService
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/serviceszionUpdateTokenEndpointForServiceeResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/serviceszionUpdateTokenEndpointForServiceRequest'
+      tags:
+        - ServicesZION
+  /api/zionauthorization/getDataRequestForZION:
+    get:
+      operationId: ZionAuthorization_GetDataRequestForZION
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/zionauthorizationGetDataRequestForZionResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      tags:
+        - ZionAuthorization
+definitions:
+  authtelegramLogOutTelegramAsBotResponse:
+    type: object
+    properties:
+      sessionUuid:
+        type: string
+      message:
+        type: string
+  authtelegramLogOutTelegramRequest:
+    type: object
+    properties:
+      sessionUuid:
+        type: string
+  authtelegramLogOutTelegramResponse:
+    type: object
+    properties:
+      sessionUuid:
+        type: string
+      message:
+        type: string
+  authtelegramSendCodeTelegramRequest:
+    type: object
+    properties:
+      phoneNumber:
+        type: string
+    title: Define messages for the requests and responses for AuthTelegram
+  authtelegramSendCodeTelegramResponse:
+    type: object
+    properties:
+      phoneNumber:
+        type: string
+      sessionUuid:
+        type: string
+  authtelegramSignInTelegramAsBotResponse:
+    type: object
+    properties:
+      jwt:
+        type: string
+      sessionUuid:
+        type: string
+  authtelegramSignInTelegramRequest:
+    type: object
+    properties:
+      phoneNumber:
+        type: string
+      sessionUuid:
+        type: string
+      code:
+        type: string
+      code2Fa:
+        type: string
+  authtelegramSignInTelegramResponse:
+    type: object
+    properties:
+      jwt:
+        type: string
+      sessionUuid:
+        type: string
+  authtelegramStatusSendToEndpointsResponse:
+    type: string
+    enum:
+      - SUCCESS_STATUS
+      - ERROR_STATUS
+    default: SUCCESS_STATUS
+    title: Test Endpoints
+  authtelegramTestSendToEndpointsRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      payload:
+        type: string
+  authtelegramTestSendToEndpointsResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      code:
+        $ref: '#/definitions/authtelegramStatusSendToEndpointsResponse'
+      description:
+        type: string
+      additionalInfo:
+        type: string
+  erc20AllowanceResponse:
+    type: object
+    properties:
+      remaining_amount:
+        type: string
+  erc20ApproveRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      spender:
+        type: string
+      amount:
+        type: string
+      pin_code:
+        type: string
+  erc20ApproveResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc20BalanceOfResponse:
+    type: object
+    properties:
+      amount:
+        type: string
+  erc20DeployRequest:
+    type: object
+    properties:
+      name:
+        type: string
+      symbol:
+        type: string
+      initial_supply:
+        type: string
+      pin_code:
+        type: string
+    title: Define messages for the requests and responses for ERC20
+  erc20DeployResponse:
+    type: object
+    properties:
+      contract:
+        type: string
+  erc20TotalSupplyResponse:
+    type: object
+    properties:
+      totalSupply:
+        type: string
+  erc20TransferFromRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      sender:
+        type: string
+      recipient:
+        type: string
+      amount:
+        type: string
+      pin_code:
+        type: string
+  erc20TransferFromResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc20TransferRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      recipient:
+        type: string
+      amount:
+        type: string
+      pin_code:
+        type: string
+  erc20TransferResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc404AddTransferExemptResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc404AllowanceResponse:
+    type: object
+    properties:
+      remainingAmount:
+        type: string
+  erc404ApproveRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      spender:
+        type: string
+      amount:
+        type: string
+      pin_code:
+        type: string
+  erc404ApproveResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc404BalanceOfBatchResponse:
+    type: object
+    properties:
+      batch_balances:
+        type: array
+        items:
+          type: string
+  erc404BalanceOfResponse:
+    type: object
+    properties:
+      amount:
+        type: string
+  erc404BurnFromRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      account:
+        type: string
+      amount:
+        type: string
+      pin_code:
+        type: string
+  erc404BurnFromResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc404BurnRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      amount:
+        type: string
+      pin_code:
+        type: string
+  erc404BurnResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc404DeployRequest:
+    type: object
+    properties:
+      name:
+        type: string
+      symbol:
+        type: string
+      decimals:
+        type: integer
+        format: int64
+      units:
+        type: string
+      ids:
+        type: array
+        items:
+          type: string
+      uri:
+        type: string
+      pin_code:
+        type: string
+    title: Define messages for the requests and responses for ERC404
+  erc404DeployResponse:
+    type: object
+    properties:
+      contract:
+        type: string
+  erc404ERC20BalanceOfResponse:
+    type: object
+    properties:
+      amount:
+        type: string
+  erc404ERC1155BalanceOfResponse:
+    type: object
+    properties:
+      amount:
+        type: string
+  erc404ERC1155TransferExemptResponse:
+    type: object
+    properties:
+      is_exempt:
+        type: boolean
+  erc404IsApprovedForAllResponse:
+    type: object
+    properties:
+      result:
+        type: boolean
+  erc404MintRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      account:
+        type: string
+      amount:
+        type: string
+      pin_code:
+        type: string
+  erc404MintResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc404RemoveTransferExemptResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc404SafeBatchTransferFromRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      from:
+        type: string
+      to:
+        type: string
+      token_ids:
+        type: array
+        items:
+          type: string
+      values:
+        type: array
+        items:
+          type: string
+      data:
+        type: string
+        format: byte
+      pin_code:
+        type: string
+  erc404SafeBatchTransferFromResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc404SafeTransferFromRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      from:
+        type: string
+      to:
+        type: string
+      token_id:
+        type: string
+      value:
+        type: string
+      data:
+        type: string
+      pin_code:
+        type: string
+  erc404SafeTransferFromResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc404SetApprovalForAllRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      operator:
+        type: string
+      approved:
+        type: boolean
+      pin_code:
+        type: string
+  erc404SetApprovalForAllResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc404TotalSupplyResponse:
+    type: object
+    properties:
+      totalSupply:
+        type: string
+  erc404TransferFromRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      from:
+        type: string
+      to:
+        type: string
+      value:
+        type: string
+      pin_code:
+        type: string
+  erc404TransferFromResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc404TransferRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      recipient:
+        type: string
+      amount:
+        type: string
+      pin_code:
+        type: string
+  erc404TransferResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc721ApproveRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      to:
+        type: string
+      token_id:
+        type: string
+      pin_code:
+        type: string
+  erc721ApproveResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc721AwardItemRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      account:
+        type: string
+      cid:
+        type: string
+      pin_code:
+        type: string
+  erc721AwardItemResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc721AwardItemsRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      accounts:
+        type: array
+        items:
+          type: string
+      cids:
+        type: array
+        items:
+          type: string
+      pin_code:
+        type: string
+  erc721AwardItemsResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc721BalanceOfResponse:
+    type: object
+    properties:
+      amount:
+        type: string
+  erc721BurnRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      token_ids:
+        type: array
+        items:
+          type: string
+      pin_code:
+        type: string
+  erc721BurnResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc721DeployRequest:
+    type: object
+    properties:
+      name:
+        type: string
+      symbol:
+        type: string
+      base_uri:
+        type: string
+      currency:
+        type: string
+      pin_code:
+        type: string
+    title: Define messages for the requests and responses for ERC721
+  erc721DeployResponse:
+    type: object
+    properties:
+      contract:
+        type: string
+  erc721GetApprovedResponse:
+    type: object
+    properties:
+      operator:
+        type: string
+  erc721IsApprovedForAllResponse:
+    type: object
+    properties:
+      result:
+        type: boolean
+  erc721OwnerOfResponse:
+    type: object
+    properties:
+      owner:
+        type: string
+  erc721SafeTransferFromRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      from:
+        type: string
+      to:
+        type: string
+      token_id:
+        type: string
+      pin_code:
+        type: string
+  erc721SafeTransferFromResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc721SetApprovalForAllRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      operator:
+        type: string
+      approved:
+        type: boolean
+      pin_code:
+        type: string
+  erc721SetApprovalForAllResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  erc721TokenURIResponse:
+    type: object
+    properties:
+      token_uri:
+        type: string
+  erc721TransferFromRequest:
+    type: object
+    properties:
+      contract:
+        type: string
+      from:
+        type: string
+      to:
+        type: string
+      token_id:
+        type: string
+      pin_code:
+        type: string
+  erc721TransferFromResponse:
+    type: object
+    properties:
+      txhash:
+        type: string
+  protobufAny:
+    type: object
+    properties:
+      '@type':
+        type: string
+    additionalProperties: {}
+  rpcStatus:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      details:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/protobufAny'
+  serviceszionCollectionForService:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      address:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionGeInfoCollectionForServiceRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+  serviceszionGeInfoTokenForServiceRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+  serviceszionGetAllCollectionForServiceResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/serviceszionCollectionForService'
+  serviceszionGetAllNFTEndpointForServiceResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/serviceszionNFTEndpointForService'
+  serviceszionGetAllServicesResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/serviceszionInfoService'
+  serviceszionGetAllTokenEndpointForServiceResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/serviceszionTokenEndpointForService'
+  serviceszionGetAllTokenForServiceResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/serviceszionTokenForService'
+  serviceszionGetInfoNFTEndpointForServiceRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+  serviceszionGetInfoNFTEventsRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      collection:
+        type: string
+      token_id:
+        type: integer
+        format: int32
+  serviceszionGetInfoNFTEventsResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/serviceszionInfoEventNFT'
+  serviceszionGetInfoServiceRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+  serviceszionGetInfoTokenEndpointForServiceRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+  serviceszionGetInfoTokenEventsRequest:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      token_address:
+        type: string
+      token_id:
+        type: integer
+        format: int32
+  serviceszionGetInfoTokenEventsResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/serviceszionInfoEventToken'
+  serviceszionInfoEventNFT:
+    type: object
+    properties:
+      id:
+        type: string
+      tx:
+        type: string
+      client_id:
+        type: string
+      status:
+        type: string
+      method:
+        type: string
+      collection:
+        type: string
+      token_id:
+        type: integer
+        format: int32
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionInfoEventToken:
+    type: object
+    properties:
+      id:
+        type: string
+      tx:
+        type: string
+      client_id:
+        type: string
+      status:
+        type: string
+      method:
+        type: string
+      token_address:
+        type: string
+      amount:
+        type: number
+        format: double
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionInfoService:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      info:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionNFTEndpointForService:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionRegisterCollectionForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      address:
+        type: string
+      namespace:
+        type: string
+      start_block_number:
+        type: integer
+        format: int32
+  serviceszionRegisterCollectionForServiceResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      address:
+        type: string
+      namespace:
+        type: string
+      start_block_number:
+        type: integer
+        format: int32
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionRegisterServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      info:
+        type: string
+    title: Services
+  serviceszionRegisterTokenForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      address:
+        type: string
+      to_transfer:
+        type: string
+      namespace:
+        type: string
+      start_block_number:
+        type: integer
+        format: int32
+  serviceszionRegisterTokenForServiceResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      address:
+        type: string
+      to_transfer:
+        type: string
+      namespace:
+        type: string
+      start_block_number:
+        type: integer
+        format: int32
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionResendNotiNFTEventsRequest:
+    type: object
+    properties:
+      id:
+        type: string
+  serviceszionResendNotiNFTEventsResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+  serviceszionResendNotiTokenEventsRequest:
+    type: object
+    properties:
+      id:
+        type: string
+  serviceszionResendNotiTokenEventsResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+  serviceszionResgiterNFTEndpointForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+  serviceszionResgiterNFTEndpointForServiceResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionResgiterTokenEndpointForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+  serviceszionResgiterTokenEndpointForServiceResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionTokenEndpointForService:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionTokenForService:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      address:
+        type: string
+      to_transfer:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionUnRegisterCollectionForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      address:
+        type: string
+  serviceszionUnRegisterCollectionForServiceResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      address:
+        type: string
+      start_block_number:
+        type: integer
+        format: int32
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionUnRegisterNFTEndpointForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+  serviceszionUnRegisterNFTEndpointForServiceResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionUnRegisterTokenEndpointForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+  serviceszionUnRegisterTokenEndpointForServiceResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionUnRegisterTokenForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      address:
+        type: string
+      to_transfer:
+        type: string
+      namespace:
+        type: string
+  serviceszionUnRegisterTokenForServiceResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      address:
+        type: string
+      to_transfer:
+        type: string
+      namespace:
+        type: string
+      start_block_number:
+        type: integer
+        format: int32
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionUpdateNFTEndpointForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+  serviceszionUpdateNFTEndpointForServiceeResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  serviceszionUpdateTokenEndpointForServiceRequest:
+    type: object
+    properties:
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+  serviceszionUpdateTokenEndpointForServiceeResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_id:
+        type: string
+      endpoint_url:
+        type: string
+      created_at:
+        type: string
+      updated_at:
+        type: string
+  zionauthorizationGetDataRequestForZionResponse:
+    type: object
+    properties:
+      salt:
+        type: string
+      proof:
+        $ref: '#/definitions/zionauthorizationProofPoints'
+      ephemeralKeyPair:
+        type: string
+      beneficiaries:
+        type: array
+        items:
+          type: string
+  zionauthorizationProofPoints:
+    type: object
+    properties:
+      protocol:
+        type: string
+      pi_a:
+        type: array
+        items:
+          type: string
+      pi_b:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/zionauthorizationStringArray'
+      pi_c:
+        type: array
+        items:
+          type: string
+  zionauthorizationStringArray:
+    type: object
+    properties:
+      values:
+        type: array
+        items:
+          type: string
+    title: Mảng một chiều của chuỗi
