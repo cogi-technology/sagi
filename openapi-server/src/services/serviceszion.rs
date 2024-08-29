@@ -9,7 +9,6 @@ use {
     reqwest::{Client, Method},
     std::{collections::HashMap, sync::Arc},
     tonic::{Request, Response, Status},
-    zion_aa::types::jwt::JWTPayload,
     webhook_db::{
         database::Database,
         models::StatusEvent,
@@ -20,6 +19,7 @@ use {
         },
     },
     webhook_etherman::utils::{get_signature, load_private_key_from_file, send_request_text},
+    zion_aa::types::jwt::JWTPayload,
 };
 
 #[derive(Debug, Clone)]

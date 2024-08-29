@@ -19,8 +19,8 @@ use {
     ethers_providers::{Http, Middleware, ProviderExt},
     futures::{stream::FuturesUnordered, FutureExt, StreamExt},
     kogi_erc20::TransferFilter,
-    std::{str::FromStr, sync::Arc},
     openapi_logger::{debug, info, tracing, warn},
+    std::{str::FromStr, sync::Arc},
     webhook_db::{
         database::Database,
         models::ServiceToken,

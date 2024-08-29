@@ -1,0 +1,8 @@
+**/target
+**/Dockerfile
+.dockerignore
+.git*
+
+contracts
+docker
+docs

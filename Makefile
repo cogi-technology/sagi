@@ -21,10 +21,10 @@ doc-deps:
 check:
 	${CARGO} check ${VERBOSE} --all
 
-build-openapi-image:
-	docker build . -t ghcr.io/cogi-technology/sagi-openapi:v0.1.0 -f ./ops/docker/openapi.Dockerfile
+build-sagi-image:
+	docker build . -t sagi:latest -f ./docker/Dockerfile --memory="16g"
 
-run-openapi-dev:
+run-sagi-dev:
 	RUST_BACKTRACE=full RUST_LOG=info,hyper=info,openapi=trace${RUST_LOG} ${CARGO} run --bin openapi-server
 
 check-fmt:

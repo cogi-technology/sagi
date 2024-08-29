@@ -1,9 +1,17 @@
+[workspace.package]
+version = "0.1.0"
+authors = ["ZION Technology <zion.technology@gmail.com>"]
+edition = "2021"
+repository = "https://github.com/zion-technology/zion"
+license = "GNU"
+rust-version = "1.79.0"
+
 [workspace]
 version = "0.1.0"
 resolver = "2"
 edition = "2021"
 rust-version = "1.79.0"
-members = ["openapi-*"]
+members = ["openapi-*", "webhook-*"]
 
 [workspace.dependencies]
 openapi-proto = { path = "openapi-proto" }

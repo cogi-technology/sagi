@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package erc404;
 
-option go_package = "example.com/project/protos/fizz";
+option go_package = "github.com/cogi-technology/sagi/tree/develop";
 
 // Define messages for the requests and responses for ERC404
 message DeployRequest {

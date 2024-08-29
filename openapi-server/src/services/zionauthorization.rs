@@ -14,6 +14,7 @@ use {
     openapi_proto::zionauthorization_service::{zion_authorization_server::ZionAuthorization, *},
     reqwest::{Client as ClientReqwest, Method},
     tonic::{metadata::MetadataMap, Request, Response},
+    webhook_etherman::utils::send_request_text,
     zion_aa::{
         address_to_string,
         types::{
@@ -21,7 +22,6 @@ use {
             request::AuthorizationData,
         },
     },
-    webhook_etherman::utils::send_request_text,
 };
 
 #[derive(Debug, Clone)]

@@ -14,7 +14,7 @@ clippy:
 	${CARGO} clippy ${VERBOSE} --all --all-targets --all-features -- \
 		-D warnings -D clippy::enum_glob_use -D clippy::clone_on_ref_ptr
 
-all-test: fmt check-fmt clippy test
+all-check: fmt check-fmt clippy test
 
 test-transfer-native-token:
 	cargo test test_transfer_native_token_via_contract_wallet -- --nocapture
