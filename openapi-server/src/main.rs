@@ -48,17 +48,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // etherman
     let db: Arc<Database> = Arc::new(Database::new(c.db_url));
     let etherman_nft: Arc<Etherman> =
-        Arc::new(Etherman::init(db.clone(), "test".into(), c.etherman.clone()).await?);
+        Arc::new(Etherman::init(Arc::clone(&db), c.etherman.clone()).await?);
     // webhoood
     let webhook_nft: Arc<NFTWebhook> =
-        Arc::new(NFTWebhook::init(db.clone(), c.private_key_path.clone()).await?);
+        Arc::new(NFTWebhook::init(Arc::clone(&db), c.private_key_path.clone()).await?);
     //
     // Token
     let etherman_token: Arc<EthermanToken> =
-        Arc::new(EthermanToken::init(db.clone(), "test".into(), c.etherman.clone()).await?);
+        Arc::new(EthermanToken::init(Arc::clone(&db), c.etherman.clone()).await?);
     // webhoood
     let webhook_token: Arc<TokenWebhook> =
-        Arc::new(TokenWebhook::init(db.clone(), c.private_key_path.clone()).await?);
+        Arc::new(TokenWebhook::init(Arc::clone(&db), c.private_key_path.clone()).await?);
     //
 
     let server_config = ServerConfig {
@@ -76,7 +76,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         _ = webhook_nft.heartbeat() => {},
         _ = etherman_nft.heartbeat() => {},
         _ = async move {
-            run_server(zion_provider, torii_provider, server_config, c.telegram_auth.clone(), db.clone()).await
+            run_server(zion_provider, torii_provider, server_config, c.telegram_auth.clone(), Arc::clone(&db)).await
         } => {},
         _ = async move {
             remove_expired_jwt_cache().await

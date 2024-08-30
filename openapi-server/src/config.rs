@@ -114,10 +114,13 @@ mod tests {
             token_auth_bot: \"7109740482:AAGhzij1EY8NNFo73d7fg9fJg0lAATclWYw\"
             next_public_server_login_author: \"https://teleauthy.zionx.network\"
             next_public_server_login_with_telegram: \"https://zklogin.zionx.network\"
-            # next_public_server_login_author: \"http://192.168.100.100:9090\"
-            # next_public_server_login_with_telegram: \"http://192.168.100.100:9090\"
             next_public_torii: \"https://torii.zionx.network/torii\"
             session-path: openapi-server/dist/sessions
+        private-key-path: webhook-etherman/dist/private_key.pem
+        db-url: postgresql://sagi:123@localhost:15432/sagi
+        etherman:
+            ethereum-rpc: https://devnet-rpc.zionx.network
+            chain-id: 176923
         ";
         let c = Config::from_cfg(cfg).unwrap();
         Config::to_cfg(&c).unwrap();

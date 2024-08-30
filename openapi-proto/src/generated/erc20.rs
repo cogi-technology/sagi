@@ -132,8 +132,8 @@ pub struct TransferFromResponse {
 }
 pub mod erc20_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
-    use super::*;
     use super::erc20_server::Erc20;
+    use super::*;
     use std::sync::Arc;
     /// Define messages for the requests and responses for ERC20
     #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -224,15 +224,13 @@ pub mod erc20_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<DeployResponse>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json = <::actix_web::web::Json<
-            DeployJson,
-        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
-            .await
-            .map_err(|err| ::actix_prost::Error::from_actix(
-                err,
-                ::tonic::Code::InvalidArgument,
-            ))?
-            .into_inner();
+        let json = <::actix_web::web::Json<DeployJson> as ::actix_web::FromRequest>::from_request(
+            &http_request,
+            &mut payload,
+        )
+        .await
+        .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+        .into_inner();
         let request = DeployRequest {
             name: json.name,
             symbol: json.symbol,
@@ -248,14 +246,12 @@ pub mod erc20_actix {
         service: ::actix_web::web::Data<dyn Erc20 + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
     ) -> Result<::actix_web::web::Json<TotalSupplyResponse>, ::actix_prost::Error> {
-        let query = <::actix_web::web::Query<
-            TotalSupplyQuery,
-        > as ::actix_web::FromRequest>::extract(&http_request)
+        let query =
+            <::actix_web::web::Query<TotalSupplyQuery> as ::actix_web::FromRequest>::extract(
+                &http_request,
+            )
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(
-                err,
-                ::tonic::Code::InvalidArgument,
-            ))?
+            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
             .into_inner();
         let request = TotalSupplyRequest {
             contract: query.contract,
@@ -269,15 +265,12 @@ pub mod erc20_actix {
         service: ::actix_web::web::Data<dyn Erc20 + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
     ) -> Result<::actix_web::web::Json<BalanceOfResponse>, ::actix_prost::Error> {
-        let query = <::actix_web::web::Query<
-            BalanceOfQuery,
-        > as ::actix_web::FromRequest>::extract(&http_request)
-            .await
-            .map_err(|err| ::actix_prost::Error::from_actix(
-                err,
-                ::tonic::Code::InvalidArgument,
-            ))?
-            .into_inner();
+        let query = <::actix_web::web::Query<BalanceOfQuery> as ::actix_web::FromRequest>::extract(
+            &http_request,
+        )
+        .await
+        .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+        .into_inner();
         let request = BalanceOfRequest {
             contract: query.contract,
             account: query.account,
@@ -291,15 +284,12 @@ pub mod erc20_actix {
         service: ::actix_web::web::Data<dyn Erc20 + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
     ) -> Result<::actix_web::web::Json<AllowanceResponse>, ::actix_prost::Error> {
-        let query = <::actix_web::web::Query<
-            AllowanceQuery,
-        > as ::actix_web::FromRequest>::extract(&http_request)
-            .await
-            .map_err(|err| ::actix_prost::Error::from_actix(
-                err,
-                ::tonic::Code::InvalidArgument,
-            ))?
-            .into_inner();
+        let query = <::actix_web::web::Query<AllowanceQuery> as ::actix_web::FromRequest>::extract(
+            &http_request,
+        )
+        .await
+        .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+        .into_inner();
         let request = AllowanceRequest {
             contract: query.contract,
             owner: query.owner,
@@ -316,15 +306,13 @@ pub mod erc20_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<ApproveResponse>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json = <::actix_web::web::Json<
-            ApproveJson,
-        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
-            .await
-            .map_err(|err| ::actix_prost::Error::from_actix(
-                err,
-                ::tonic::Code::InvalidArgument,
-            ))?
-            .into_inner();
+        let json = <::actix_web::web::Json<ApproveJson> as ::actix_web::FromRequest>::from_request(
+            &http_request,
+            &mut payload,
+        )
+        .await
+        .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
+        .into_inner();
         let request = ApproveRequest {
             contract: json.contract,
             spender: json.spender,
@@ -342,14 +330,13 @@ pub mod erc20_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<TransferResponse>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json = <::actix_web::web::Json<
-            TransferJson,
-        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+        let json =
+            <::actix_web::web::Json<TransferJson> as ::actix_web::FromRequest>::from_request(
+                &http_request,
+                &mut payload,
+            )
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(
-                err,
-                ::tonic::Code::InvalidArgument,
-            ))?
+            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
             .into_inner();
         let request = TransferRequest {
             contract: json.contract,
@@ -368,14 +355,13 @@ pub mod erc20_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<TransferFromResponse>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json = <::actix_web::web::Json<
-            TransferFromJson,
-        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+        let json =
+            <::actix_web::web::Json<TransferFromJson> as ::actix_web::FromRequest>::from_request(
+                &http_request,
+                &mut payload,
+            )
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(
-                err,
-                ::tonic::Code::InvalidArgument,
-            ))?
+            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
             .into_inner();
         let request = TransferFromRequest {
             contract: json.contract,
@@ -394,29 +380,41 @@ pub mod erc20_actix {
         service: Arc<dyn Erc20 + Send + Sync + 'static>,
     ) {
         config.app_data(::actix_web::web::Data::from(service));
-        config.route("/api/erc20/deploy", ::actix_web::web::post().to(call_deploy));
-        config
-            .route(
-                "/api/erc20/totalSupply",
-                ::actix_web::web::get().to(call_total_supply),
-            );
-        config
-            .route("/api/erc20/balanceOf", ::actix_web::web::get().to(call_balance_of));
-        config.route("/api/erc20/allowance", ::actix_web::web::get().to(call_allowance));
-        config.route("/api/erc20/approve", ::actix_web::web::post().to(call_approve));
-        config.route("/api/erc20/transfer", ::actix_web::web::post().to(call_transfer));
-        config
-            .route(
-                "/api/erc20/transferFrom",
-                ::actix_web::web::post().to(call_transfer_from),
-            );
+        config.route(
+            "/api/erc20/deploy",
+            ::actix_web::web::post().to(call_deploy),
+        );
+        config.route(
+            "/api/erc20/totalSupply",
+            ::actix_web::web::get().to(call_total_supply),
+        );
+        config.route(
+            "/api/erc20/balanceOf",
+            ::actix_web::web::get().to(call_balance_of),
+        );
+        config.route(
+            "/api/erc20/allowance",
+            ::actix_web::web::get().to(call_allowance),
+        );
+        config.route(
+            "/api/erc20/approve",
+            ::actix_web::web::post().to(call_approve),
+        );
+        config.route(
+            "/api/erc20/transfer",
+            ::actix_web::web::post().to(call_transfer),
+        );
+        config.route(
+            "/api/erc20/transferFrom",
+            ::actix_web::web::post().to(call_transfer_from),
+        );
     }
 }
 /// Generated client implementations.
 pub mod erc20_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::*;
     use tonic::codegen::http::Uri;
+    use tonic::codegen::*;
     /// Define the service for ERC20
     #[derive(Debug, Clone)]
     pub struct Erc20Client<T> {
@@ -461,9 +459,8 @@ pub mod erc20_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
-            >>::Error: Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
+                Into<StdError> + Send + Sync,
         {
             Erc20Client::new(InterceptedService::new(inner, interceptor))
         }
@@ -486,15 +483,12 @@ pub mod erc20_client {
             &mut self,
             request: impl tonic::IntoRequest<super::DeployRequest>,
         ) -> Result<tonic::Response<super::DeployResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/erc20.ERC20/Deploy");
             self.inner.unary(request.into_request(), path, codec).await
@@ -503,15 +497,12 @@ pub mod erc20_client {
             &mut self,
             request: impl tonic::IntoRequest<super::TotalSupplyRequest>,
         ) -> Result<tonic::Response<super::TotalSupplyResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/erc20.ERC20/TotalSupply");
             self.inner.unary(request.into_request(), path, codec).await
@@ -520,15 +511,12 @@ pub mod erc20_client {
             &mut self,
             request: impl tonic::IntoRequest<super::BalanceOfRequest>,
         ) -> Result<tonic::Response<super::BalanceOfResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/erc20.ERC20/BalanceOf");
             self.inner.unary(request.into_request(), path, codec).await
@@ -537,15 +525,12 @@ pub mod erc20_client {
             &mut self,
             request: impl tonic::IntoRequest<super::AllowanceRequest>,
         ) -> Result<tonic::Response<super::AllowanceResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/erc20.ERC20/Allowance");
             self.inner.unary(request.into_request(), path, codec).await
@@ -554,15 +539,12 @@ pub mod erc20_client {
             &mut self,
             request: impl tonic::IntoRequest<super::ApproveRequest>,
         ) -> Result<tonic::Response<super::ApproveResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/erc20.ERC20/Approve");
             self.inner.unary(request.into_request(), path, codec).await
@@ -571,15 +553,12 @@ pub mod erc20_client {
             &mut self,
             request: impl tonic::IntoRequest<super::TransferRequest>,
         ) -> Result<tonic::Response<super::TransferResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/erc20.ERC20/Transfer");
             self.inner.unary(request.into_request(), path, codec).await
@@ -588,15 +567,12 @@ pub mod erc20_client {
             &mut self,
             request: impl tonic::IntoRequest<super::TransferFromRequest>,
         ) -> Result<tonic::Response<super::TransferFromResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/erc20.ERC20/TransferFrom");
             self.inner.unary(request.into_request(), path, codec).await
@@ -659,10 +635,7 @@ pub mod erc20_server {
                 send_compression_encodings: Default::default(),
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -690,10 +663,7 @@ pub mod erc20_server {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
-        fn poll_ready(
-            &mut self,
-            _cx: &mut Context<'_>,
-        ) -> Poll<Result<(), Self::Error>> {
+        fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
@@ -702,13 +672,9 @@ pub mod erc20_server {
                 "/erc20.ERC20/Deploy" => {
                     #[allow(non_camel_case_types)]
                     struct DeploySvc<T: Erc20>(pub Arc<T>);
-                    impl<T: Erc20> tonic::server::UnaryService<super::DeployRequest>
-                    for DeploySvc<T> {
+                    impl<T: Erc20> tonic::server::UnaryService<super::DeployRequest> for DeploySvc<T> {
                         type Response = super::DeployResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::DeployRequest>,
@@ -725,11 +691,10 @@ pub mod erc20_server {
                         let inner = inner.0;
                         let method = DeploySvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -738,21 +703,15 @@ pub mod erc20_server {
                 "/erc20.ERC20/TotalSupply" => {
                     #[allow(non_camel_case_types)]
                     struct TotalSupplySvc<T: Erc20>(pub Arc<T>);
-                    impl<T: Erc20> tonic::server::UnaryService<super::TotalSupplyRequest>
-                    for TotalSupplySvc<T> {
+                    impl<T: Erc20> tonic::server::UnaryService<super::TotalSupplyRequest> for TotalSupplySvc<T> {
                         type Response = super::TotalSupplyResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::TotalSupplyRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).total_supply(request).await
-                            };
+                            let fut = async move { (*inner).total_supply(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -763,11 +722,10 @@ pub mod erc20_server {
                         let inner = inner.0;
                         let method = TotalSupplySvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -776,13 +734,9 @@ pub mod erc20_server {
                 "/erc20.ERC20/BalanceOf" => {
                     #[allow(non_camel_case_types)]
                     struct BalanceOfSvc<T: Erc20>(pub Arc<T>);
-                    impl<T: Erc20> tonic::server::UnaryService<super::BalanceOfRequest>
-                    for BalanceOfSvc<T> {
+                    impl<T: Erc20> tonic::server::UnaryService<super::BalanceOfRequest> for BalanceOfSvc<T> {
                         type Response = super::BalanceOfResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::BalanceOfRequest>,
@@ -799,11 +753,10 @@ pub mod erc20_server {
                         let inner = inner.0;
                         let method = BalanceOfSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -812,13 +765,9 @@ pub mod erc20_server {
                 "/erc20.ERC20/Allowance" => {
                     #[allow(non_camel_case_types)]
                     struct AllowanceSvc<T: Erc20>(pub Arc<T>);
-                    impl<T: Erc20> tonic::server::UnaryService<super::AllowanceRequest>
-                    for AllowanceSvc<T> {
+                    impl<T: Erc20> tonic::server::UnaryService<super::AllowanceRequest> for AllowanceSvc<T> {
                         type Response = super::AllowanceResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::AllowanceRequest>,
@@ -835,11 +784,10 @@ pub mod erc20_server {
                         let inner = inner.0;
                         let method = AllowanceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -848,13 +796,9 @@ pub mod erc20_server {
                 "/erc20.ERC20/Approve" => {
                     #[allow(non_camel_case_types)]
                     struct ApproveSvc<T: Erc20>(pub Arc<T>);
-                    impl<T: Erc20> tonic::server::UnaryService<super::ApproveRequest>
-                    for ApproveSvc<T> {
+                    impl<T: Erc20> tonic::server::UnaryService<super::ApproveRequest> for ApproveSvc<T> {
                         type Response = super::ApproveResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ApproveRequest>,
@@ -871,11 +815,10 @@ pub mod erc20_server {
                         let inner = inner.0;
                         let method = ApproveSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -884,13 +827,9 @@ pub mod erc20_server {
                 "/erc20.ERC20/Transfer" => {
                     #[allow(non_camel_case_types)]
                     struct TransferSvc<T: Erc20>(pub Arc<T>);
-                    impl<T: Erc20> tonic::server::UnaryService<super::TransferRequest>
-                    for TransferSvc<T> {
+                    impl<T: Erc20> tonic::server::UnaryService<super::TransferRequest> for TransferSvc<T> {
                         type Response = super::TransferResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::TransferRequest>,
@@ -907,11 +846,10 @@ pub mod erc20_server {
                         let inner = inner.0;
                         let method = TransferSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -920,23 +858,15 @@ pub mod erc20_server {
                 "/erc20.ERC20/TransferFrom" => {
                     #[allow(non_camel_case_types)]
                     struct TransferFromSvc<T: Erc20>(pub Arc<T>);
-                    impl<
-                        T: Erc20,
-                    > tonic::server::UnaryService<super::TransferFromRequest>
-                    for TransferFromSvc<T> {
+                    impl<T: Erc20> tonic::server::UnaryService<super::TransferFromRequest> for TransferFromSvc<T> {
                         type Response = super::TransferFromResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::TransferFromRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).transfer_from(request).await
-                            };
+                            let fut = async move { (*inner).transfer_from(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -947,28 +877,23 @@ pub mod erc20_server {
                         let inner = inner.0;
                         let method = TransferFromSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", "12")
-                                .header("content-type", "application/grpc")
-                                .body(empty_body())
-                                .unwrap(),
-                        )
-                    })
-                }
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", "12")
+                        .header("content-type", "application/grpc")
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }

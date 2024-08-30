@@ -27,6 +27,3 @@ db-url: postgresql://sagi:123@localhost:15432/sagi
 etherman:
   ethereum-rpc: https://devnet-rpc.zionx.network
   chain-id: 176923
-  operator-keystore: openapi-server/dist/operator-develop.keystore
-  contract-address: 0xeA3b8eA006676E1cEf0019659a57e0C126c283c6
-  start-block-number: 614

@@ -1,3 +1,5 @@
+#![allow(clippy::assigning_clones)]
+
 pub mod authtelegram;
 pub mod erc20;
 pub mod erc404;

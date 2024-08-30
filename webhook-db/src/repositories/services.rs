@@ -43,8 +43,8 @@ impl Services {
 
         let ret = services::table
             .filter(services::created_by.eq(created_by))
-            .filter(services::id.eq(id.unwrap_or_else(|| "".to_string())))
-            .or_filter(services::client_id.eq(client_id.unwrap_or_else(|| "".to_string())))
+            .filter(services::id.eq(id.unwrap_or_default()))
+            .or_filter(services::client_id.eq(client_id.unwrap_or_default()))
             .select(Service::as_select())
             .first(&mut conn)
             .await?;
@@ -60,8 +60,8 @@ impl Services {
         let mut conn = self.db.get_connection().await;
 
         let ret = services::table
-            .filter(services::id.eq(id.unwrap_or_else(|| "".to_string())))
-            .or_filter(services::client_id.eq(service_id.unwrap_or_else(|| "".to_string())))
+            .filter(services::id.eq(id.unwrap_or_default()))
+            .or_filter(services::client_id.eq(service_id.unwrap_or_default()))
             .select(Service::as_select())
             .first(&mut conn)
             .await?;
@@ -79,7 +79,7 @@ impl Services {
             .check_exist_service(Some("".to_string()), Some(client_id.clone()))
             .await
             .unwrap_or(Service::default());
-        if service.client_id != "".to_string() {
+        if !service.client_id.is_empty() {
             return Err(ServiceError {
                 msg: "Service exists".into(),
                 status: tonic::Code::Unknown as i32,
@@ -88,9 +88,9 @@ impl Services {
         let uuid = Uuid::new_v4();
         let new_service = Service {
             id: uuid.to_string(),
-            client_id: client_id,
-            info: info,
-            created_by: created_by,
+            client_id,
+            info,
+            created_by,
             created_at: Local::now().naive_utc(),
             updated_at: Local::now().naive_utc(),
         };

@@ -57,10 +57,8 @@ impl ServicesTokenWebhook {
 
         let ret = service_webhook_token::table
             .filter(service_webhook_token::created_by.eq(created_by))
-            .filter(service_webhook_token::id.eq(id.unwrap_or_else(|| "".to_string())))
-            .or_filter(
-                service_webhook_token::client_id.eq(client_id.unwrap_or_else(|| "".to_string())),
-            )
+            .filter(service_webhook_token::id.eq(id.unwrap_or_default()))
+            .or_filter(service_webhook_token::client_id.eq(client_id.unwrap_or_default()))
             .select(ServiceWebhookToken::as_select())
             .first(&mut conn)
             .await?;
@@ -78,8 +76,8 @@ impl ServicesTokenWebhook {
 
         let ret = services::table
             .filter(services::created_by.eq(created_by))
-            .filter(services::id.eq(id.unwrap_or_else(|| "".to_string())))
-            .or_filter(services::client_id.eq(client_id.unwrap_or_else(|| "".to_string())))
+            .filter(services::id.eq(id.unwrap_or_default()))
+            .or_filter(services::client_id.eq(client_id.unwrap_or_default()))
             .select(Service::as_select())
             .first(&mut conn)
             .await?;
@@ -93,9 +91,7 @@ impl ServicesTokenWebhook {
     ) -> Result<ServiceWebhookToken, ServiceError> {
         let mut conn = self.db.get_connection().await;
         let ret = service_webhook_token::table
-            .filter(
-                service_webhook_token::client_id.eq(client_id.unwrap_or_else(|| "".to_string())),
-            )
+            .filter(service_webhook_token::client_id.eq(client_id.unwrap_or_default()))
             .select(ServiceWebhookToken::as_select())
             .first(&mut conn)
             .await?;
@@ -118,7 +114,7 @@ impl ServicesTokenWebhook {
             .await
             .unwrap_or(Service::default());
 
-        if service.client_id == "".to_string() || service.id == "".to_string() {
+        if service.client_id.is_empty() || service.id.is_empty() {
             return Err(ServiceError {
                 msg: "Service not available".into(),
                 status: tonic::Code::Unknown as i32,
@@ -133,7 +129,7 @@ impl ServicesTokenWebhook {
             )
             .await
             .unwrap_or(ServiceWebhookToken::default());
-        if service_webhook_token.client_id != "".to_string() {
+        if !service_webhook_token.client_id.is_empty() {
             return Err(ServiceError {
                 msg: "The service has Endpoint. Please unregister first".into(),
                 status: tonic::Code::Unknown as i32,
@@ -142,9 +138,9 @@ impl ServicesTokenWebhook {
         let uuid = Uuid::new_v4();
         let new_service = ServiceWebhookToken {
             id: uuid.to_string(),
-            client_id: client_id,
-            endpoint_url: endpoint_url,
-            created_by: created_by,
+            client_id,
+            endpoint_url,
+            created_by,
             created_at: Local::now().naive_utc(),
             updated_at: Local::now().naive_utc(),
         };
@@ -173,7 +169,7 @@ impl ServicesTokenWebhook {
             .await
             .unwrap_or(Service::default());
 
-        if service.client_id == "".to_string() || service.id == "".to_string() {
+        if service.client_id.is_empty() || service.id.is_empty() {
             return Err(ServiceError {
                 msg: "Service not available".into(),
                 status: tonic::Code::Unknown as i32,
@@ -188,8 +184,8 @@ impl ServicesTokenWebhook {
             )
             .await
             .unwrap_or(ServiceWebhookToken::default());
-        if service_webhook_token.client_id == "".to_string()
-            || service_webhook_token.endpoint_url == "".to_string()
+        if service_webhook_token.client_id.is_empty()
+            || service_webhook_token.endpoint_url.is_empty()
         {
             return Err(ServiceError {
                 msg: "The endpoint for the service does not exist.".into(),
@@ -222,7 +218,7 @@ impl ServicesTokenWebhook {
             .await
             .unwrap_or(Service::default());
 
-        if service.client_id == "".to_string() || service.id == "".to_string() {
+        if service.client_id.is_empty() || service.id.is_empty() {
             return Err(ServiceError {
                 msg: "Service not available".into(),
                 status: tonic::Code::Unknown as i32,
@@ -238,9 +234,7 @@ impl ServicesTokenWebhook {
             .await
             .unwrap_or(ServiceWebhookToken::default());
 
-        if service_webhook_token.client_id == "".to_string()
-            || service_webhook_token.id == "".to_string()
-        {
+        if service_webhook_token.client_id.is_empty() || service_webhook_token.id.is_empty() {
             return Err(ServiceError {
                 msg: "The service did not register the endpoint. Please register the endpoint."
                     .into(),

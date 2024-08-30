@@ -139,8 +139,8 @@ impl StatusSendToEndpointsResponse {
 }
 pub mod auth_telegram_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
-    use super::*;
     use super::auth_telegram_server::AuthTelegram;
+    use super::*;
     use std::sync::Arc;
     /// Define messages for the requests and responses for AuthTelegram
     #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -210,14 +210,13 @@ pub mod auth_telegram_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<SignInTelegramResponse>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json = <::actix_web::web::Json<
-            SignInTelegramJson,
-        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+        let json =
+            <::actix_web::web::Json<SignInTelegramJson> as ::actix_web::FromRequest>::from_request(
+                &http_request,
+                &mut payload,
+            )
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(
-                err,
-                ::tonic::Code::InvalidArgument,
-            ))?
+            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
             .into_inner();
         let request = SignInTelegramRequest {
             phone_number: json.phone_number,
@@ -236,14 +235,13 @@ pub mod auth_telegram_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<LogOutTelegramResponse>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json = <::actix_web::web::Json<
-            LogOutTelegramJson,
-        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+        let json =
+            <::actix_web::web::Json<LogOutTelegramJson> as ::actix_web::FromRequest>::from_request(
+                &http_request,
+                &mut payload,
+            )
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(
-                err,
-                ::tonic::Code::InvalidArgument,
-            ))?
+            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
             .into_inner();
         let request = LogOutTelegramRequest {
             session_uuid: json.session_uuid,
@@ -257,10 +255,7 @@ pub mod auth_telegram_actix {
         service: ::actix_web::web::Data<dyn AuthTelegram + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<TestSendToEndpointsResponse>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<::actix_web::web::Json<TestSendToEndpointsResponse>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             TestSendToEndpointsJson,
@@ -286,33 +281,29 @@ pub mod auth_telegram_actix {
         service: Arc<dyn AuthTelegram + Send + Sync + 'static>,
     ) {
         config.app_data(::actix_web::web::Data::from(service));
-        config
-            .route(
-                "/api/authtelegram/sendCodeTelegram",
-                ::actix_web::web::post().to(call_send_code_telegram),
-            );
-        config
-            .route(
-                "/api/authtelegram/signInTelegram",
-                ::actix_web::web::post().to(call_sign_in_telegram),
-            );
-        config
-            .route(
-                "/api/authtelegram/logOutTelegram",
-                ::actix_web::web::post().to(call_log_out_telegram),
-            );
-        config
-            .route(
-                "/api/authtelegram/testSendToEndpoints",
-                ::actix_web::web::post().to(call_test_send_to_endpoints),
-            );
+        config.route(
+            "/api/authtelegram/sendCodeTelegram",
+            ::actix_web::web::post().to(call_send_code_telegram),
+        );
+        config.route(
+            "/api/authtelegram/signInTelegram",
+            ::actix_web::web::post().to(call_sign_in_telegram),
+        );
+        config.route(
+            "/api/authtelegram/logOutTelegram",
+            ::actix_web::web::post().to(call_log_out_telegram),
+        );
+        config.route(
+            "/api/authtelegram/testSendToEndpoints",
+            ::actix_web::web::post().to(call_test_send_to_endpoints),
+        );
     }
 }
 /// Generated client implementations.
 pub mod auth_telegram_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::*;
     use tonic::codegen::http::Uri;
+    use tonic::codegen::*;
     /// Define the service for
     #[derive(Debug, Clone)]
     pub struct AuthTelegramClient<T> {
@@ -357,9 +348,8 @@ pub mod auth_telegram_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
-            >>::Error: Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
+                Into<StdError> + Send + Sync,
         {
             AuthTelegramClient::new(InterceptedService::new(inner, interceptor))
         }
@@ -382,72 +372,57 @@ pub mod auth_telegram_client {
             &mut self,
             request: impl tonic::IntoRequest<super::SendCodeTelegramRequest>,
         ) -> Result<tonic::Response<super::SendCodeTelegramResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/authtelegram.AuthTelegram/SendCodeTelegram",
-            );
+            let path =
+                http::uri::PathAndQuery::from_static("/authtelegram.AuthTelegram/SendCodeTelegram");
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn sign_in_telegram(
             &mut self,
             request: impl tonic::IntoRequest<super::SignInTelegramRequest>,
         ) -> Result<tonic::Response<super::SignInTelegramResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/authtelegram.AuthTelegram/SignInTelegram",
-            );
+            let path =
+                http::uri::PathAndQuery::from_static("/authtelegram.AuthTelegram/SignInTelegram");
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn log_out_telegram(
             &mut self,
             request: impl tonic::IntoRequest<super::LogOutTelegramRequest>,
         ) -> Result<tonic::Response<super::LogOutTelegramResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/authtelegram.AuthTelegram/LogOutTelegram",
-            );
+            let path =
+                http::uri::PathAndQuery::from_static("/authtelegram.AuthTelegram/LogOutTelegram");
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn sign_in_telegram_as_bot(
             &mut self,
             request: impl tonic::IntoRequest<super::SignInTelegramAsBotRequest>,
         ) -> Result<tonic::Response<super::SignInTelegramAsBotResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/authtelegram.AuthTelegram/SignInTelegramAsBot",
@@ -458,15 +433,12 @@ pub mod auth_telegram_client {
             &mut self,
             request: impl tonic::IntoRequest<super::LogOutTelegramAsbotRequest>,
         ) -> Result<tonic::Response<super::LogOutTelegramAsBotResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/authtelegram.AuthTelegram/LogOutTelegramAsBot",
@@ -477,15 +449,12 @@ pub mod auth_telegram_client {
             &mut self,
             request: impl tonic::IntoRequest<super::TestSendToEndpointsRequest>,
         ) -> Result<tonic::Response<super::TestSendToEndpointsResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/authtelegram.AuthTelegram/TestSendToEndpoints",
@@ -546,10 +515,7 @@ pub mod auth_telegram_server {
                 send_compression_encodings: Default::default(),
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -577,10 +543,7 @@ pub mod auth_telegram_server {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
-        fn poll_ready(
-            &mut self,
-            _cx: &mut Context<'_>,
-        ) -> Poll<Result<(), Self::Error>> {
+        fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
@@ -589,23 +552,18 @@ pub mod auth_telegram_server {
                 "/authtelegram.AuthTelegram/SendCodeTelegram" => {
                     #[allow(non_camel_case_types)]
                     struct SendCodeTelegramSvc<T: AuthTelegram>(pub Arc<T>);
-                    impl<
-                        T: AuthTelegram,
-                    > tonic::server::UnaryService<super::SendCodeTelegramRequest>
-                    for SendCodeTelegramSvc<T> {
+                    impl<T: AuthTelegram>
+                        tonic::server::UnaryService<super::SendCodeTelegramRequest>
+                        for SendCodeTelegramSvc<T>
+                    {
                         type Response = super::SendCodeTelegramResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::SendCodeTelegramRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).send_code_telegram(request).await
-                            };
+                            let fut = async move { (*inner).send_code_telegram(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -616,11 +574,10 @@ pub mod auth_telegram_server {
                         let inner = inner.0;
                         let method = SendCodeTelegramSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -629,23 +586,17 @@ pub mod auth_telegram_server {
                 "/authtelegram.AuthTelegram/SignInTelegram" => {
                     #[allow(non_camel_case_types)]
                     struct SignInTelegramSvc<T: AuthTelegram>(pub Arc<T>);
-                    impl<
-                        T: AuthTelegram,
-                    > tonic::server::UnaryService<super::SignInTelegramRequest>
-                    for SignInTelegramSvc<T> {
+                    impl<T: AuthTelegram> tonic::server::UnaryService<super::SignInTelegramRequest>
+                        for SignInTelegramSvc<T>
+                    {
                         type Response = super::SignInTelegramResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::SignInTelegramRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).sign_in_telegram(request).await
-                            };
+                            let fut = async move { (*inner).sign_in_telegram(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -656,11 +607,10 @@ pub mod auth_telegram_server {
                         let inner = inner.0;
                         let method = SignInTelegramSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -669,23 +619,17 @@ pub mod auth_telegram_server {
                 "/authtelegram.AuthTelegram/LogOutTelegram" => {
                     #[allow(non_camel_case_types)]
                     struct LogOutTelegramSvc<T: AuthTelegram>(pub Arc<T>);
-                    impl<
-                        T: AuthTelegram,
-                    > tonic::server::UnaryService<super::LogOutTelegramRequest>
-                    for LogOutTelegramSvc<T> {
+                    impl<T: AuthTelegram> tonic::server::UnaryService<super::LogOutTelegramRequest>
+                        for LogOutTelegramSvc<T>
+                    {
                         type Response = super::LogOutTelegramResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::LogOutTelegramRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).log_out_telegram(request).await
-                            };
+                            let fut = async move { (*inner).log_out_telegram(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -696,11 +640,10 @@ pub mod auth_telegram_server {
                         let inner = inner.0;
                         let method = LogOutTelegramSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -709,23 +652,19 @@ pub mod auth_telegram_server {
                 "/authtelegram.AuthTelegram/SignInTelegramAsBot" => {
                     #[allow(non_camel_case_types)]
                     struct SignInTelegramAsBotSvc<T: AuthTelegram>(pub Arc<T>);
-                    impl<
-                        T: AuthTelegram,
-                    > tonic::server::UnaryService<super::SignInTelegramAsBotRequest>
-                    for SignInTelegramAsBotSvc<T> {
+                    impl<T: AuthTelegram>
+                        tonic::server::UnaryService<super::SignInTelegramAsBotRequest>
+                        for SignInTelegramAsBotSvc<T>
+                    {
                         type Response = super::SignInTelegramAsBotResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::SignInTelegramAsBotRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).sign_in_telegram_as_bot(request).await
-                            };
+                            let fut =
+                                async move { (*inner).sign_in_telegram_as_bot(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -736,11 +675,10 @@ pub mod auth_telegram_server {
                         let inner = inner.0;
                         let method = SignInTelegramAsBotSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -749,23 +687,19 @@ pub mod auth_telegram_server {
                 "/authtelegram.AuthTelegram/LogOutTelegramAsBot" => {
                     #[allow(non_camel_case_types)]
                     struct LogOutTelegramAsBotSvc<T: AuthTelegram>(pub Arc<T>);
-                    impl<
-                        T: AuthTelegram,
-                    > tonic::server::UnaryService<super::LogOutTelegramAsbotRequest>
-                    for LogOutTelegramAsBotSvc<T> {
+                    impl<T: AuthTelegram>
+                        tonic::server::UnaryService<super::LogOutTelegramAsbotRequest>
+                        for LogOutTelegramAsBotSvc<T>
+                    {
                         type Response = super::LogOutTelegramAsBotResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::LogOutTelegramAsbotRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).log_out_telegram_as_bot(request).await
-                            };
+                            let fut =
+                                async move { (*inner).log_out_telegram_as_bot(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -776,11 +710,10 @@ pub mod auth_telegram_server {
                         let inner = inner.0;
                         let method = LogOutTelegramAsBotSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -789,23 +722,18 @@ pub mod auth_telegram_server {
                 "/authtelegram.AuthTelegram/TestSendToEndpoints" => {
                     #[allow(non_camel_case_types)]
                     struct TestSendToEndpointsSvc<T: AuthTelegram>(pub Arc<T>);
-                    impl<
-                        T: AuthTelegram,
-                    > tonic::server::UnaryService<super::TestSendToEndpointsRequest>
-                    for TestSendToEndpointsSvc<T> {
+                    impl<T: AuthTelegram>
+                        tonic::server::UnaryService<super::TestSendToEndpointsRequest>
+                        for TestSendToEndpointsSvc<T>
+                    {
                         type Response = super::TestSendToEndpointsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::TestSendToEndpointsRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).test_send_to_endpoints(request).await
-                            };
+                            let fut = async move { (*inner).test_send_to_endpoints(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -816,28 +744,23 @@ pub mod auth_telegram_server {
                         let inner = inner.0;
                         let method = TestSendToEndpointsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", "12")
-                                .header("content-type", "application/grpc")
-                                .body(empty_body())
-                                .unwrap(),
-                        )
-                    })
-                }
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", "12")
+                        .header("content-type", "application/grpc")
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }

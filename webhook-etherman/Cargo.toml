@@ -25,3 +25,4 @@ parking_lot.workspace = true
 reqwest.workspace = true
 tonic.workspace = true
 openssl.workspace = true
+zion-aa.workspace = true

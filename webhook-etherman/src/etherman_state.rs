@@ -1,5 +1,4 @@
 use {
-    crate::config::Config,
     anyhow::Result,
     std::sync::{
         atomic::{AtomicU64, Ordering},
@@ -15,12 +14,12 @@ pub struct EthermanState {
 }
 
 impl EthermanState {
-    pub async fn init(db: Arc<Database>, c: Config) -> Result<Self> {
+    pub async fn init(db: Arc<Database>) -> Result<Self> {
         let db = Arc::new(States::new(db));
         let b = db
             .get("ethermanstate.start_block_number".into())
             .await
-            .unwrap_or(c.start_block_number.to_string())
+            .unwrap_or("0".to_string())
             .parse::<u64>()?;
         Ok(Self {
             db,

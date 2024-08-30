@@ -148,7 +148,7 @@ pub async fn run(
     let authtelegram = Arc::new(AuthTelegramService::new(telegram_auth_config.clone()));
     let zionauthorization = Arc::new(ZionAuthorizationService::new(telegram_auth_config.clone()));
     let services_zion = Arc::new(ServicesZionService::new(
-        db.clone(),
+        Arc::clone(&db),
         server_config.private_key_path.clone(),
     ));
 

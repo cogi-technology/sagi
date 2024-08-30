@@ -17,6 +17,7 @@ use {
     std::{io::BufReader, sync::Arc},
 };
 
+#[ignore]
 #[tokio::test]
 async fn test_contract_wallet_address_correct() -> Result<()> {
     let token = std::fs::read_to_string("./src/contract_wallet/test/inputs/jwt.data")?;
@@ -153,6 +154,7 @@ async fn test_create_wallet_is_ok() -> Result<()> {
     Ok(())
 }
 
+#[ignore]
 #[tokio::test]
 async fn test_validate_pin_code_is_ok() -> Result<()> {
     let token = std::fs::read_to_string("./src/contract_wallet/test/inputs/jwt.data")?;

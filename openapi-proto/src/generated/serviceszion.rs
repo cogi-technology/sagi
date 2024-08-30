@@ -577,8 +577,8 @@ pub struct InfoEventToken {
 }
 pub mod services_zion_actix {
     #![allow(unused_variables, dead_code, missing_docs)]
-    use super::*;
     use super::services_zion_server::ServicesZion;
+    use super::*;
     use std::sync::Arc;
     /// Services
     #[actix_prost_macros::serde(rename_all = "snake_case")]
@@ -815,14 +815,13 @@ pub mod services_zion_actix {
         payload: ::actix_web::web::Payload,
     ) -> Result<::actix_web::web::Json<InfoService>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
-        let json = <::actix_web::web::Json<
-            GetInfoServiceJson,
-        > as ::actix_web::FromRequest>::from_request(&http_request, &mut payload)
+        let json =
+            <::actix_web::web::Json<GetInfoServiceJson> as ::actix_web::FromRequest>::from_request(
+                &http_request,
+                &mut payload,
+            )
             .await
-            .map_err(|err| ::actix_prost::Error::from_actix(
-                err,
-                ::tonic::Code::InvalidArgument,
-            ))?
+            .map_err(|err| ::actix_prost::Error::from_actix(err, ::tonic::Code::InvalidArgument))?
             .into_inner();
         let request = GetInfoServiceRequest {
             id: json.id,
@@ -836,12 +835,9 @@ pub mod services_zion_actix {
     async fn call_get_all_nft_endpoint_for_service(
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
-    ) -> Result<
-        ::actix_web::web::Json<GetAllNftEndpointForServiceResponse>,
-        ::actix_prost::Error,
-    > {
-        let request = GetAllNftEndpointForServiceRequest {
-        };
+    ) -> Result<::actix_web::web::Json<GetAllNftEndpointForServiceResponse>, ::actix_prost::Error>
+    {
+        let request = GetAllNftEndpointForServiceRequest {};
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.get_all_nft_endpoint_for_service(request).await?;
         let response = response.into_inner();
@@ -875,10 +871,8 @@ pub mod services_zion_actix {
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<ResgiterNftEndpointForServiceResponse>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<::actix_web::web::Json<ResgiterNftEndpointForServiceResponse>, ::actix_prost::Error>
+    {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             ResgiterNFTEndpointForServiceJson,
@@ -902,10 +896,8 @@ pub mod services_zion_actix {
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<UnRegisterNftEndpointForServiceResponse>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<::actix_web::web::Json<UnRegisterNftEndpointForServiceResponse>, ::actix_prost::Error>
+    {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             UnRegisterNFTEndpointForServiceJson,
@@ -920,7 +912,9 @@ pub mod services_zion_actix {
             client_id: json.client_id,
         };
         let request = ::actix_prost::new_request(request, &http_request);
-        let response = service.un_register_nft_endpoint_for_service(request).await?;
+        let response = service
+            .un_register_nft_endpoint_for_service(request)
+            .await?;
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
@@ -928,10 +922,8 @@ pub mod services_zion_actix {
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<UpdateNftEndpointForServiceeResponse>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<::actix_web::web::Json<UpdateNftEndpointForServiceeResponse>, ::actix_prost::Error>
+    {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             UpdateNFTEndpointForServiceJson,
@@ -954,12 +946,9 @@ pub mod services_zion_actix {
     async fn call_get_all_collection_for_service(
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
-    ) -> Result<
-        ::actix_web::web::Json<GetAllCollectionForServiceResponse>,
-        ::actix_prost::Error,
-    > {
-        let request = GetAllCollectionForServiceRequest {
-        };
+    ) -> Result<::actix_web::web::Json<GetAllCollectionForServiceResponse>, ::actix_prost::Error>
+    {
+        let request = GetAllCollectionForServiceRequest {};
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.get_all_collection_for_service(request).await?;
         let response = response.into_inner();
@@ -993,10 +982,8 @@ pub mod services_zion_actix {
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<RegisterCollectionForServiceResponse>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<::actix_web::web::Json<RegisterCollectionForServiceResponse>, ::actix_prost::Error>
+    {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             RegisterCollectionForServiceJson,
@@ -1022,10 +1009,8 @@ pub mod services_zion_actix {
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<UnRegisterCollectionForServiceResponse>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<::actix_web::web::Json<UnRegisterCollectionForServiceResponse>, ::actix_prost::Error>
+    {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             UnRegisterCollectionForServiceJson,
@@ -1075,10 +1060,7 @@ pub mod services_zion_actix {
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<ResendNotiNftEventsResponse>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<::actix_web::web::Json<ResendNotiNftEventsResponse>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             ResendNotiNFTEventsJson,
@@ -1089,9 +1071,7 @@ pub mod services_zion_actix {
                 ::tonic::Code::InvalidArgument,
             ))?
             .into_inner();
-        let request = ResendNotiNftEventsRequest {
-            id: json.id,
-        };
+        let request = ResendNotiNftEventsRequest { id: json.id };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.resend_noti_nft_events(request).await?;
         let response = response.into_inner();
@@ -1100,12 +1080,9 @@ pub mod services_zion_actix {
     async fn call_get_all_token_endpoint_for_service(
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
-    ) -> Result<
-        ::actix_web::web::Json<GetAllTokenEndpointForServiceResponse>,
-        ::actix_prost::Error,
-    > {
-        let request = GetAllTokenEndpointForServiceRequest {
-        };
+    ) -> Result<::actix_web::web::Json<GetAllTokenEndpointForServiceResponse>, ::actix_prost::Error>
+    {
+        let request = GetAllTokenEndpointForServiceRequest {};
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.get_all_token_endpoint_for_service(request).await?;
         let response = response.into_inner();
@@ -1139,10 +1116,8 @@ pub mod services_zion_actix {
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<ResgiterTokenEndpointForServiceResponse>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<::actix_web::web::Json<ResgiterTokenEndpointForServiceResponse>, ::actix_prost::Error>
+    {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             ResgiterTokenEndpointForServiceJson,
@@ -1184,7 +1159,9 @@ pub mod services_zion_actix {
             client_id: json.client_id,
         };
         let request = ::actix_prost::new_request(request, &http_request);
-        let response = service.un_register_token_endpoint_for_service(request).await?;
+        let response = service
+            .un_register_token_endpoint_for_service(request)
+            .await?;
         let response = response.into_inner();
         Ok(::actix_web::web::Json(response))
     }
@@ -1192,10 +1169,8 @@ pub mod services_zion_actix {
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<UpdateTokenEndpointForServiceeResponse>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<::actix_web::web::Json<UpdateTokenEndpointForServiceeResponse>, ::actix_prost::Error>
+    {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             UpdateTokenEndpointForServiceJson,
@@ -1218,10 +1193,7 @@ pub mod services_zion_actix {
     async fn call_get_all_token_for_service(
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
-    ) -> Result<
-        ::actix_web::web::Json<GetAllTokenForServiceResponse>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<::actix_web::web::Json<GetAllTokenForServiceResponse>, ::actix_prost::Error> {
         let request = GetAllTokenForServiceRequest {};
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.get_all_token_for_service(request).await?;
@@ -1256,10 +1228,7 @@ pub mod services_zion_actix {
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<RegisterTokenForServiceResponse>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<::actix_web::web::Json<RegisterTokenForServiceResponse>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             RegisterTokenForServiceJson,
@@ -1286,10 +1255,8 @@ pub mod services_zion_actix {
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<UnRegisterTokenForServiceResponse>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<::actix_web::web::Json<UnRegisterTokenForServiceResponse>, ::actix_prost::Error>
+    {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             UnRegisterTokenForServiceJson,
@@ -1315,10 +1282,7 @@ pub mod services_zion_actix {
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<GetInfoTokenEventsResponse>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<::actix_web::web::Json<GetInfoTokenEventsResponse>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             GetInfoTokenEventsJson,
@@ -1344,10 +1308,7 @@ pub mod services_zion_actix {
         service: ::actix_web::web::Data<dyn ServicesZion + Sync + Send + 'static>,
         http_request: ::actix_web::HttpRequest,
         payload: ::actix_web::web::Payload,
-    ) -> Result<
-        ::actix_web::web::Json<ResendNotiTokenEventsResponse>,
-        ::actix_prost::Error,
-    > {
+    ) -> Result<::actix_web::web::Json<ResendNotiTokenEventsResponse>, ::actix_prost::Error> {
         let mut payload = payload.into_inner();
         let json = <::actix_web::web::Json<
             ResendNotiTokenEventsJson,
@@ -1358,9 +1319,7 @@ pub mod services_zion_actix {
                 ::tonic::Code::InvalidArgument,
             ))?
             .into_inner();
-        let request = ResendNotiTokenEventsRequest {
-            id: json.id,
-        };
+        let request = ResendNotiTokenEventsRequest { id: json.id };
         let request = ::actix_prost::new_request(request, &http_request);
         let response = service.resend_noti_token_events(request).await?;
         let response = response.into_inner();
@@ -1371,138 +1330,113 @@ pub mod services_zion_actix {
         service: Arc<dyn ServicesZion + Send + Sync + 'static>,
     ) {
         config.app_data(::actix_web::web::Data::from(service));
-        config
-            .route(
-                "/api/serviceszion/registerService",
-                ::actix_web::web::post().to(call_register_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/getAllServices",
-                ::actix_web::web::get().to(call_get_all_services),
-            );
-        config
-            .route(
-                "/api/serviceszion/getInfoService",
-                ::actix_web::web::post().to(call_get_info_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/getAllNFTEndpointForService",
-                ::actix_web::web::get().to(call_get_all_nft_endpoint_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/getInfoNFTEndpointForService",
-                ::actix_web::web::post().to(call_get_info_nft_endpoint_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/resgiterNFTEndpointForService",
-                ::actix_web::web::post().to(call_resgiter_nft_endpoint_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/unRegisterNFTEndpointForService",
-                ::actix_web::web::post().to(call_un_register_nft_endpoint_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/updateNFTEndpointForService",
-                ::actix_web::web::post().to(call_update_nft_endpoint_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/getAllCollectionForService",
-                ::actix_web::web::get().to(call_get_all_collection_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/getInfoCollectionForService",
-                ::actix_web::web::post().to(call_get_info_collection_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/registerCollectionForService",
-                ::actix_web::web::post().to(call_register_collection_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/unRegisterCollectionForService",
-                ::actix_web::web::post().to(call_un_register_collection_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/getInfoNFTEvents",
-                ::actix_web::web::post().to(call_get_info_nft_events),
-            );
-        config
-            .route(
-                "/api/serviceszion/resendNotiNFTEvents",
-                ::actix_web::web::post().to(call_resend_noti_nft_events),
-            );
-        config
-            .route(
-                "/api/serviceszion/getAllTokenEndpointForService",
-                ::actix_web::web::get().to(call_get_all_token_endpoint_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/getInfoTokenEndpointForService",
-                ::actix_web::web::post().to(call_get_info_token_endpoint_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/resgiterTokenEndpointForService",
-                ::actix_web::web::post().to(call_resgiter_token_endpoint_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/unRegisterTokenEndpointForService",
-                ::actix_web::web::post().to(call_un_register_token_endpoint_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/updateTokenEndpointForService",
-                ::actix_web::web::post().to(call_update_token_endpoint_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/getAllTokenForService",
-                ::actix_web::web::get().to(call_get_all_token_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/getInfoTokenForService",
-                ::actix_web::web::post().to(call_get_info_token_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/registerTokenForService",
-                ::actix_web::web::post().to(call_register_token_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/unRegisterTokenForService",
-                ::actix_web::web::post().to(call_un_register_token_for_service),
-            );
-        config
-            .route(
-                "/api/serviceszion/getInfoTokenEvents",
-                ::actix_web::web::post().to(call_get_info_token_events),
-            );
-        config
-            .route(
-                "/api/serviceszion/resendNotiTokenEvents",
-                ::actix_web::web::post().to(call_resend_noti_token_events),
-            );
+        config.route(
+            "/api/serviceszion/registerService",
+            ::actix_web::web::post().to(call_register_service),
+        );
+        config.route(
+            "/api/serviceszion/getAllServices",
+            ::actix_web::web::get().to(call_get_all_services),
+        );
+        config.route(
+            "/api/serviceszion/getInfoService",
+            ::actix_web::web::post().to(call_get_info_service),
+        );
+        config.route(
+            "/api/serviceszion/getAllNFTEndpointForService",
+            ::actix_web::web::get().to(call_get_all_nft_endpoint_for_service),
+        );
+        config.route(
+            "/api/serviceszion/getInfoNFTEndpointForService",
+            ::actix_web::web::post().to(call_get_info_nft_endpoint_for_service),
+        );
+        config.route(
+            "/api/serviceszion/resgiterNFTEndpointForService",
+            ::actix_web::web::post().to(call_resgiter_nft_endpoint_for_service),
+        );
+        config.route(
+            "/api/serviceszion/unRegisterNFTEndpointForService",
+            ::actix_web::web::post().to(call_un_register_nft_endpoint_for_service),
+        );
+        config.route(
+            "/api/serviceszion/updateNFTEndpointForService",
+            ::actix_web::web::post().to(call_update_nft_endpoint_for_service),
+        );
+        config.route(
+            "/api/serviceszion/getAllCollectionForService",
+            ::actix_web::web::get().to(call_get_all_collection_for_service),
+        );
+        config.route(
+            "/api/serviceszion/getInfoCollectionForService",
+            ::actix_web::web::post().to(call_get_info_collection_for_service),
+        );
+        config.route(
+            "/api/serviceszion/registerCollectionForService",
+            ::actix_web::web::post().to(call_register_collection_for_service),
+        );
+        config.route(
+            "/api/serviceszion/unRegisterCollectionForService",
+            ::actix_web::web::post().to(call_un_register_collection_for_service),
+        );
+        config.route(
+            "/api/serviceszion/getInfoNFTEvents",
+            ::actix_web::web::post().to(call_get_info_nft_events),
+        );
+        config.route(
+            "/api/serviceszion/resendNotiNFTEvents",
+            ::actix_web::web::post().to(call_resend_noti_nft_events),
+        );
+        config.route(
+            "/api/serviceszion/getAllTokenEndpointForService",
+            ::actix_web::web::get().to(call_get_all_token_endpoint_for_service),
+        );
+        config.route(
+            "/api/serviceszion/getInfoTokenEndpointForService",
+            ::actix_web::web::post().to(call_get_info_token_endpoint_for_service),
+        );
+        config.route(
+            "/api/serviceszion/resgiterTokenEndpointForService",
+            ::actix_web::web::post().to(call_resgiter_token_endpoint_for_service),
+        );
+        config.route(
+            "/api/serviceszion/unRegisterTokenEndpointForService",
+            ::actix_web::web::post().to(call_un_register_token_endpoint_for_service),
+        );
+        config.route(
+            "/api/serviceszion/updateTokenEndpointForService",
+            ::actix_web::web::post().to(call_update_token_endpoint_for_service),
+        );
+        config.route(
+            "/api/serviceszion/getAllTokenForService",
+            ::actix_web::web::get().to(call_get_all_token_for_service),
+        );
+        config.route(
+            "/api/serviceszion/getInfoTokenForService",
+            ::actix_web::web::post().to(call_get_info_token_for_service),
+        );
+        config.route(
+            "/api/serviceszion/registerTokenForService",
+            ::actix_web::web::post().to(call_register_token_for_service),
+        );
+        config.route(
+            "/api/serviceszion/unRegisterTokenForService",
+            ::actix_web::web::post().to(call_un_register_token_for_service),
+        );
+        config.route(
+            "/api/serviceszion/getInfoTokenEvents",
+            ::actix_web::web::post().to(call_get_info_token_events),
+        );
+        config.route(
+            "/api/serviceszion/resendNotiTokenEvents",
+            ::actix_web::web::post().to(call_resend_noti_token_events),
+        );
     }
 }
 /// Generated client implementations.
 pub mod services_zion_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
-    use tonic::codegen::*;
     use tonic::codegen::http::Uri;
+    use tonic::codegen::*;
     /// Define the service for
     #[derive(Debug, Clone)]
     pub struct ServicesZionClient<T> {
@@ -1547,9 +1481,8 @@ pub mod services_zion_client {
                     <T as tonic::client::GrpcService<tonic::body::BoxBody>>::ResponseBody,
                 >,
             >,
-            <T as tonic::codegen::Service<
-                http::Request<tonic::body::BoxBody>,
-            >>::Error: Into<StdError> + Send + Sync,
+            <T as tonic::codegen::Service<http::Request<tonic::body::BoxBody>>>::Error:
+                Into<StdError> + Send + Sync,
         {
             ServicesZionClient::new(InterceptedService::new(inner, interceptor))
         }
@@ -1573,76 +1506,59 @@ pub mod services_zion_client {
             &mut self,
             request: impl tonic::IntoRequest<super::RegisterServiceRequest>,
         ) -> Result<tonic::Response<super::InfoService>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/serviceszion.ServicesZION/RegisterService",
-            );
+            let path =
+                http::uri::PathAndQuery::from_static("/serviceszion.ServicesZION/RegisterService");
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn get_all_services(
             &mut self,
             request: impl tonic::IntoRequest<super::GetAllServicesRequest>,
         ) -> Result<tonic::Response<super::GetAllServicesResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/serviceszion.ServicesZION/GetAllServices",
-            );
+            let path =
+                http::uri::PathAndQuery::from_static("/serviceszion.ServicesZION/GetAllServices");
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn get_info_service(
             &mut self,
             request: impl tonic::IntoRequest<super::GetInfoServiceRequest>,
         ) -> Result<tonic::Response<super::InfoService>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/serviceszion.ServicesZION/GetInfoService",
-            );
+            let path =
+                http::uri::PathAndQuery::from_static("/serviceszion.ServicesZION/GetInfoService");
             self.inner.unary(request.into_request(), path, codec).await
         }
         /// Services with endpoints
         pub async fn get_all_nft_endpoint_for_service(
             &mut self,
             request: impl tonic::IntoRequest<super::GetAllNftEndpointForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::GetAllNftEndpointForServiceResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> Result<tonic::Response<super::GetAllNftEndpointForServiceResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/GetAllNFTEndpointForService",
@@ -1653,15 +1569,12 @@ pub mod services_zion_client {
             &mut self,
             request: impl tonic::IntoRequest<super::GetInfoNftEndpointForServiceRequest>,
         ) -> Result<tonic::Response<super::NftEndpointForService>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/GetInfoNFTEndpointForService",
@@ -1671,19 +1584,14 @@ pub mod services_zion_client {
         pub async fn resgiter_nft_endpoint_for_service(
             &mut self,
             request: impl tonic::IntoRequest<super::ResgiterNftEndpointForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::ResgiterNftEndpointForServiceResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> Result<tonic::Response<super::ResgiterNftEndpointForServiceResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/ResgiterNFTEndpointForService",
@@ -1692,22 +1600,15 @@ pub mod services_zion_client {
         }
         pub async fn un_register_nft_endpoint_for_service(
             &mut self,
-            request: impl tonic::IntoRequest<
-                super::UnRegisterNftEndpointForServiceRequest,
-            >,
-        ) -> Result<
-            tonic::Response<super::UnRegisterNftEndpointForServiceResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            request: impl tonic::IntoRequest<super::UnRegisterNftEndpointForServiceRequest>,
+        ) -> Result<tonic::Response<super::UnRegisterNftEndpointForServiceResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/UnRegisterNFTEndpointForService",
@@ -1717,19 +1618,14 @@ pub mod services_zion_client {
         pub async fn update_nft_endpoint_for_service(
             &mut self,
             request: impl tonic::IntoRequest<super::UpdateNftEndpointForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::UpdateNftEndpointForServiceeResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> Result<tonic::Response<super::UpdateNftEndpointForServiceeResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/UpdateNFTEndpointForService",
@@ -1740,19 +1636,14 @@ pub mod services_zion_client {
         pub async fn get_all_collection_for_service(
             &mut self,
             request: impl tonic::IntoRequest<super::GetAllCollectionForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::GetAllCollectionForServiceResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> Result<tonic::Response<super::GetAllCollectionForServiceResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/GetAllCollectionForService",
@@ -1763,15 +1654,12 @@ pub mod services_zion_client {
             &mut self,
             request: impl tonic::IntoRequest<super::GeInfoCollectionForServiceRequest>,
         ) -> Result<tonic::Response<super::CollectionForService>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/GetInfoCollectionForService",
@@ -1781,19 +1669,14 @@ pub mod services_zion_client {
         pub async fn register_collection_for_service(
             &mut self,
             request: impl tonic::IntoRequest<super::RegisterCollectionForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::RegisterCollectionForServiceResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> Result<tonic::Response<super::RegisterCollectionForServiceResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/RegisterCollectionForService",
@@ -1802,22 +1685,15 @@ pub mod services_zion_client {
         }
         pub async fn un_register_collection_for_service(
             &mut self,
-            request: impl tonic::IntoRequest<
-                super::UnRegisterCollectionForServiceRequest,
-            >,
-        ) -> Result<
-            tonic::Response<super::UnRegisterCollectionForServiceResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            request: impl tonic::IntoRequest<super::UnRegisterCollectionForServiceRequest>,
+        ) -> Result<tonic::Response<super::UnRegisterCollectionForServiceResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/UnRegisterCollectionForService",
@@ -1829,34 +1705,27 @@ pub mod services_zion_client {
             &mut self,
             request: impl tonic::IntoRequest<super::GetInfoNftEventsRequest>,
         ) -> Result<tonic::Response<super::GetInfoNftEventsResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/serviceszion.ServicesZION/GetInfoNFTEvents",
-            );
+            let path =
+                http::uri::PathAndQuery::from_static("/serviceszion.ServicesZION/GetInfoNFTEvents");
             self.inner.unary(request.into_request(), path, codec).await
         }
         pub async fn resend_noti_nft_events(
             &mut self,
             request: impl tonic::IntoRequest<super::ResendNotiNftEventsRequest>,
         ) -> Result<tonic::Response<super::ResendNotiNftEventsResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/ResendNotiNFTEvents",
@@ -1868,19 +1737,14 @@ pub mod services_zion_client {
         pub async fn get_all_token_endpoint_for_service(
             &mut self,
             request: impl tonic::IntoRequest<super::GetAllTokenEndpointForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::GetAllTokenEndpointForServiceResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> Result<tonic::Response<super::GetAllTokenEndpointForServiceResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/GetAllTokenEndpointForService",
@@ -1889,19 +1753,14 @@ pub mod services_zion_client {
         }
         pub async fn get_info_token_endpoint_for_service(
             &mut self,
-            request: impl tonic::IntoRequest<
-                super::GetInfoTokenEndpointForServiceRequest,
-            >,
+            request: impl tonic::IntoRequest<super::GetInfoTokenEndpointForServiceRequest>,
         ) -> Result<tonic::Response<super::TokenEndpointForService>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/GetInfoTokenEndpointForService",
@@ -1910,22 +1769,15 @@ pub mod services_zion_client {
         }
         pub async fn resgiter_token_endpoint_for_service(
             &mut self,
-            request: impl tonic::IntoRequest<
-                super::ResgiterTokenEndpointForServiceRequest,
-            >,
-        ) -> Result<
-            tonic::Response<super::ResgiterTokenEndpointForServiceResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            request: impl tonic::IntoRequest<super::ResgiterTokenEndpointForServiceRequest>,
+        ) -> Result<tonic::Response<super::ResgiterTokenEndpointForServiceResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/ResgiterTokenEndpointForService",
@@ -1934,22 +1786,15 @@ pub mod services_zion_client {
         }
         pub async fn un_register_token_endpoint_for_service(
             &mut self,
-            request: impl tonic::IntoRequest<
-                super::UnRegisterTokenEndpointForServiceRequest,
-            >,
-        ) -> Result<
-            tonic::Response<super::UnRegisterTokenEndpointForServiceResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            request: impl tonic::IntoRequest<super::UnRegisterTokenEndpointForServiceRequest>,
+        ) -> Result<tonic::Response<super::UnRegisterTokenEndpointForServiceResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/UnRegisterTokenEndpointForService",
@@ -1959,19 +1804,14 @@ pub mod services_zion_client {
         pub async fn update_token_endpoint_for_service(
             &mut self,
             request: impl tonic::IntoRequest<super::UpdateTokenEndpointForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::UpdateTokenEndpointForServiceeResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> Result<tonic::Response<super::UpdateTokenEndpointForServiceeResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/UpdateTokenEndpointForService",
@@ -1982,19 +1822,13 @@ pub mod services_zion_client {
         pub async fn get_all_token_for_service(
             &mut self,
             request: impl tonic::IntoRequest<super::GetAllTokenForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::GetAllTokenForServiceResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> Result<tonic::Response<super::GetAllTokenForServiceResponse>, tonic::Status> {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/GetAllTokenForService",
@@ -2005,15 +1839,12 @@ pub mod services_zion_client {
             &mut self,
             request: impl tonic::IntoRequest<super::GeInfoTokenForServiceRequest>,
         ) -> Result<tonic::Response<super::TokenForService>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/GetInfoTokenForService",
@@ -2023,19 +1854,14 @@ pub mod services_zion_client {
         pub async fn register_token_for_service(
             &mut self,
             request: impl tonic::IntoRequest<super::RegisterTokenForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::RegisterTokenForServiceResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> Result<tonic::Response<super::RegisterTokenForServiceResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/RegisterTokenForService",
@@ -2045,19 +1871,14 @@ pub mod services_zion_client {
         pub async fn un_register_token_for_service(
             &mut self,
             request: impl tonic::IntoRequest<super::UnRegisterTokenForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::UnRegisterTokenForServiceResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> Result<tonic::Response<super::UnRegisterTokenForServiceResponse>, tonic::Status>
+        {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/UnRegisterTokenForService",
@@ -2069,15 +1890,12 @@ pub mod services_zion_client {
             &mut self,
             request: impl tonic::IntoRequest<super::GetInfoTokenEventsRequest>,
         ) -> Result<tonic::Response<super::GetInfoTokenEventsResponse>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/GetInfoTokenEvents",
@@ -2087,19 +1905,13 @@ pub mod services_zion_client {
         pub async fn resend_noti_token_events(
             &mut self,
             request: impl tonic::IntoRequest<super::ResendNotiTokenEventsRequest>,
-        ) -> Result<
-            tonic::Response<super::ResendNotiTokenEventsResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
+        ) -> Result<tonic::Response<super::ResendNotiTokenEventsResponse>, tonic::Status> {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
                 "/serviceszion.ServicesZION/ResendNotiTokenEvents",
@@ -2132,10 +1944,7 @@ pub mod services_zion_server {
         async fn get_all_nft_endpoint_for_service(
             &self,
             request: tonic::Request<super::GetAllNftEndpointForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::GetAllNftEndpointForServiceResponse>,
-            tonic::Status,
-        >;
+        ) -> Result<tonic::Response<super::GetAllNftEndpointForServiceResponse>, tonic::Status>;
         async fn get_info_nft_endpoint_for_service(
             &self,
             request: tonic::Request<super::GetInfoNftEndpointForServiceRequest>,
@@ -2143,32 +1952,20 @@ pub mod services_zion_server {
         async fn resgiter_nft_endpoint_for_service(
             &self,
             request: tonic::Request<super::ResgiterNftEndpointForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::ResgiterNftEndpointForServiceResponse>,
-            tonic::Status,
-        >;
+        ) -> Result<tonic::Response<super::ResgiterNftEndpointForServiceResponse>, tonic::Status>;
         async fn un_register_nft_endpoint_for_service(
             &self,
             request: tonic::Request<super::UnRegisterNftEndpointForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::UnRegisterNftEndpointForServiceResponse>,
-            tonic::Status,
-        >;
+        ) -> Result<tonic::Response<super::UnRegisterNftEndpointForServiceResponse>, tonic::Status>;
         async fn update_nft_endpoint_for_service(
             &self,
             request: tonic::Request<super::UpdateNftEndpointForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::UpdateNftEndpointForServiceeResponse>,
-            tonic::Status,
-        >;
+        ) -> Result<tonic::Response<super::UpdateNftEndpointForServiceeResponse>, tonic::Status>;
         /// Services with Collections
         async fn get_all_collection_for_service(
             &self,
             request: tonic::Request<super::GetAllCollectionForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::GetAllCollectionForServiceResponse>,
-            tonic::Status,
-        >;
+        ) -> Result<tonic::Response<super::GetAllCollectionForServiceResponse>, tonic::Status>;
         async fn get_info_collection_for_service(
             &self,
             request: tonic::Request<super::GeInfoCollectionForServiceRequest>,
@@ -2176,17 +1973,11 @@ pub mod services_zion_server {
         async fn register_collection_for_service(
             &self,
             request: tonic::Request<super::RegisterCollectionForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::RegisterCollectionForServiceResponse>,
-            tonic::Status,
-        >;
+        ) -> Result<tonic::Response<super::RegisterCollectionForServiceResponse>, tonic::Status>;
         async fn un_register_collection_for_service(
             &self,
             request: tonic::Request<super::UnRegisterCollectionForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::UnRegisterCollectionForServiceResponse>,
-            tonic::Status,
-        >;
+        ) -> Result<tonic::Response<super::UnRegisterCollectionForServiceResponse>, tonic::Status>;
         /// Resend Noti Events
         async fn get_info_nft_events(
             &self,
@@ -2201,10 +1992,7 @@ pub mod services_zion_server {
         async fn get_all_token_endpoint_for_service(
             &self,
             request: tonic::Request<super::GetAllTokenEndpointForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::GetAllTokenEndpointForServiceResponse>,
-            tonic::Status,
-        >;
+        ) -> Result<tonic::Response<super::GetAllTokenEndpointForServiceResponse>, tonic::Status>;
         async fn get_info_token_endpoint_for_service(
             &self,
             request: tonic::Request<super::GetInfoTokenEndpointForServiceRequest>,
@@ -2212,32 +2000,20 @@ pub mod services_zion_server {
         async fn resgiter_token_endpoint_for_service(
             &self,
             request: tonic::Request<super::ResgiterTokenEndpointForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::ResgiterTokenEndpointForServiceResponse>,
-            tonic::Status,
-        >;
+        ) -> Result<tonic::Response<super::ResgiterTokenEndpointForServiceResponse>, tonic::Status>;
         async fn un_register_token_endpoint_for_service(
             &self,
             request: tonic::Request<super::UnRegisterTokenEndpointForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::UnRegisterTokenEndpointForServiceResponse>,
-            tonic::Status,
-        >;
+        ) -> Result<tonic::Response<super::UnRegisterTokenEndpointForServiceResponse>, tonic::Status>;
         async fn update_token_endpoint_for_service(
             &self,
             request: tonic::Request<super::UpdateTokenEndpointForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::UpdateTokenEndpointForServiceeResponse>,
-            tonic::Status,
-        >;
+        ) -> Result<tonic::Response<super::UpdateTokenEndpointForServiceeResponse>, tonic::Status>;
         /// Services with Tokens
         async fn get_all_token_for_service(
             &self,
             request: tonic::Request<super::GetAllTokenForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::GetAllTokenForServiceResponse>,
-            tonic::Status,
-        >;
+        ) -> Result<tonic::Response<super::GetAllTokenForServiceResponse>, tonic::Status>;
         async fn get_info_token_for_service(
             &self,
             request: tonic::Request<super::GeInfoTokenForServiceRequest>,
@@ -2245,17 +2021,11 @@ pub mod services_zion_server {
         async fn register_token_for_service(
             &self,
             request: tonic::Request<super::RegisterTokenForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::RegisterTokenForServiceResponse>,
-            tonic::Status,
-        >;
+        ) -> Result<tonic::Response<super::RegisterTokenForServiceResponse>, tonic::Status>;
         async fn un_register_token_for_service(
             &self,
             request: tonic::Request<super::UnRegisterTokenForServiceRequest>,
-        ) -> Result<
-            tonic::Response<super::UnRegisterTokenForServiceResponse>,
-            tonic::Status,
-        >;
+        ) -> Result<tonic::Response<super::UnRegisterTokenForServiceResponse>, tonic::Status>;
         /// Resend Noti Events
         async fn get_info_token_events(
             &self,
@@ -2264,10 +2034,7 @@ pub mod services_zion_server {
         async fn resend_noti_token_events(
             &self,
             request: tonic::Request<super::ResendNotiTokenEventsRequest>,
-        ) -> Result<
-            tonic::Response<super::ResendNotiTokenEventsResponse>,
-            tonic::Status,
-        >;
+        ) -> Result<tonic::Response<super::ResendNotiTokenEventsResponse>, tonic::Status>;
     }
     /// Define the service for
     #[derive(Debug)]
@@ -2289,10 +2056,7 @@ pub mod services_zion_server {
                 send_compression_encodings: Default::default(),
             }
         }
-        pub fn with_interceptor<F>(
-            inner: T,
-            interceptor: F,
-        ) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -2320,10 +2084,7 @@ pub mod services_zion_server {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
-        fn poll_ready(
-            &mut self,
-            _cx: &mut Context<'_>,
-        ) -> Poll<Result<(), Self::Error>> {
+        fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
@@ -2332,23 +2093,17 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/RegisterService" => {
                     #[allow(non_camel_case_types)]
                     struct RegisterServiceSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<super::RegisterServiceRequest>
-                    for RegisterServiceSvc<T> {
+                    impl<T: ServicesZion> tonic::server::UnaryService<super::RegisterServiceRequest>
+                        for RegisterServiceSvc<T>
+                    {
                         type Response = super::InfoService;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::RegisterServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).register_service(request).await
-                            };
+                            let fut = async move { (*inner).register_service(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -2359,11 +2114,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = RegisterServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2372,23 +2126,17 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/GetAllServices" => {
                     #[allow(non_camel_case_types)]
                     struct GetAllServicesSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<super::GetAllServicesRequest>
-                    for GetAllServicesSvc<T> {
+                    impl<T: ServicesZion> tonic::server::UnaryService<super::GetAllServicesRequest>
+                        for GetAllServicesSvc<T>
+                    {
                         type Response = super::GetAllServicesResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetAllServicesRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).get_all_services(request).await
-                            };
+                            let fut = async move { (*inner).get_all_services(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -2399,11 +2147,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = GetAllServicesSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2412,23 +2159,17 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/GetInfoService" => {
                     #[allow(non_camel_case_types)]
                     struct GetInfoServiceSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<super::GetInfoServiceRequest>
-                    for GetInfoServiceSvc<T> {
+                    impl<T: ServicesZion> tonic::server::UnaryService<super::GetInfoServiceRequest>
+                        for GetInfoServiceSvc<T>
+                    {
                         type Response = super::InfoService;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetInfoServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).get_info_service(request).await
-                            };
+                            let fut = async move { (*inner).get_info_service(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -2439,11 +2180,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = GetInfoServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2452,21 +2192,15 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/GetAllNFTEndpointForService" => {
                     #[allow(non_camel_case_types)]
                     struct GetAllNFTEndpointForServiceSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<
-                        super::GetAllNftEndpointForServiceRequest,
-                    > for GetAllNFTEndpointForServiceSvc<T> {
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::GetAllNftEndpointForServiceRequest>
+                        for GetAllNFTEndpointForServiceSvc<T>
+                    {
                         type Response = super::GetAllNftEndpointForServiceResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<
-                                super::GetAllNftEndpointForServiceRequest,
-                            >,
+                            request: tonic::Request<super::GetAllNftEndpointForServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
@@ -2482,11 +2216,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = GetAllNFTEndpointForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2495,21 +2228,15 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/GetInfoNFTEndpointForService" => {
                     #[allow(non_camel_case_types)]
                     struct GetInfoNFTEndpointForServiceSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<
-                        super::GetInfoNftEndpointForServiceRequest,
-                    > for GetInfoNFTEndpointForServiceSvc<T> {
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::GetInfoNftEndpointForServiceRequest>
+                        for GetInfoNFTEndpointForServiceSvc<T>
+                    {
                         type Response = super::NftEndpointForService;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<
-                                super::GetInfoNftEndpointForServiceRequest,
-                            >,
+                            request: tonic::Request<super::GetInfoNftEndpointForServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
@@ -2525,11 +2252,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = GetInfoNFTEndpointForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2538,21 +2264,15 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/ResgiterNFTEndpointForService" => {
                     #[allow(non_camel_case_types)]
                     struct ResgiterNFTEndpointForServiceSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<
-                        super::ResgiterNftEndpointForServiceRequest,
-                    > for ResgiterNFTEndpointForServiceSvc<T> {
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::ResgiterNftEndpointForServiceRequest>
+                        for ResgiterNFTEndpointForServiceSvc<T>
+                    {
                         type Response = super::ResgiterNftEndpointForServiceResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<
-                                super::ResgiterNftEndpointForServiceRequest,
-                            >,
+                            request: tonic::Request<super::ResgiterNftEndpointForServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
@@ -2568,11 +2288,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = ResgiterNFTEndpointForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2580,24 +2299,16 @@ pub mod services_zion_server {
                 }
                 "/serviceszion.ServicesZION/UnRegisterNFTEndpointForService" => {
                     #[allow(non_camel_case_types)]
-                    struct UnRegisterNFTEndpointForServiceSvc<T: ServicesZion>(
-                        pub Arc<T>,
-                    );
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<
-                        super::UnRegisterNftEndpointForServiceRequest,
-                    > for UnRegisterNFTEndpointForServiceSvc<T> {
+                    struct UnRegisterNFTEndpointForServiceSvc<T: ServicesZion>(pub Arc<T>);
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::UnRegisterNftEndpointForServiceRequest>
+                        for UnRegisterNFTEndpointForServiceSvc<T>
+                    {
                         type Response = super::UnRegisterNftEndpointForServiceResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<
-                                super::UnRegisterNftEndpointForServiceRequest,
-                            >,
+                            request: tonic::Request<super::UnRegisterNftEndpointForServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
@@ -2613,11 +2324,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = UnRegisterNFTEndpointForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2626,21 +2336,15 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/UpdateNFTEndpointForService" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateNFTEndpointForServiceSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<
-                        super::UpdateNftEndpointForServiceRequest,
-                    > for UpdateNFTEndpointForServiceSvc<T> {
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::UpdateNftEndpointForServiceRequest>
+                        for UpdateNFTEndpointForServiceSvc<T>
+                    {
                         type Response = super::UpdateNftEndpointForServiceeResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<
-                                super::UpdateNftEndpointForServiceRequest,
-                            >,
+                            request: tonic::Request<super::UpdateNftEndpointForServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
@@ -2656,11 +2360,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = UpdateNFTEndpointForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2669,21 +2372,15 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/GetAllCollectionForService" => {
                     #[allow(non_camel_case_types)]
                     struct GetAllCollectionForServiceSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<
-                        super::GetAllCollectionForServiceRequest,
-                    > for GetAllCollectionForServiceSvc<T> {
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::GetAllCollectionForServiceRequest>
+                        for GetAllCollectionForServiceSvc<T>
+                    {
                         type Response = super::GetAllCollectionForServiceResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<
-                                super::GetAllCollectionForServiceRequest,
-                            >,
+                            request: tonic::Request<super::GetAllCollectionForServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
@@ -2699,11 +2396,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = GetAllCollectionForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2712,21 +2408,15 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/GetInfoCollectionForService" => {
                     #[allow(non_camel_case_types)]
                     struct GetInfoCollectionForServiceSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<
-                        super::GeInfoCollectionForServiceRequest,
-                    > for GetInfoCollectionForServiceSvc<T> {
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::GeInfoCollectionForServiceRequest>
+                        for GetInfoCollectionForServiceSvc<T>
+                    {
                         type Response = super::CollectionForService;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<
-                                super::GeInfoCollectionForServiceRequest,
-                            >,
+                            request: tonic::Request<super::GeInfoCollectionForServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
@@ -2742,11 +2432,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = GetInfoCollectionForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2755,21 +2444,15 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/RegisterCollectionForService" => {
                     #[allow(non_camel_case_types)]
                     struct RegisterCollectionForServiceSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<
-                        super::RegisterCollectionForServiceRequest,
-                    > for RegisterCollectionForServiceSvc<T> {
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::RegisterCollectionForServiceRequest>
+                        for RegisterCollectionForServiceSvc<T>
+                    {
                         type Response = super::RegisterCollectionForServiceResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<
-                                super::RegisterCollectionForServiceRequest,
-                            >,
+                            request: tonic::Request<super::RegisterCollectionForServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
@@ -2785,11 +2468,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = RegisterCollectionForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2797,24 +2479,16 @@ pub mod services_zion_server {
                 }
                 "/serviceszion.ServicesZION/UnRegisterCollectionForService" => {
                     #[allow(non_camel_case_types)]
-                    struct UnRegisterCollectionForServiceSvc<T: ServicesZion>(
-                        pub Arc<T>,
-                    );
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<
-                        super::UnRegisterCollectionForServiceRequest,
-                    > for UnRegisterCollectionForServiceSvc<T> {
+                    struct UnRegisterCollectionForServiceSvc<T: ServicesZion>(pub Arc<T>);
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::UnRegisterCollectionForServiceRequest>
+                        for UnRegisterCollectionForServiceSvc<T>
+                    {
                         type Response = super::UnRegisterCollectionForServiceResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<
-                                super::UnRegisterCollectionForServiceRequest,
-                            >,
+                            request: tonic::Request<super::UnRegisterCollectionForServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
@@ -2830,11 +2504,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = UnRegisterCollectionForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2843,23 +2516,18 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/GetInfoNFTEvents" => {
                     #[allow(non_camel_case_types)]
                     struct GetInfoNFTEventsSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<super::GetInfoNftEventsRequest>
-                    for GetInfoNFTEventsSvc<T> {
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::GetInfoNftEventsRequest>
+                        for GetInfoNFTEventsSvc<T>
+                    {
                         type Response = super::GetInfoNftEventsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetInfoNftEventsRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).get_info_nft_events(request).await
-                            };
+                            let fut = async move { (*inner).get_info_nft_events(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -2870,11 +2538,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = GetInfoNFTEventsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2883,23 +2550,18 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/ResendNotiNFTEvents" => {
                     #[allow(non_camel_case_types)]
                     struct ResendNotiNFTEventsSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<super::ResendNotiNftEventsRequest>
-                    for ResendNotiNFTEventsSvc<T> {
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::ResendNotiNftEventsRequest>
+                        for ResendNotiNFTEventsSvc<T>
+                    {
                         type Response = super::ResendNotiNftEventsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ResendNotiNftEventsRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).resend_noti_nft_events(request).await
-                            };
+                            let fut = async move { (*inner).resend_noti_nft_events(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -2910,11 +2572,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = ResendNotiNFTEventsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2923,21 +2584,15 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/GetAllTokenEndpointForService" => {
                     #[allow(non_camel_case_types)]
                     struct GetAllTokenEndpointForServiceSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<
-                        super::GetAllTokenEndpointForServiceRequest,
-                    > for GetAllTokenEndpointForServiceSvc<T> {
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::GetAllTokenEndpointForServiceRequest>
+                        for GetAllTokenEndpointForServiceSvc<T>
+                    {
                         type Response = super::GetAllTokenEndpointForServiceResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<
-                                super::GetAllTokenEndpointForServiceRequest,
-                            >,
+                            request: tonic::Request<super::GetAllTokenEndpointForServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
@@ -2953,11 +2608,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = GetAllTokenEndpointForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -2965,24 +2619,16 @@ pub mod services_zion_server {
                 }
                 "/serviceszion.ServicesZION/GetInfoTokenEndpointForService" => {
                     #[allow(non_camel_case_types)]
-                    struct GetInfoTokenEndpointForServiceSvc<T: ServicesZion>(
-                        pub Arc<T>,
-                    );
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<
-                        super::GetInfoTokenEndpointForServiceRequest,
-                    > for GetInfoTokenEndpointForServiceSvc<T> {
+                    struct GetInfoTokenEndpointForServiceSvc<T: ServicesZion>(pub Arc<T>);
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::GetInfoTokenEndpointForServiceRequest>
+                        for GetInfoTokenEndpointForServiceSvc<T>
+                    {
                         type Response = super::TokenEndpointForService;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<
-                                super::GetInfoTokenEndpointForServiceRequest,
-                            >,
+                            request: tonic::Request<super::GetInfoTokenEndpointForServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
@@ -2998,11 +2644,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = GetInfoTokenEndpointForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3010,24 +2655,16 @@ pub mod services_zion_server {
                 }
                 "/serviceszion.ServicesZION/ResgiterTokenEndpointForService" => {
                     #[allow(non_camel_case_types)]
-                    struct ResgiterTokenEndpointForServiceSvc<T: ServicesZion>(
-                        pub Arc<T>,
-                    );
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<
-                        super::ResgiterTokenEndpointForServiceRequest,
-                    > for ResgiterTokenEndpointForServiceSvc<T> {
+                    struct ResgiterTokenEndpointForServiceSvc<T: ServicesZion>(pub Arc<T>);
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::ResgiterTokenEndpointForServiceRequest>
+                        for ResgiterTokenEndpointForServiceSvc<T>
+                    {
                         type Response = super::ResgiterTokenEndpointForServiceResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<
-                                super::ResgiterTokenEndpointForServiceRequest,
-                            >,
+                            request: tonic::Request<super::ResgiterTokenEndpointForServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
@@ -3043,11 +2680,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = ResgiterTokenEndpointForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3055,19 +2691,13 @@ pub mod services_zion_server {
                 }
                 "/serviceszion.ServicesZION/UnRegisterTokenEndpointForService" => {
                     #[allow(non_camel_case_types)]
-                    struct UnRegisterTokenEndpointForServiceSvc<T: ServicesZion>(
-                        pub Arc<T>,
-                    );
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<
-                        super::UnRegisterTokenEndpointForServiceRequest,
-                    > for UnRegisterTokenEndpointForServiceSvc<T> {
+                    struct UnRegisterTokenEndpointForServiceSvc<T: ServicesZion>(pub Arc<T>);
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::UnRegisterTokenEndpointForServiceRequest>
+                        for UnRegisterTokenEndpointForServiceSvc<T>
+                    {
                         type Response = super::UnRegisterTokenEndpointForServiceResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<
@@ -3090,11 +2720,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = UnRegisterTokenEndpointForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3103,21 +2732,15 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/UpdateTokenEndpointForService" => {
                     #[allow(non_camel_case_types)]
                     struct UpdateTokenEndpointForServiceSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<
-                        super::UpdateTokenEndpointForServiceRequest,
-                    > for UpdateTokenEndpointForServiceSvc<T> {
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::UpdateTokenEndpointForServiceRequest>
+                        for UpdateTokenEndpointForServiceSvc<T>
+                    {
                         type Response = super::UpdateTokenEndpointForServiceeResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<
-                                super::UpdateTokenEndpointForServiceRequest,
-                            >,
+                            request: tonic::Request<super::UpdateTokenEndpointForServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
@@ -3133,11 +2756,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = UpdateTokenEndpointForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3146,23 +2768,19 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/GetAllTokenForService" => {
                     #[allow(non_camel_case_types)]
                     struct GetAllTokenForServiceSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<super::GetAllTokenForServiceRequest>
-                    for GetAllTokenForServiceSvc<T> {
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::GetAllTokenForServiceRequest>
+                        for GetAllTokenForServiceSvc<T>
+                    {
                         type Response = super::GetAllTokenForServiceResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetAllTokenForServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).get_all_token_for_service(request).await
-                            };
+                            let fut =
+                                async move { (*inner).get_all_token_for_service(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -3173,11 +2791,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = GetAllTokenForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3186,23 +2803,19 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/GetInfoTokenForService" => {
                     #[allow(non_camel_case_types)]
                     struct GetInfoTokenForServiceSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<super::GeInfoTokenForServiceRequest>
-                    for GetInfoTokenForServiceSvc<T> {
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::GeInfoTokenForServiceRequest>
+                        for GetInfoTokenForServiceSvc<T>
+                    {
                         type Response = super::TokenForService;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GeInfoTokenForServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).get_info_token_for_service(request).await
-                            };
+                            let fut =
+                                async move { (*inner).get_info_token_for_service(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -3213,11 +2826,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = GetInfoTokenForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3226,25 +2838,19 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/RegisterTokenForService" => {
                     #[allow(non_camel_case_types)]
                     struct RegisterTokenForServiceSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<super::RegisterTokenForServiceRequest>
-                    for RegisterTokenForServiceSvc<T> {
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::RegisterTokenForServiceRequest>
+                        for RegisterTokenForServiceSvc<T>
+                    {
                         type Response = super::RegisterTokenForServiceResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<
-                                super::RegisterTokenForServiceRequest,
-                            >,
+                            request: tonic::Request<super::RegisterTokenForServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).register_token_for_service(request).await
-                            };
+                            let fut =
+                                async move { (*inner).register_token_for_service(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -3255,11 +2861,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = RegisterTokenForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3268,21 +2873,15 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/UnRegisterTokenForService" => {
                     #[allow(non_camel_case_types)]
                     struct UnRegisterTokenForServiceSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<
-                        super::UnRegisterTokenForServiceRequest,
-                    > for UnRegisterTokenForServiceSvc<T> {
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::UnRegisterTokenForServiceRequest>
+                        for UnRegisterTokenForServiceSvc<T>
+                    {
                         type Response = super::UnRegisterTokenForServiceResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<
-                                super::UnRegisterTokenForServiceRequest,
-                            >,
+                            request: tonic::Request<super::UnRegisterTokenForServiceRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
@@ -3298,11 +2897,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = UnRegisterTokenForServiceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3311,23 +2909,18 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/GetInfoTokenEvents" => {
                     #[allow(non_camel_case_types)]
                     struct GetInfoTokenEventsSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<super::GetInfoTokenEventsRequest>
-                    for GetInfoTokenEventsSvc<T> {
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::GetInfoTokenEventsRequest>
+                        for GetInfoTokenEventsSvc<T>
+                    {
                         type Response = super::GetInfoTokenEventsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::GetInfoTokenEventsRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).get_info_token_events(request).await
-                            };
+                            let fut = async move { (*inner).get_info_token_events(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -3338,11 +2931,10 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = GetInfoTokenEventsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -3351,23 +2943,19 @@ pub mod services_zion_server {
                 "/serviceszion.ServicesZION/ResendNotiTokenEvents" => {
                     #[allow(non_camel_case_types)]
                     struct ResendNotiTokenEventsSvc<T: ServicesZion>(pub Arc<T>);
-                    impl<
-                        T: ServicesZion,
-                    > tonic::server::UnaryService<super::ResendNotiTokenEventsRequest>
-                    for ResendNotiTokenEventsSvc<T> {
+                    impl<T: ServicesZion>
+                        tonic::server::UnaryService<super::ResendNotiTokenEventsRequest>
+                        for ResendNotiTokenEventsSvc<T>
+                    {
                         type Response = super::ResendNotiTokenEventsResponse;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ResendNotiTokenEventsRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move {
-                                (*inner).resend_noti_token_events(request).await
-                            };
+                            let fut =
+                                async move { (*inner).resend_noti_token_events(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -3378,28 +2966,23 @@ pub mod services_zion_server {
                         let inner = inner.0;
                         let method = ResendNotiTokenEventsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            );
+                        let mut grpc = tonic::server::Grpc::new(codec).apply_compression_config(
+                            accept_compression_encodings,
+                            send_compression_encodings,
+                        );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
                 }
-                _ => {
-                    Box::pin(async move {
-                        Ok(
-                            http::Response::builder()
-                                .status(200)
-                                .header("grpc-status", "12")
-                                .header("content-type", "application/grpc")
-                                .body(empty_body())
-                                .unwrap(),
-                        )
-                    })
-                }
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", "12")
+                        .header("content-type", "application/grpc")
+                        .body(empty_body())
+                        .unwrap())
+                }),
             }
         }
     }

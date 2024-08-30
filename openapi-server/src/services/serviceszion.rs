@@ -7,7 +7,7 @@ use {
         serviceszion_service::{services_zion_server::ServicesZion, *},
     },
     reqwest::{Client, Method},
-    std::{collections::HashMap, sync::Arc},
+    std::{collections::HashMap, fmt::Write, sync::Arc},
     tonic::{Request, Response, Status},
     webhook_db::{
         database::Database,
@@ -90,12 +90,13 @@ impl ServicesZion for ServicesZionService {
             .await;
         match response {
             Ok(service) => {
-                let mut response = InfoService::default();
-                response.id = service.id.clone();
-                response.client_id = service.client_id.clone();
-                response.info = service.info.clone();
-                response.created_at = service.created_at.to_string();
-                response.updated_at = service.updated_at.to_string();
+                let response = InfoService {
+                    id: service.id.clone(),
+                    client_id: service.client_id.clone(),
+                    info: service.info.clone(),
+                    created_at: service.created_at.to_string(),
+                    updated_at: service.updated_at.to_string(),
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -118,18 +119,15 @@ impl ServicesZion for ServicesZionService {
             Ok(service) => {
                 let lst_services = service
                     .iter()
-                    .map(|s| {
-                        let mut response = InfoService::default();
-                        response.id = s.id.clone();
-                        response.client_id = s.client_id.clone();
-                        response.info = s.info.clone();
-                        response.created_at = s.created_at.to_string();
-                        response.updated_at = s.updated_at.to_string();
-                        response
+                    .map(|s| InfoService {
+                        id: s.id.clone(),
+                        client_id: s.client_id.clone(),
+                        info: s.info.clone(),
+                        created_at: s.created_at.to_string(),
+                        updated_at: s.updated_at.to_string(),
                     })
                     .collect();
-                let mut response = GetAllServicesResponse::default();
-                response.data = lst_services;
+                let response = GetAllServicesResponse { data: lst_services };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -157,12 +155,13 @@ impl ServicesZion for ServicesZionService {
             .await;
         match response {
             Ok(service) => {
-                let mut response = InfoService::default();
-                response.id = service.id.clone();
-                response.client_id = service.client_id.clone();
-                response.info = service.info.clone();
-                response.created_at = service.created_at.to_string();
-                response.updated_at = service.updated_at.to_string();
+                let response = InfoService {
+                    id: service.id.clone(),
+                    client_id: service.client_id.clone(),
+                    info: service.info.clone(),
+                    created_at: service.created_at.to_string(),
+                    updated_at: service.updated_at.to_string(),
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -189,18 +188,15 @@ impl ServicesZion for ServicesZionService {
             Ok(service) => {
                 let lst_services = service
                     .iter()
-                    .map(|s| {
-                        let mut response = NftEndpointForService::default();
-                        response.id = s.id.clone();
-                        response.client_id = s.client_id.clone();
-                        response.endpoint_url = s.endpoint_url.clone();
-                        response.created_at = s.created_at.to_string();
-                        response.updated_at = s.updated_at.to_string();
-                        response
+                    .map(|s| NftEndpointForService {
+                        id: s.id.clone(),
+                        client_id: s.client_id.clone(),
+                        endpoint_url: s.endpoint_url.clone(),
+                        created_at: s.created_at.to_string(),
+                        updated_at: s.updated_at.to_string(),
                     })
                     .collect();
-                let mut response = GetAllNftEndpointForServiceResponse::default();
-                response.data = lst_services;
+                let response = GetAllNftEndpointForServiceResponse { data: lst_services };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -228,12 +224,13 @@ impl ServicesZion for ServicesZionService {
             .await;
         match response {
             Ok(service) => {
-                let mut response = NftEndpointForService::default();
-                response.id = service.id.clone();
-                response.client_id = service.client_id.clone();
-                response.endpoint_url = service.endpoint_url.clone();
-                response.created_at = service.created_at.to_string();
-                response.updated_at = service.updated_at.to_string();
+                let response = NftEndpointForService {
+                    id: service.id.clone(),
+                    client_id: service.client_id.clone(),
+                    endpoint_url: service.endpoint_url.clone(),
+                    created_at: service.created_at.to_string(),
+                    updated_at: service.updated_at.to_string(),
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -267,12 +264,13 @@ impl ServicesZion for ServicesZionService {
             .await;
         match response {
             Ok(service) => {
-                let mut response = ResgiterNftEndpointForServiceResponse::default();
-                response.id = service.id.clone();
-                response.client_id = service.client_id.clone();
-                response.endpoint_url = service.endpoint_url.clone();
-                response.created_at = service.created_at.to_string();
-                response.updated_at = service.updated_at.to_string();
+                let response = ResgiterNftEndpointForServiceResponse {
+                    id: service.id.clone(),
+                    client_id: service.client_id.clone(),
+                    endpoint_url: service.endpoint_url.clone(),
+                    created_at: service.created_at.to_string(),
+                    updated_at: service.updated_at.to_string(),
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -305,12 +303,13 @@ impl ServicesZion for ServicesZionService {
             .await;
         match response {
             Ok(service) => {
-                let mut response = UnRegisterNftEndpointForServiceResponse::default();
-                response.id = service.id.clone();
-                response.client_id = service.client_id.clone();
-                response.endpoint_url = service.endpoint_url.clone();
-                response.created_at = service.created_at.to_string();
-                response.updated_at = service.updated_at.to_string();
+                let response = UnRegisterNftEndpointForServiceResponse {
+                    id: service.id.clone(),
+                    client_id: service.client_id.clone(),
+                    endpoint_url: service.endpoint_url.clone(),
+                    created_at: service.created_at.to_string(),
+                    updated_at: service.updated_at.to_string(),
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -344,12 +343,13 @@ impl ServicesZion for ServicesZionService {
             .await;
         match response {
             Ok(service) => {
-                let mut response = UpdateNftEndpointForServiceeResponse::default();
-                response.id = service.id.clone();
-                response.client_id = service.client_id.clone();
-                response.endpoint_url = service.endpoint_url.clone();
-                response.created_at = service.created_at.to_string();
-                response.updated_at = service.updated_at.to_string();
+                let response = UpdateNftEndpointForServiceeResponse {
+                    id: service.id.clone(),
+                    client_id: service.client_id.clone(),
+                    endpoint_url: service.endpoint_url.clone(),
+                    created_at: service.created_at.to_string(),
+                    updated_at: service.updated_at.to_string(),
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -376,24 +376,20 @@ impl ServicesZion for ServicesZionService {
             Ok(service) => {
                 let lst_services = service
                     .iter()
-                    .map(|s| {
-                        let mut response = CollectionForService::default();
-                        response.id = s.id.clone();
-                        response.client_id = s.client_id.clone();
-                        response.address = s.address.clone();
-                        response.created_at = s.created_at.to_string();
-                        response.updated_at = s.updated_at.to_string();
-                        response
+                    .map(|s| CollectionForService {
+                        id: s.id.clone(),
+                        client_id: s.client_id.clone(),
+                        address: s.address.clone(),
+                        created_at: s.created_at.to_string(),
+                        updated_at: s.updated_at.to_string(),
                     })
                     .collect();
-                let mut response = GetAllCollectionForServiceResponse::default();
-                response.data = lst_services;
+                let response = GetAllCollectionForServiceResponse { data: lst_services };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
         }
     }
-
     async fn get_info_collection_for_service(
         &self,
         req: Request<GeInfoCollectionForServiceRequest>,
@@ -415,12 +411,13 @@ impl ServicesZion for ServicesZionService {
             .await;
         match response {
             Ok(service) => {
-                let mut response = CollectionForService::default();
-                response.id = service.id.clone();
-                response.client_id = service.client_id.clone();
-                response.address = service.address.clone();
-                response.created_at = service.created_at.to_string();
-                response.updated_at = service.updated_at.to_string();
+                let response = CollectionForService {
+                    id: service.id.clone(),
+                    client_id: service.client_id.clone(),
+                    address: service.address.clone(),
+                    created_at: service.created_at.to_string(),
+                    updated_at: service.updated_at.to_string(),
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -450,19 +447,21 @@ impl ServicesZion for ServicesZionService {
                 req.get_ref().client_id.clone(),
                 req.get_ref().address.clone(),
                 req.get_ref().namespace.clone(),
-                req.get_ref().start_block_number.clone(),
+                req.get_ref().start_block_number,
                 payload.claims.sub.clone(),
             )
             .await;
         match response {
             Ok(service) => {
-                let mut response = RegisterCollectionForServiceResponse::default();
-                response.id = service.id.clone();
-                response.client_id = service.client_id.clone();
-                response.address = service.address.clone();
-                response.namespace = service.namespace.clone();
-                response.created_at = service.created_at.to_string();
-                response.updated_at = service.updated_at.to_string();
+                let response = RegisterCollectionForServiceResponse {
+                    id: service.id.clone(),
+                    client_id: service.client_id.clone(),
+                    address: service.address.clone(),
+                    namespace: service.namespace.clone(),
+                    created_at: service.created_at.to_string(),
+                    updated_at: service.updated_at.to_string(),
+                    ..Default::default()
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -495,12 +494,14 @@ impl ServicesZion for ServicesZionService {
             .await;
         match response {
             Ok(service) => {
-                let mut response = UnRegisterCollectionForServiceResponse::default();
-                response.id = service.id.clone();
-                response.client_id = service.client_id.clone();
-                response.address = service.address.clone();
-                response.created_at = service.created_at.to_string();
-                response.updated_at = service.updated_at.to_string();
+                let response = UnRegisterCollectionForServiceResponse {
+                    id: service.id.clone(),
+                    client_id: service.client_id.clone(),
+                    address: service.address.clone(),
+                    created_at: service.created_at.to_string(),
+                    updated_at: service.updated_at.to_string(),
+                    ..Default::default()
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -518,27 +519,25 @@ impl ServicesZion for ServicesZionService {
                 filter.id.clone(),
                 filter.client_id.clone(),
                 filter.collection.clone(),
-                filter.token_id.clone(),
+                filter.token_id,
             )
             .await;
         match response {
             Ok(events) => {
                 let lst_events = events
                     .iter()
-                    .map(|s| {
-                        let mut response = InfoEventNft::default();
-                        response.id = s.id.clone();
-                        response.client_id = s.client_id.clone();
-                        response.status = s.status.clone();
-                        response.collection = s.collection.clone();
-                        response.token_id = s.token_id.unwrap_or(0);
-                        response.created_at = s.created_at.to_string();
-                        response.updated_at = s.updated_at.to_string();
-                        response
+                    .map(|s| InfoEventNft {
+                        id: s.id.clone(),
+                        client_id: s.client_id.clone(),
+                        status: s.status.clone(),
+                        collection: s.collection.clone(),
+                        token_id: s.token_id.unwrap_or(0),
+                        created_at: s.created_at.to_string(),
+                        updated_at: s.updated_at.to_string(),
+                        ..Default::default()
                     })
                     .collect();
-                let mut response = GetInfoNftEventsResponse::default();
-                response.data = lst_events;
+                let response = GetInfoNftEventsResponse { data: lst_events };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -603,10 +602,14 @@ impl ServicesZion for ServicesZionService {
                 let private_key = load_private_key_from_file(&file_name).unwrap();
                 let signature =
                     get_signature(&data, private_key.clone()).map_err(|e| into_anyhow(e.into()))?;
-                let s: String = signature
-                    .iter()
-                    .map(|byte| format!("{:02x}", byte))
-                    .collect();
+                // let s: String = signature
+                //     .iter()
+                //     .map(|byte| format!("{:02x}", byte))
+                //     .collect();
+                let s: String = signature.iter().fold(String::new(), |mut acc, byte| {
+                    write!(acc, "{:02x}", byte).unwrap();
+                    acc
+                });
                 //
                 let mut headers: HashMap<String, String> = HashMap::new();
                 headers.insert("signature".to_string(), s.to_string());
@@ -658,9 +661,10 @@ impl ServicesZion for ServicesZionService {
                     }
                 }
 
-                let mut response = ResendNotiNftEventsResponse::default();
-                response.id = event.id.clone();
-                response.status = "Send success".to_string();
+                let response = ResendNotiNftEventsResponse {
+                    id: event.id.clone(),
+                    status: "Send success".to_string(),
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(into_anyhow(e.into())),
@@ -687,18 +691,15 @@ impl ServicesZion for ServicesZionService {
             Ok(service) => {
                 let lst_services = service
                     .iter()
-                    .map(|s| {
-                        let mut response = TokenEndpointForService::default();
-                        response.id = s.id.clone();
-                        response.client_id = s.client_id.clone();
-                        response.endpoint_url = s.endpoint_url.clone();
-                        response.created_at = s.created_at.to_string();
-                        response.updated_at = s.updated_at.to_string();
-                        response
+                    .map(|s| TokenEndpointForService {
+                        id: s.id.clone(),
+                        client_id: s.client_id.clone(),
+                        endpoint_url: s.endpoint_url.clone(),
+                        created_at: s.created_at.to_string(),
+                        updated_at: s.updated_at.to_string(),
                     })
                     .collect();
-                let mut response = GetAllTokenEndpointForServiceResponse::default();
-                response.data = lst_services;
+                let response = GetAllTokenEndpointForServiceResponse { data: lst_services };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -726,12 +727,13 @@ impl ServicesZion for ServicesZionService {
             .await;
         match response {
             Ok(service) => {
-                let mut response = TokenEndpointForService::default();
-                response.id = service.id.clone();
-                response.client_id = service.client_id.clone();
-                response.endpoint_url = service.endpoint_url.clone();
-                response.created_at = service.created_at.to_string();
-                response.updated_at = service.updated_at.to_string();
+                let response = TokenEndpointForService {
+                    id: service.id.clone(),
+                    client_id: service.client_id.clone(),
+                    endpoint_url: service.endpoint_url.clone(),
+                    created_at: service.created_at.to_string(),
+                    updated_at: service.updated_at.to_string(),
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -765,12 +767,13 @@ impl ServicesZion for ServicesZionService {
             .await;
         match response {
             Ok(service) => {
-                let mut response = ResgiterTokenEndpointForServiceResponse::default();
-                response.id = service.id.clone();
-                response.client_id = service.client_id.clone();
-                response.endpoint_url = service.endpoint_url.clone();
-                response.created_at = service.created_at.to_string();
-                response.updated_at = service.updated_at.to_string();
+                let response = ResgiterTokenEndpointForServiceResponse {
+                    id: service.id.clone(),
+                    client_id: service.client_id.clone(),
+                    endpoint_url: service.endpoint_url.clone(),
+                    created_at: service.created_at.to_string(),
+                    updated_at: service.updated_at.to_string(),
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -803,12 +806,13 @@ impl ServicesZion for ServicesZionService {
             .await;
         match response {
             Ok(service) => {
-                let mut response = UnRegisterTokenEndpointForServiceResponse::default();
-                response.id = service.id.clone();
-                response.client_id = service.client_id.clone();
-                response.endpoint_url = service.endpoint_url.clone();
-                response.created_at = service.created_at.to_string();
-                response.updated_at = service.updated_at.to_string();
+                let response = UnRegisterTokenEndpointForServiceResponse {
+                    id: service.id.clone(),
+                    client_id: service.client_id.clone(),
+                    endpoint_url: service.endpoint_url.clone(),
+                    created_at: service.created_at.to_string(),
+                    updated_at: service.updated_at.to_string(),
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -842,12 +846,13 @@ impl ServicesZion for ServicesZionService {
             .await;
         match response {
             Ok(service) => {
-                let mut response = UpdateTokenEndpointForServiceeResponse::default();
-                response.id = service.id.clone();
-                response.client_id = service.client_id.clone();
-                response.endpoint_url = service.endpoint_url.clone();
-                response.created_at = service.created_at.to_string();
-                response.updated_at = service.updated_at.to_string();
+                let response = UpdateTokenEndpointForServiceeResponse {
+                    id: service.id.clone(),
+                    client_id: service.client_id.clone(),
+                    endpoint_url: service.endpoint_url.clone(),
+                    created_at: service.created_at.to_string(),
+                    updated_at: service.updated_at.to_string(),
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -874,18 +879,16 @@ impl ServicesZion for ServicesZionService {
             Ok(service) => {
                 let lst_services = service
                     .iter()
-                    .map(|s| {
-                        let mut response = TokenForService::default();
-                        response.id = s.id.clone();
-                        response.client_id = s.client_id.clone();
-                        response.address = s.address.clone();
-                        response.created_at = s.created_at.to_string();
-                        response.updated_at = s.updated_at.to_string();
-                        response
+                    .map(|s| TokenForService {
+                        id: s.id.clone(),
+                        client_id: s.client_id.clone(),
+                        address: s.address.clone(),
+                        created_at: s.created_at.to_string(),
+                        updated_at: s.updated_at.to_string(),
+                        ..Default::default()
                     })
                     .collect();
-                let mut response = GetAllTokenForServiceResponse::default();
-                response.data = lst_services;
+                let response = GetAllTokenForServiceResponse { data: lst_services };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -913,12 +916,14 @@ impl ServicesZion for ServicesZionService {
             .await;
         match response {
             Ok(service) => {
-                let mut response = TokenForService::default();
-                response.id = service.id.clone();
-                response.client_id = service.client_id.clone();
-                response.address = service.address.clone();
-                response.created_at = service.created_at.to_string();
-                response.updated_at = service.updated_at.to_string();
+                let response = TokenForService {
+                    id: service.id.clone(),
+                    client_id: service.client_id.clone(),
+                    address: service.address.clone(),
+                    created_at: service.created_at.to_string(),
+                    updated_at: service.updated_at.to_string(),
+                    ..Default::default()
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -949,20 +954,22 @@ impl ServicesZion for ServicesZionService {
                 req.get_ref().address.clone(),
                 req.get_ref().to_transfer.clone(),
                 req.get_ref().namespace.clone(),
-                req.get_ref().start_block_number.clone(),
+                req.get_ref().start_block_number,
                 payload.claims.sub.clone(),
             )
             .await;
         match response {
             Ok(service) => {
-                let mut response = RegisterTokenForServiceResponse::default();
-                response.id = service.id.clone();
-                response.client_id = service.client_id.clone();
-                response.address = service.address.clone();
-                response.to_transfer = service.to_transfer.clone();
-                response.namespace = service.namespace.clone();
-                response.created_at = service.created_at.to_string();
-                response.updated_at = service.updated_at.to_string();
+                let response = RegisterTokenForServiceResponse {
+                    id: service.id.clone(),
+                    client_id: service.client_id.clone(),
+                    address: service.address.clone(),
+                    to_transfer: service.to_transfer.clone(),
+                    namespace: service.namespace.clone(),
+                    created_at: service.created_at.to_string(),
+                    updated_at: service.updated_at.to_string(),
+                    ..Default::default()
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -992,13 +999,15 @@ impl ServicesZion for ServicesZionService {
             .await;
         match response {
             Ok(service) => {
-                let mut response = UnRegisterTokenForServiceResponse::default();
-                response.id = service.id.clone();
-                response.client_id = service.client_id.clone();
-                response.address = service.address.clone();
-                response.to_transfer = service.to_transfer.clone();
-                response.created_at = service.created_at.to_string();
-                response.updated_at = service.updated_at.to_string();
+                let response = UnRegisterTokenForServiceResponse {
+                    id: service.id.clone(),
+                    client_id: service.client_id.clone(),
+                    address: service.address.clone(),
+                    to_transfer: service.to_transfer.clone(),
+                    created_at: service.created_at.to_string(),
+                    updated_at: service.updated_at.to_string(),
+                    ..Default::default()
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -1022,20 +1031,18 @@ impl ServicesZion for ServicesZionService {
             Ok(events) => {
                 let lst_events = events
                     .iter()
-                    .map(|s| {
-                        let mut response = InfoEventToken::default();
-                        response.id = s.id.clone();
-                        response.client_id = s.client_id.clone();
-                        response.status = s.status.clone();
-                        response.token_address = s.token_address.clone();
-                        response.amount = s.amount.clone();
-                        response.created_at = s.created_at.to_string();
-                        response.updated_at = s.updated_at.to_string();
-                        response
+                    .map(|s| InfoEventToken {
+                        id: s.id.clone(),
+                        client_id: s.client_id.clone(),
+                        status: s.status.clone(),
+                        token_address: s.token_address.clone(),
+                        amount: s.amount,
+                        created_at: s.created_at.to_string(),
+                        updated_at: s.updated_at.to_string(),
+                        ..Default::default()
                     })
                     .collect();
-                let mut response = GetInfoTokenEventsResponse::default();
-                response.data = lst_events;
+                let response = GetInfoTokenEventsResponse { data: lst_events };
                 Ok(Response::new(response))
             }
             Err(e) => Err(Status::new(tonic::Code::Unknown, e.msg)),
@@ -1103,10 +1110,15 @@ impl ServicesZion for ServicesZionService {
                 let private_key = load_private_key_from_file(&file_name).unwrap();
                 let signature =
                     get_signature(&data, private_key.clone()).map_err(|e| into_anyhow(e.into()))?;
-                let s: String = signature
-                    .iter()
-                    .map(|byte| format!("{:02x}", byte))
-                    .collect();
+                // let s: String = signature
+                //     .iter()
+                //     .map(|byte| format!("{:02x}", byte))
+                //     .collect();
+                let s: String = signature.iter().fold(String::new(), |mut acc, byte| {
+                    write!(acc, "{:02x}", byte).unwrap();
+                    acc
+                });
+
                 //
                 let mut headers: HashMap<String, String> = HashMap::new();
                 headers.insert("signature".to_string(), s.to_string());
@@ -1158,9 +1170,10 @@ impl ServicesZion for ServicesZionService {
                     }
                 }
 
-                let mut response = ResendNotiTokenEventsResponse::default();
-                response.id = event.id.clone();
-                response.status = "Send success".to_string();
+                let response = ResendNotiTokenEventsResponse {
+                    id: event.id.clone(),
+                    status: "Send success".to_string(),
+                };
                 Ok(Response::new(response))
             }
             Err(e) => Err(into_anyhow(e.into())),

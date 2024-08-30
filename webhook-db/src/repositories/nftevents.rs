@@ -40,8 +40,8 @@ impl NftEvents {
         let mut conn = self.db.get_connection().await;
 
         let ret = events_erc721::table
-            .filter(events_erc721::id.eq(id.unwrap_or_else(|| "".to_string())))
-            .or_filter(events_erc721::txhash.eq(tx.unwrap_or_else(|| "".to_string())))
+            .filter(events_erc721::id.eq(id.unwrap_or_default()))
+            .or_filter(events_erc721::txhash.eq(tx.unwrap_or_default()))
             .select(EventErc721::as_select())
             .first(&mut conn)
             .await?;
@@ -120,7 +120,7 @@ impl NftEvents {
             .get(Some("".to_string()), Some(txhash.clone()))
             .await
             .unwrap_or(EventErc721::default());
-        if event.payload != "".to_string() && event.txhash != "".to_string() {
+        if !event.payload.is_empty() && !event.txhash.is_empty() {
             return Err(ServiceError {
                 msg: "Event exists".into(),
                 status: tonic::Code::Unknown as i32,
@@ -129,12 +129,12 @@ impl NftEvents {
         let uuid = Uuid::new_v4();
         let new_event = EventErc721 {
             id: uuid.to_string(),
-            payload: payload,
-            txhash: txhash,
-            collection: collection,
-            method: method,
+            payload,
+            txhash,
+            collection,
+            method,
             token_id: Some(token_id),
-            client_id: client_id,
+            client_id,
             status: StatusEvent::Init.as_str().to_string(),
             created_at: Local::now().naive_utc(),
             updated_at: Local::now().naive_utc(),
@@ -159,7 +159,7 @@ impl NftEvents {
             .get(Some(id.to_string()), Some("".to_string()))
             .await
             .unwrap_or(EventErc721::default());
-        if event.id == "".to_string() {
+        if event.id.is_empty() {
             return Err(ServiceError {
                 msg: "Event not exists".into(),
                 status: tonic::Code::Unknown as i32,

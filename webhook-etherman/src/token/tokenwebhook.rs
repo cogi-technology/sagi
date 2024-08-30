@@ -9,7 +9,7 @@ use {
     openapi_logger::warn,
     openapi_proto::authtelegram_service::*,
     reqwest::{Client as ClientReqwest, Method},
-    std::{collections::HashMap, sync::Arc},
+    std::{collections::HashMap, fmt::Write, sync::Arc},
     webhook_db::{
         database::Database,
         models::StatusEvent,
@@ -90,10 +90,15 @@ impl TokenWebhook {
                     // create signature
                     let data: String = format!("{}{}", e.id.clone(), s.client_id.clone());
                     let signature = get_signature(&data, private_key.clone())?;
-                    let s: String = signature
-                        .iter()
-                        .map(|byte| format!("{:02x}", byte))
-                        .collect();
+                    // let s: String = signature
+                    //     .iter()
+                    //     .map(|byte| format!("{:02x}", byte))
+                    //     .collect();
+                    let s: String = signature.iter().fold(String::new(), |mut acc, byte| {
+                        write!(acc, "{:02x}", byte).unwrap();
+                        acc
+                    });
+
                     //
                     let mut headers: HashMap<String, String> = HashMap::new();
                     headers.insert("signature".to_string(), s.to_string());
@@ -148,7 +153,7 @@ impl TokenWebhook {
                                             warn!("{}", err.msg);
                                         }
                                     }
-                                    token_address_rej = e.token_address.clone();
+                                    token_address_rej.clone_from(&e.token_address);
                                 }
                             }
                         }
@@ -163,7 +168,7 @@ impl TokenWebhook {
                                     warn!("{}", err.msg);
                                 }
                             }
-                            token_address_rej = e.token_address.clone();
+                            token_address_rej.clone_from(&e.token_address)
                         }
                     }
                 }

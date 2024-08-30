@@ -57,8 +57,8 @@ impl ServicesToken {
 
         let ret = service_token::table
             .filter(service_token::created_by.eq(created_by))
-            .filter(service_token::id.eq(id.unwrap_or_else(|| "".to_string())))
-            .or_filter(service_token::client_id.eq(client_id.unwrap_or_else(|| "".to_string())))
+            .filter(service_token::id.eq(id.unwrap_or_default()))
+            .or_filter(service_token::client_id.eq(client_id.unwrap_or_default()))
             .select(ServiceToken::as_select())
             .first(&mut conn)
             .await?;
@@ -76,8 +76,8 @@ impl ServicesToken {
 
         let ret = services::table
             .filter(services::created_by.eq(created_by))
-            .filter(services::id.eq(id.unwrap_or_else(|| "".to_string())))
-            .or_filter(services::client_id.eq(client_id.unwrap_or_else(|| "".to_string())))
+            .filter(services::id.eq(id.unwrap_or_default()))
+            .or_filter(services::client_id.eq(client_id.unwrap_or_default()))
             .select(Service::as_select())
             .first(&mut conn)
             .await?;
@@ -93,8 +93,8 @@ impl ServicesToken {
         let mut conn = self.db.get_connection().await;
 
         let ret = service_token::table
-            .filter(service_token::client_id.eq(client_id.unwrap_or_else(|| "".to_string())))
-            .or_filter(service_token::id.eq(id.unwrap_or_else(|| "".to_string())))
+            .filter(service_token::client_id.eq(client_id.unwrap_or_default()))
+            .or_filter(service_token::id.eq(id.unwrap_or_default()))
             .select(ServiceToken::as_select())
             .first(&mut conn)
             .await?;
@@ -120,7 +120,7 @@ impl ServicesToken {
             .await
             .unwrap_or(Service::default());
 
-        if service.client_id == "".to_string() || service.id == "".to_string() {
+        if service.client_id.is_empty() || service.id.is_empty() {
             return Err(ServiceError {
                 msg: "Service not available".into(),
                 status: tonic::Code::Unknown as i32,
@@ -135,8 +135,7 @@ impl ServicesToken {
             )
             .await
             .unwrap_or(ServiceToken::default());
-        if service_token.client_id != "".to_string() && service_token.address == address.to_string()
-        {
+        if !service_token.client_id.is_empty() && service_token.address == address {
             return Err(ServiceError {
                 msg: "Collection for service existence".into(),
                 status: tonic::Code::Unknown as i32,
@@ -145,12 +144,12 @@ impl ServicesToken {
         let uuid = Uuid::new_v4();
         let new_service = ServiceToken {
             id: uuid.to_string(),
-            client_id: client_id,
-            address: address,
-            to_transfer: to_transfer,
+            client_id,
+            address,
+            to_transfer,
             namespace: namespace.to_string(),
-            start_block_number: start_block_number,
-            created_by: created_by,
+            start_block_number,
+            created_by,
             created_at: Local::now().naive_utc(),
             updated_at: Local::now().naive_utc(),
         };
@@ -179,7 +178,7 @@ impl ServicesToken {
             .await
             .unwrap_or(Service::default());
 
-        if service.client_id == "".to_string() || service.id == "".to_string() {
+        if service.client_id.is_empty() || service.id.is_empty() {
             return Err(ServiceError {
                 msg: "Service not available".into(),
                 status: tonic::Code::Unknown as i32,
@@ -194,7 +193,7 @@ impl ServicesToken {
             )
             .await
             .unwrap_or(ServiceToken::default());
-        if service_token.client_id == "".to_string() || service_token.address == "".to_string() {
+        if service_token.client_id.is_empty() || service_token.address.is_empty() {
             return Err(ServiceError {
                 msg: "Endpoint for Service not available".into(),
                 status: tonic::Code::Unknown as i32,
@@ -219,7 +218,7 @@ impl ServicesToken {
             .check_exist_service_token(Some(id.to_string()), Some("".to_string()))
             .await
             .unwrap_or(ServiceToken::default());
-        if service.client_id == "".to_string() || service.address == "".to_string() {
+        if service.client_id.is_empty() || service.address.is_empty() {
             return Err(ServiceError {
                 msg: "Endpoint for Service not available".into(),
                 status: tonic::Code::Unknown as i32,

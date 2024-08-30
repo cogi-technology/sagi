@@ -9,14 +9,11 @@ use {
     },
     anyhow::{anyhow, Result},
     ethers::{
-        middleware::SignerMiddleware,
-        providers::Provider,
-        signers::{LocalWallet, Signer},
         types::{Address, Filter, Log, H160, H256, U256},
         utils::keccak256,
     },
     ethers_contract::EthEvent,
-    ethers_providers::{Http, Middleware, ProviderExt},
+    ethers_providers::Middleware,
     futures::{stream::FuturesUnordered, FutureExt, StreamExt},
     kogi_erc20::TransferFilter,
     openapi_logger::{debug, info, tracing, warn},
@@ -26,9 +23,8 @@ use {
         models::ServiceToken,
         repositories::{services_token::ServicesToken, tokenevents::TokenEvents},
     },
+    zion_aa::contract_wallet::client::{Client, ClientMethods},
 };
-
-type Client = SignerMiddleware<Arc<Provider<Http>>, LocalWallet>;
 
 pub struct EthermanToken {
     state: Arc<EthermanState>,
@@ -53,33 +49,20 @@ impl EthermanToken {
 
 impl EthermanToken {
     pub async fn init_with_default() -> Result<Self> {
-        Self::init(
-            Arc::new(Default::default()),
-            "test".into(),
-            Default::default(),
-        )
-        .await
+        Self::init(Arc::new(Default::default()), Default::default()).await
     }
 
-    pub async fn init(db: Arc<Database>, key_password: String, c: Config) -> Result<Self> {
-        let provider = Arc::new(Provider::<Http>::connect(c.ethereum_rpc.as_str()).await);
-
-        let state = Arc::new(EthermanState::init(Arc::clone(&db), c.clone()).await?);
+    pub async fn init(db: Arc<Database>, c: Config) -> Result<Self> {
+        let state = Arc::new(EthermanState::init(Arc::clone(&db)).await?);
         let event_db = Arc::new(TokenEvents::new(Arc::clone(&db)));
         let service_token_db = Arc::new(ServicesToken::new(Arc::clone(&db)));
-        let operator = LocalWallet::decrypt_keystore(c.operator_keystore, key_password)
-            .map_err(|x| anyhow!("decrypt_keystore failed err:{}", x))?;
-
-        let client = Arc::new(SignerMiddleware::new(
-            Arc::clone(&provider),
-            operator.with_chain_id(c.chain_id),
-        ));
+        let client = Client::random_wallet(c.ethereum_rpc.as_str(), c.chain_id).await?;
 
         Ok(Self {
             state,
             event_db,
             service_token_db,
-            client,
+            client: Arc::new(client),
         })
     }
 
@@ -139,18 +122,22 @@ impl EthermanToken {
             return Ok(false);
         }
         // param
-        let mut param = ParamPayloadTokenCallback::default();
-        param.owner = from.clone();
-        param.txhash = txhash.clone();
-        param.address = erc20_contract.address();
-        param.amount = value.clone();
-        param.to = to.clone();
-        param.from = from.clone();
+        let param = ParamPayloadTokenCallback {
+            owner: from,
+            txhash: txhash.clone(),
+            address: erc20_contract.address(),
+            amount: value,
+            to,
+            from,
+        };
+
         // payload
-        let mut payload_call_back = PayloadTokenCallback::default();
-        payload_call_back.status = StatusEventCallback::Transfer.as_str();
-        payload_call_back.namespace = service_token.namespace.clone();
-        payload_call_back.param = param;
+        let payload_call_back = PayloadTokenCallback {
+            status: StatusEventCallback::Transfer.as_str(),
+            namespace: service_token.namespace.clone(),
+            param,
+        };
+
         //
         self.event_db
             .add(
@@ -192,7 +179,11 @@ impl EthermanToken {
                 processing_block_number = Some(log.block_number.unwrap().as_u64());
 
                 if self
-                    .on_transfer(service_token.clone(), erc20_contract.clone(), log.clone())
+                    .on_transfer(
+                        service_token.clone(),
+                        Arc::clone(&erc20_contract),
+                        log.clone(),
+                    )
                     .await?
                 {
                     apply += 1;

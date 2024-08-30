@@ -13,3 +13,20 @@ services:
       - ./lib/esim.db:/var/lib/postgresql/data
     ports:
       - "15432:5432"
+
+  sagi:
+    container_name: sagi
+    image: sagi:v0.1.0
+    depends_on:
+      db:
+        condition: service_started
+    restart: on-failure
+    ports:
+      - "50051:50051"
+      - "50052:50052"
+    volumes:
+      - ./:/opt/app
+    command:
+      - "/bin/sh"
+      - "-c"
+      - "/opt/app/start.sh"
