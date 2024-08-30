@@ -32,7 +32,7 @@ RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y ca-certificates
 RUN apt-get install -y protobuf-compiler libprotobuf-dev libpq-dev
 
-RUN cargo build --release --bin openapi-server
+RUN cargo build --release
 
 # Production stage
 FROM debian:bookworm

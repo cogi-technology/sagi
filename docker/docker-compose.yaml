@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   db:
-    container_name: sagi-openapi-db
+    container_name: sagi-db
     image: postgres:latest
     restart: on-failure
     environment:
@@ -13,10 +13,17 @@ services:
       - ./lib/esim.db:/var/lib/postgresql/data
     ports:
       - "15432:5432"
-
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3" # Limit the container to use at most 30% of a CPU core
+          memory: "512M" # Limit the container to use at most 512 MB of RAM
+        reservations:
+          cpus: "0.1" # Reserve 10% of a CPU core for this container
+          memory: "256M" # Reserve 256 MB of RAM for this container
   sagi:
     container_name: sagi
-    image: sagi:v0.1.0
+    image: sagi:latest
     depends_on:
       db:
         condition: service_started
@@ -26,6 +33,8 @@ services:
       - "50052:50052"
     volumes:
       - ./:/opt/app
+    environment:
+      LOG_LEVEL: "debug" # Add this line to enable detailed logging
     command:
       - "/bin/sh"
       - "-c"

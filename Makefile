@@ -22,10 +22,16 @@ check:
 	${CARGO} check ${VERBOSE} --all
 
 build-sagi-image:
-	docker build . -t sagi:latest -f ./docker/Dockerfile --memory="16g"
+	docker build . -t sagi:latest -f ./docker/Dockerfile
 
 run-sagi-dev:
 	RUST_BACKTRACE=full RUST_LOG=info,hyper=info,openapi=trace${RUST_LOG} ${CARGO} run --bin openapi-server
+
+up-sagi-docker:
+	cd ./docker && docker compose up -d
+
+down-sagi-docker:
+	cd ./docker && docker compose down && sudo rm -rf lib
 
 check-fmt:
 	cargo +nightly fmt ${VERBOSE} --all -- --check
